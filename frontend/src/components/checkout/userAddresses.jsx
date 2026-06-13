@@ -32,16 +32,16 @@ const UserAddresses = ({ setShowAddressForm }) => {
 
     return (
         <div >
-            <p className='text-lg font-semibold text-red-700'>1 &nbsp; Select a delivery address</p>
+            <p className='text-lg font-semibold text-white'>1 &nbsp; Select a delivery address</p>
             <div className='w-full flex justify-end'>
-                <div className='w-[96%] border-[1px] border-gray-400 rounded-lg mt-1 px-4 py-2'>
-                    <div className='flex flex-row justify-between border-b border-gray-400'>
-                        <p className='text-lg font-semibold '>Your addresses</p>
-                        <button onClick={() => { setShowAddressForm(true) }} className='text-lg font-semibold text-blue-500 hover:text-red-700 hover:underline'>Add new address</button>
+                <div className='w-[96%] bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-2'>
+                    <div className='flex flex-row justify-between border-b border-white/10'>
+                        <p className='text-lg font-semibold text-white'>Your addresses</p>
+                        <button onClick={() => { setShowAddressForm(true) }} className='text-lg font-semibold text-lime-400 hover:text-lime-300 hover:underline'>Add new address</button>
                     </div>
                     {
                         userAddress.map((address, index) => (
-                            <label key={index} className="flex items-start my-5 mx-3">
+                            <label key={index} className="flex items-start my-5 mx-3 text-gray-300">
                                 <input
                                     type="radio"
                                     name="selectedAddress"
@@ -49,7 +49,7 @@ const UserAddresses = ({ setShowAddressForm }) => {
                                     onChange={() => handleAddressSelect(index)}
                                 />
                                 <span className="text-sm capitalize -mt-1 ml-2">
-                                    <span className='font-semibold'>{address.name}</span>
+                                    <span className='font-semibold text-white'>{address.name}</span>
                                     <span> {address.address}</span>
                                     <span>, {address.area}</span>
                                     <span>, {address.landmark}</span>
@@ -58,7 +58,7 @@ const UserAddresses = ({ setShowAddressForm }) => {
                                     <span>, State : {address.state}</span>
                                     <span>, Country : {address.country}</span>
                                     <span>, Mobile Number : {address.mobile} &nbsp;</span>
-                                    <button onClick={() => deleteAddressFromFirebase(index)} className='text-blue-500 hover:text-red-700 hover:underline'>Delete this address</button>
+                                    <button onClick={() => deleteAddressFromFirebase(index)} className='text-lime-400 hover:text-lime-300 hover:underline'>Delete this address</button>
                                 </span>
                             </label>
                         ))}

@@ -9,12 +9,12 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
             <div className='ml-[8%] mdl:ml-[15%]'>
                 {
                     ordersData.map((order, index) => (
-                        <motion.div initial={{ y: 1000, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} key={index} className='w-[90%] mdl:w-[80%] border h-[50%] rounded-md my-5 flex flex-col'>
-                            <div className='w-full flex flex-row flex-wrap gap-4 mdl:gap-5 mdl:justify-between py-3 bg-gray-100 border-b-[1px]'>
+                        <motion.div initial={{ y: 1000, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} key={index} className='w-[90%] mdl:w-[80%] bg-[#151c2b] ring-1 ring-white/5 border border-white/10 h-[50%] rounded-md my-5 flex flex-col'>
+                            <div className='w-full flex flex-row flex-wrap gap-4 mdl:gap-5 mdl:justify-between py-3 bg-[#0e1420] border-b-[1px] border-white/10'>
                                 <div className='flex flex-wrap h-9 gap-5 px-5'>
-                                    <div className='w-auto text-xs'>
+                                    <div className='w-auto text-xs text-gray-400'>
                                         <p>ORDER PLACED</p>
-                                        <p className='font-semibold'>
+                                        <p className='font-semibold text-white'>
                                             {new Date(order.date).toLocaleDateString('en-US', {
                                                 year: 'numeric',
                                                 month: 'long',
@@ -23,23 +23,23 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                             })}
                                         </p>
                                     </div>
-                                    <div className='w-auto text-xs h-auto'>
+                                    <div className='w-auto text-xs h-auto text-gray-400'>
                                         <p>TOTAL</p>
-                                        <p className='font-semibold'>
-                                            ₹{order.price}
+                                        <p className='font-semibold text-white'>
+                                            ${order.price}
                                         </p>
 
                                     </div>
-                                    <div className='w-auto text-xs h-auto'>
+                                    <div className='w-auto text-xs h-auto text-gray-400'>
                                         <p>SHIP TO</p>
-                                        <p className='font-semibold text-blue-400'>
+                                        <p className='font-semibold text-lime-400'>
                                             {order.address.name}
                                         </p>
                                     </div>
                                 </div>
                                 <div className='px-5'>
-                                    <div className='w-full text-xs'>
-                                        <p>ORDER ID : <span className='font-semibold text-blue-600'>{order.uniqueNumber}</span></p>
+                                    <div className='w-full text-xs text-gray-400'>
+                                        <p>ORDER ID : <span className='font-semibold text-lime-400'>{order.uniqueNumber}</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -54,11 +54,11 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                             <div className='flex flex-col gap-5'>
                                                 <div>
                                                     <Link to={`/${order.category}/${order.title}`}>
-                                                        <p className='text-lg font-semibold'>{order.title}</p>
+                                                        <p className='text-lg font-semibold text-white'>{order.title}</p>
                                                     </Link>
                                                 </div>
-                                                <div className=" capitalize -mt-1 text-sm mdl:text-base">
-                                                    <span className='font-medium'>{order.address.name}</span>
+                                                <div className=" capitalize -mt-1 text-sm mdl:text-base text-gray-400">
+                                                    <span className='font-medium text-white'>{order.address.name}</span>
                                                     <span> {order.address.address}</span>
                                                     <span>, {order.address.area}</span>
                                                     <span>, {order.address.landmark}</span>
@@ -66,20 +66,20 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                                     <span>, {order.address.pincode}</span>
                                                     <span>, State : {order.address.state}</span>
                                                     <span>, Country : {order.address.country}</span>
-                                                    <span className='font-medium'>, Mobile Number : {order.address.mobile} &nbsp;</span>
+                                                    <span className='font-medium text-white'>, Mobile Number : {order.address.mobile} &nbsp;</span>
                                                 </div>
-                                                <div className='flex items-center font-semibold '>
+                                                <div className='flex items-center font-semibold text-gray-300'>
                                                     Qty : {order.quantity}
                                                 </div>
-                                                <div className='flex items-center font-medium'>
-                                                    Payment Method : <span className='capitalize font-semibold text-blue-600'>&nbsp;{order.paymentMethod}</span>
+                                                <div className='flex items-center font-medium text-gray-300'>
+                                                    Payment Method : <span className='capitalize font-semibold text-lime-400'>&nbsp;{order.paymentMethod}</span>
                                                 </div>
                                             </div>
                                             {
                                                 ordersData === reversedOrders &&
                                                 <div className='flex'>
-                                                    <button onClick={() => { handleCancelOrder(order) }} className='pr-3 border-r-2 text-blue-600 '>Cancel</button>
-                                                    <button onClick={() => { handleReturnOrder(order) }} className='px-3 text-blue-600'>Return</button>
+                                                    <button onClick={() => { handleCancelOrder(order) }} className='pr-3 border-r-2 border-white/10 text-lime-400 hover:text-lime-300 '>Cancel</button>
+                                                    <button onClick={() => { handleReturnOrder(order) }} className='px-3 text-lime-400 hover:text-lime-300'>Return</button>
                                                 </div>
                                             }
                                         </div>
@@ -91,7 +91,7 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
             </div>
 
             : <div>
-                <div className='flex items-center mx-[10%] mdl:mx-[30%]'>
+                <div className='flex items-center mx-[10%] mdl:mx-[30%] text-gray-400'>
                     Looks like you haven't placed an order yet.
                 </div>
                 <div>

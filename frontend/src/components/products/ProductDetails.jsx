@@ -118,11 +118,11 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className='py-5 flex bg-white justify-between'>
+    <div className='py-5 flex bg-[#0b1120] justify-between'>
       <ScrollRestoration />
       <div className='w-[5%] ml-1'>
         {product.images.map((item, index) => (
-          <div key={index} className='border-[1px] border-black rounded-lg mb-5'
+          <div key={index} className='border-[1px] border-white/10 rounded-lg mb-5'
             onClick={() => handleImageClick(index)}>
             <img src={item} alt="allImages" className='rounded-lg' />
           </div>
@@ -132,9 +132,9 @@ const ProductDetails = () => {
       <div className='w-[38%]  '><img src={product.images[currentImageIndex]} className='w-full h-[85%]' alt="productImage" /></div>
 
       <div className='w-[35%] ' >
-        <h1 className='text-[26px] font-bold'>{product.title}</h1>
-        <p className='text-blue-500 capitalize '>Brand : {product.brand}</p>
-        <div className='flex border-b-[1px] border-gray-200 pb-1'>
+        <h1 className='text-[26px] font-bold text-white'>{product.title}</h1>
+        <p className='text-gray-400 capitalize '>Brand : {product.brand}</p>
+        <div className='flex border-b-[1px] border-white/10 pb-1 text-gray-400'>
           <span>{product.rating}&nbsp;</span>
           <span className='flex items-center '>
             {[1, 2, 3, 4, 5].map((starIndex) => (
@@ -146,75 +146,75 @@ const ProductDetails = () => {
               />
             ))}
           </span>
-          <span className='text-blue-500 ml-10'>{product.stock} ratings</span>
+          <span className='text-gray-400 ml-10'>{product.stock} ratings</span>
         </div>
-        <div className='border-b-[1px] border-gray-200 pb-2'>
-          <div className='flex items-center mt-1'>
-            <p className='font-medium mb-1'>&nbsp;₹&nbsp;</p>
+        <div className='border-b-[1px] border-white/10 pb-2'>
+          <div className='flex items-center mt-1 text-lime-400'>
+            <p className='font-medium mb-1'>&nbsp;$&nbsp;</p>
             <span className='text-[26px] font-medium'>{product.price}</span>
-            <span>&nbsp;({product.discountPercentage}% Off)</span>
+            <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
           </div>
-          <p>No Cost EMI available</p>
+          <p className='text-gray-400'>No Cost EMI available</p>
         </div>
-        <div className='border-b-[1px] border-border-gray-200 pb-4'>
+        <div className='border-b-[1px] border-white/10 pb-4'>
           <div className='flex pt-3 pb-2'>
             <img className="w-7 h-7" src={offers} alt="offers" />
-            <span className='ml-5 font-semibold text-lg' >Offers</span>
+            <span className='ml-5 font-semibold text-lg text-white' >Offers</span>
           </div>
           <div className='flex justify-between'>
-            <div className='w-[30%] border-2 border-gray-200 rounded-lg p-2'>
-              <p className='font-bold '>No Cost EMI</p>
+            <div className='w-[30%] border-2 border-white/10 rounded-lg p-2 text-gray-400'>
+              <p className='font-bold text-white'>No Cost EMI</p>
               <p>EMI interest savings on Amazon Pay ICICI…</p>
             </div>
-            <div className='w-[30%] border-2 border-gray-200 rounded-lg p-2'>
-              <p className='font-bold '>Bank Offers</p>
-              <p>Upto ₹1,750.00 discount on select Credit Cards, HDFC…</p>
+            <div className='w-[30%] border-2 border-white/10 rounded-lg p-2 text-gray-400'>
+              <p className='font-bold text-white'>Bank Offers</p>
+              <p>Upto $1,750.00 discount on select Credit Cards, HDFC…</p>
             </div>
-            <div className='w-[30%] border-2 border-gray-200 rounded-lg p-2'>
-              <p className='font-bold '>Partner Offers</p>
+            <div className='w-[30%] border-2 border-white/10 rounded-lg p-2 text-gray-400'>
+              <p className='font-bold text-white'>Partner Offers</p>
               <p>Get GST invoice and save up to 28% on business purchases.</p>
             </div>
           </div>
         </div>
-        <div className='w-full flex items-center justify-around border-b-[1px] border-border-gray-200  pt-4 pb-2'>
+        <div className='w-full flex items-center justify-around border-b-[1px] border-white/10  pt-4 pb-2'>
           <div className='w-[18%] flex flex-col gap-2 items-center'>
             <img src={delivery} alt="delivery" className='w-9 h-9' />
-            <p className='text-blue-500 text-xs'>Free Delivery</p>
+            <p className='text-gray-400 text-xs'>Free Delivery</p>
           </div>
           <div className='w-[18%] flex flex-col gap-2 items-center'>
             <img src={cod} alt="cod" className='w-9 h-9' />
-            <p className='text-blue-500 text-xs'>Pay on Delivery</p>
+            <p className='text-gray-400 text-xs'>Pay on Delivery</p>
           </div>
           <div className='w-[18%] flex flex-col gap-2 items-center'>
             <img src={exchange} alt="exchange" className='w-9 h-9' />
-            <p className='text-blue-500 text-xs text-center'>7 days Replacement</p>
+            <p className='text-gray-400 text-xs text-center'>7 days Replacement</p>
           </div>
           <div className='w-[18%] flex flex-col gap-2 items-center'>
             <img src={delivered} alt="delivered" className='w-9 h-9' />
-            <span className='text-blue-500 text-xs text-center'>Amazon Delivered</span>
+            <span className='text-gray-400 text-xs text-center'>Amazon Delivered</span>
           </div>
           <div className='w-[18%] flex flex-col gap-2 items-center '>
             <img src={transaction} alt="transaction" className='w-9 h-9' />
-            <p className='text-blue-500 text-xs text-center'>Secure Transaction</p>
+            <p className='text-gray-400 text-xs text-center'>Secure Transaction</p>
           </div>
         </div>
         <div className='pt-2'>
-          <span className='font-bold'>About this item</span>
-          <div className='ml-2'>{product.description}</div>
+          <span className='font-bold text-white'>About this item</span>
+          <div className='ml-2 text-gray-400'>{product.description}</div>
         </div>
       </div>
 
-      <div className='w-[20%] h-[380px] border-[0.066rem] border-gray-200 rounded-lg p-5 mr-1'>
+      <div className='w-[20%] h-[380px] bg-[#151c2b] ring-1 ring-white/5 border-[0.066rem] border-white/10 rounded-lg p-5 mr-1'>
         <div className='flex items-center mt-1'>
-          <span className='text-[26px] font-medium text-violet-600'>₹&nbsp;{product.price}</span>
-          <span>&nbsp;({product.discountPercentage}% Off)</span>
+          <span className='text-[26px] font-medium text-lime-400'>$&nbsp;{product.price}</span>
+          <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
         </div>
-        <span className='text-blue-500'>Delivery&nbsp;</span><span>within Two Days.</span>
-        <p className='text-green-600 text-xl font-bold pt-4'>In stock.</p>
-        <p className='pt-3'>Sold by <span className='text-blue-500 capitalize '>{product.brand}</span> and <span className='text-blue-500'>Fulfilled by Amazon.</span></p>
-        <div className='pt-3'>
+        <span className='text-gray-400'>Delivery&nbsp;</span><span className='text-gray-400'>within Two Days.</span>
+        <p className='text-lime-400 text-xl font-bold pt-4'>In stock.</p>
+        <p className='pt-3 text-gray-400'>Sold by <span className='text-gray-400 capitalize '>{product.brand}</span> and <span className='text-gray-400'>Fulfilled by Amazon.</span></p>
+        <div className='pt-3 text-gray-400'>
           <span>Quantity: </span>
-          <select className='border-[1px] border-gray-200 rounded-md ' value={selectedQuantity} onChange={handleQuantityChange}>
+          <select className='bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 border-[1px] border-white/10 rounded-md ' value={selectedQuantity} onChange={handleQuantityChange}>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -224,7 +224,7 @@ const ProductDetails = () => {
         </div>
         {cartButton
           ? <Link to="/cart">
-            <button className={`pt-2 w-full text-center text-blue-600 rounded-2xl  bg-gray-100 border-gray-200 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-600`}>
+            <button className={`pt-2 w-full text-center text-white rounded-2xl  bg-white/5 ring-1 ring-white/10 hover:bg-white/10 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
               Go to Cart
             </button>
           </Link>
@@ -233,7 +233,7 @@ const ProductDetails = () => {
               handleAddToCart(product);
               setCartButton(true);
             }}
-            className={`pt-2 w-full text-center rounded-2xl bg-amber-300 hover:bg-amber-400 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
+            className={`pt-2 w-full text-center bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/10 rounded-2xl p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
             Add to Cart
           </button>}
         {
@@ -241,19 +241,19 @@ const ProductDetails = () => {
             ? <Link to="/checkout">
               <button
                 onClick={() => handleBuyNow(product)}
-                className={`pt-2 w-full text-center text-white rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-600`}>
+                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-lime-400 hover:bg-lime-300 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
                 Buy Now
               </button>
             </Link>
             : <Link to="/signIn">
               <button
-                className={`pt-2 w-full text-center text-white rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-600`}>
+                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-lime-400 hover:bg-lime-300 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
                 Buy Now
               </button>
             </Link>
         }
 
-        <p className='text-blue-500 pt-3'>Secure transaction</p>
+        <p className='text-gray-400 pt-3'>Secure transaction</p>
       </div>
     </div>
   )

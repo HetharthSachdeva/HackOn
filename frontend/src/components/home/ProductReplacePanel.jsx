@@ -85,14 +85,14 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
             ></div>
 
             {/* Side Panel */}
-            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-white shadow-2xl z-50 animate-slide-in overflow-y-auto">
+            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-[#0b1120] shadow-2xl z-50 animate-slide-in overflow-y-auto ring-1 ring-white/5">
                 {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 z-10">
+                <div className="sticky top-0 bg-[#0e1420] text-white p-6 z-10 border-b border-white/5">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-2xl font-black">Find Better Alternative</h2>
                         <button
                             onClick={onClose}
-                            className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -101,29 +101,24 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                     </div>
                     
                     {/* Current Product Summary */}
-                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 mb-6">
-                        <p className="text-sm opacity-90 mb-2">Currently Selected</p>
+                    <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10 mb-6">
+                        <p className="text-sm text-gray-400 mb-2">Currently Selected</p>
                         <div className="flex items-center gap-3">
-                            <img src={product?.image} alt="" className="w-16 h-16 object-contain bg-white/20 rounded-lg" />
+                            <img src={product?.image} alt="" className="w-16 h-16 object-contain bg-white/5 rounded-lg" />
                             <div>
-                                <p className="font-bold line-clamp-1">{product?.name}</p>
-                                <p className="text-2xl font-black">₹{product?.price}</p>
+                                <p className="font-bold line-clamp-1 text-white">{product?.name}</p>
+                                <p className="text-2xl font-black text-lime-400">${product?.price}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* AI Intent Buttons */}
-                    <div className="bg-gray-900/40 backdrop-blur-md rounded-2xl p-5 border border-white/20">
+                    <div className="bg-[#151c2b] rounded-2xl p-5 ring-1 ring-white/10">
                         <div className="flex items-center gap-2 mb-4">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                            <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
-                            <span className="font-bold text-sm">What do you want?</span>
-                            <button className="ml-auto p-1 hover:bg-white/20 rounded transition">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
-                            </button>
+                            <span className="font-bold text-sm text-white">What do you want?</span>
                         </div>
                         
                         <div className="space-y-2">
@@ -136,8 +131,8 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                                         w-full flex items-center gap-3 px-4 py-3 rounded-xl
                                         font-semibold text-left transition-all duration-200
                                         ${selectedIntent === intent.id
-                                            ? `bg-gradient-to-r ${intent.color} text-white scale-105 shadow-lg`
-                                            : 'bg-white/10 text-white hover:bg-white/20 hover:scale-102'
+                                            ? 'bg-lime-400 text-black scale-105 shadow-lg shadow-lime-400/20'
+                                            : 'bg-white/5 text-gray-200 ring-1 ring-white/10 hover:bg-white/10 hover:text-lime-300'
                                         }
                                         ${isReplacing && selectedIntent !== intent.id ? 'opacity-50' : ''}
                                         disabled:cursor-not-allowed
@@ -146,7 +141,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                                     <span className="text-2xl">{intent.icon}</span>
                                     <span className="flex-1">{intent.label}</span>
                                     {selectedIntent === intent.id && isReplacing && (
-                                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                                        <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
                                     )}
                                 </button>
                             ))}
@@ -154,7 +149,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                         
                         {isReplacing && (
                             <div className="mt-4 text-center animate-pulse">
-                                <p className="text-sm opacity-90">
+                                <p className="text-sm text-lime-300">
                                     🤖 AI is finding the perfect match...
                                 </p>
                             </div>
@@ -165,27 +160,27 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                 {/* Preview Section - Shows after selection */}
                 {selectedIntent && !isReplacing && (
                     <div className="p-6 animate-fade-in">
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border-2 border-green-500/50 mb-4">
+                        <div className="bg-lime-400/10 rounded-2xl p-5 ring-1 ring-lime-400/40 mb-4">
                             <div className="flex items-center gap-2 mb-3">
-                                <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-6 h-6 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                <span className="font-bold text-green-800">Replacement Complete!</span>
+                                <span className="font-bold text-lime-300">Replacement Complete!</span>
                             </div>
-                            <p className="text-sm text-green-700">
+                            <p className="text-sm text-gray-400">
                                 AI has found the best {intents.find(i => i.id === selectedIntent)?.label.toLowerCase()} option for you.
                             </p>
                         </div>
                     </div>
                 )}
 
-                {/* Alternatives List - Hidden initially, shows for reference */}
+                {/* Done button */}
                 {!isReplacing && (
                     <div className="p-6 pt-2">
                         <div className="text-center mb-4">
                             <button
                                 onClick={onClose}
-                                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg hover:scale-105 transition-all duration-200"
+                                className="px-6 py-3 bg-lime-400 text-black rounded-full font-bold hover:bg-lime-300 hover:scale-105 transition-all duration-200"
                             >
                                 Done
                             </button>

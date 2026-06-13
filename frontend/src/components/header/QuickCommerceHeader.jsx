@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { shopping } from "../../assets";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { getAuth, signOut } from "firebase/auth";
@@ -13,30 +12,21 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
     const location = useLocation();
     const localCartProducts = useSelector((state) => state.amazon.localCartProducts);
     const userInfo = useSelector((state) => state.amazon.userInfo);
-    const authenticated = useSelector((state) => state.amazon.isAuthenticated);
     const { cartTotalQty } = useCart();
 
     const [totalQty, setTotalQty] = useState(0);
-    const [deliveryTime, setDeliveryTime] = useState('8 mins');
+    const [deliveryTime] = useState(12);
     const [searchQuery, setSearchQuery] = useState('');
-    const [isFocused, setIsFocused] = useState(false);
 
-    // Get current search query from URL if exists
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const urlSearchQuery = params.get('search');
-        if (urlSearchQuery) {
-            setSearchQuery(decodeURIComponent(urlSearchQuery));
-        } else {
-            setSearchQuery('');
-        }
+        setSearchQuery(urlSearchQuery ? decodeURIComponent(urlSearchQuery) : '');
     }, [location.search]);
 
     useEffect(() => {
         let allQty = 0;
-        localCartProducts.forEach((product) => {
-            allQty += product.quantity;
-        });
+        localCartProducts.forEach((product) => { allQty += product.quantity; });
         setTotalQty(allQty);
     }, [localCartProducts]);
 
@@ -47,356 +37,126 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
             dispatch(resetOrders());
             dispatch(resetCancelOrders());
             dispatch(resetReturnOrders());
-        }).catch((error) => {
-            alert(error.message);
-        });
+        }).catch((error) => alert(error.message));
     };
 
     const handleSearch = (e) => {
         e.preventDefault();
-        
-        if (searchQuery.trim()) {
-            // If AI Mode is active, navigate to homepage and trigger AI search
-            if (isAIMode) {
-                // If not on homepage, navigate there first
-                if (location.pathname !== '/') {
-                    navigate('/');
-                    // Small delay to ensure homepage loads before triggering search
-                    setTimeout(() => {
-                        if (onAISearch) {
-                            onAISearch(searchQuery);
-                        }
-                    }, 100);
-                } else {
-                    // Already on homepage, trigger AI search immediately
-                    if (onAISearch) {
-                        onAISearch(searchQuery);
-                    }
-                }
+        if (!searchQuery.trim()) return;
+        if (isAIMode) {
+            if (location.pathname !== '/') {
+                navigate('/');
+                setTimeout(() => onAISearch && onAISearch(searchQuery), 100);
             } else {
-                // Normal search - navigate to products page with search query
-                navigate(`/allProducts?search=${encodeURIComponent(searchQuery)}`);
+                onAISearch && onAISearch(searchQuery);
             }
+        } else {
+            navigate(`/allProducts?search=${encodeURIComponent(searchQuery)}`);
         }
     };
 
+    const cartCount = cartTotalQty > 0 ? cartTotalQty : totalQty;
+
     return (
-        <div className="w-full sticky top-0 z-50 shadow-lg">
-            {/* Main Header */}
-            <div className="bg-white border-b border-violet-100">
-                <div className="max-w-7xl mx-auto px-4 py-3">
-                    <div className="flex items-center justify-between gap-4">
-                        {/* Logo */}
-                        <Link to="/">
-                            <div className="flex items-center gap-2 group cursor-pointer">
-                                <div className="text-4xl group-hover:scale-110 transition-transform">⚡</div>
-                                <div>
-                                    <h1 className="text-2xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-                                        QuickShop
-                                    </h1>
-                                    <p className="text-xs text-gray-600 font-semibold -mt-1">Instant Delivery</p>
-                                </div>
-                            </div>
-                        </Link>
+        <div className="sticky top-0 z-50 w-full bg-[#0b1120]/95 backdrop-blur-md border-b border-white/5">
+            <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6">
+                <div className="flex items-center gap-4">
+                    {/* Logo */}
+                    <Link to="/" className="flex-shrink-0">
+                        <h1 className="text-2xl font-black tracking-tight">
+                            <span className="text-lime-400">Zip</span><span className="text-white">Dash</span>
+                        </h1>
+                    </Link>
 
-                        {/* Delivery Location & Time */}
-                        <div className="hidden md:flex items-center gap-2 bg-violet-50 px-4 py-2 rounded-full border border-violet-200 hover:border-violet-400 transition cursor-pointer">
-                            <div className="text-2xl">📍</div>
-                            <div>
-                                <p className="text-xs text-gray-600 font-semibold">Delivery in</p>
-                                <p className="text-sm font-black text-violet-600">{deliveryTime}</p>
-                            </div>
-                            <div className="text-xs text-violet-600 font-bold ml-2">▼</div>
+                    {/* Delivery address pill */}
+                    <div className="hidden items-center gap-3 rounded-2xl bg-[#151c2b] px-4 py-2 ring-1 ring-white/5 lg:flex">
+                        <div className="flex items-center gap-2">
+                            <span className="text-lime-400">📍</span>
+                            <p className="max-w-[120px] truncate text-xs font-semibold leading-tight text-gray-300">
+                                {userInfo?.address || '123 Main St, Apt 4B'}
+                            </p>
                         </div>
-
-                        {/* Unified Search Bar with AI Mode */}
-                        <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-2xl relative">
-                            {/* AI Mode Glow Effect */}
-                            {isAIMode && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                            )}
-                            
-                            <div className={`
-                                relative w-full flex items-center gap-2 rounded-full transition-all duration-300
-                                ${isAIMode 
-                                    ? 'ring-4 ring-purple-400/40 shadow-2xl shadow-purple-500/30 bg-white pl-4' 
-                                    : 'bg-white border-2 border-violet-200'
-                                }
-                            `}>
-                                {/* AI Mode Icon (shown when active) */}
-                                {isAIMode && (
-                                    <div className="flex-shrink-0 animate-pulse">
-                                        <div className="relative">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-md opacity-60"></div>
-                                            <svg className="w-6 h-6 relative z-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    onFocus={() => setIsFocused(true)}
-                                    onBlur={() => setIsFocused(false)}
-                                    placeholder={isAIMode 
-                                        ? "✨ Ask AI anything: 'Healthy breakfast for a week under ₹1000'"
-                                        : "Search for groceries, electronics, essentials..."
-                                    }
-                                    className={`
-                                        w-full py-3 px-4 rounded-full outline-none bg-transparent
-                                        ${isAIMode 
-                                            ? 'text-base font-medium placeholder-purple-500/70' 
-                                            : 'text-sm placeholder-gray-400'
-                                        }
-                                    `}
-                                />
-                                
-                                {/* Right Side Icons */}
-                                <div className="flex items-center gap-1 pr-2">
-                                    {/* Voice Search */}
-                                    <button
-                                        type="button"
-                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                                        title="Voice search"
-                                    >
-                                        <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                                        </svg>
-                                    </button>
-                                    
-                                    {/* Camera Search */}
-                                    <button
-                                        type="button"
-                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                                        title="Image search"
-                                    >
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </button>
-                                    
-                                    {/* Divider */}
-                                    <div className="w-px h-6 bg-gray-300 mx-1"></div>
-                                    
-                                    {/* Search Submit Button */}
-                                    <button 
-                                        type="submit"
-                                        className={`
-                                            p-2.5 rounded-full transition-all shadow-md hover:shadow-lg
-                                            ${isAIMode
-                                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-110'
-                                                : 'bg-gradient-to-r from-violet-500 to-indigo-500 hover:scale-110'
-                                            }
-                                            text-white
-                                        `}
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            {/* Prominent AI Mode Toggle - Outside search bar */}
-                            <button
-                                type="button"
-                                onClick={() => setIsAIMode && setIsAIMode(!isAIMode)}
-                                className={`
-                                    ml-3 flex items-center gap-2 px-5 py-3 rounded-full font-bold text-sm 
-                                    transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105
-                                    ${isAIMode
-                                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white ring-4 ring-purple-300/50 animate-pulse-slow'
-                                        : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white hover:from-purple-600 hover:to-pink-600'
-                                    }
-                                `}
-                                title={isAIMode ? "Disable AI Mode" : "Enable AI Mode for Smart Bundles"}
-                            >
-                                {isAIMode ? (
-                                    <>
-                                        <svg className="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                        </svg>
-                                        <span>AI ON</span>
-                                        <div className="w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                                        </svg>
-                                        <span>AI Mode</span>
-                                    </>
-                                )}
-                            </button>
-                        </form>
-
-                        {/* Action Buttons */}
-                        <div className="flex items-center gap-3">
-                            {/* User Account */}
-                            {userInfo ? (
-                                <div className="hidden md:flex items-center gap-2 cursor-pointer hover:bg-gray-100 px-3 py-2 rounded-full transition">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-violet-400 to-indigo-400 rounded-full flex items-center justify-center text-white font-bold">
-                                        {userInfo.name?.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-600">Hello,</p>
-                                        <p className="text-sm font-bold text-gray-800 -mt-1">{userInfo.name}</p>
-                                    </div>
-                                </div>
-                            ) : (
-                                <Link to="/signIn">
-                                    <button className="hidden md:block bg-gradient-to-r from-violet-500 to-indigo-500 text-white px-6 py-2 rounded-full font-bold hover:shadow-lg hover:scale-105 transition">
-                                        Login
-                                    </button>
-                                </Link>
-                            )}
-
-                            {/* Cart */}
-                            <Link to="/cart">
-                                <div className="relative cursor-pointer hover:scale-110 transition">
-                                    <div className="bg-gradient-to-r from-violet-500 to-indigo-500 p-3 rounded-full shadow-lg">
-                                        <img className="w-6 h-6 invert" src={shopping} alt="cart" />
-                                    </div>
-                                    {(cartTotalQty > 0 || totalQty > 0) && (
-                                        <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center animate-pulse shadow-lg">
-                                            {cartTotalQty > 0 ? cartTotalQty : totalQty}
-                                        </span>
-                                    )}
-                                </div>
-                            </Link>
-
-                            {/* Logout */}
-                            {userInfo && (
-                                <button
-                                    onClick={handleLogout}
-                                    className="hidden md:block text-gray-600 hover:text-red-600 transition"
-                                    title="Logout"
-                                >
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
-                                </button>
-                            )}
+                        <div className="h-6 w-px bg-white/10" />
+                        <div className="flex items-center gap-1.5">
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-lime-400" />
+                            <p className="whitespace-nowrap text-xs font-bold text-lime-400">Delivering in {deliveryTime} mins</p>
                         </div>
                     </div>
 
-                    {/* Mobile Search */}
-                    <form onSubmit={handleSearch} className="lg:hidden mt-3">
-                        <div className="flex gap-2 items-center">
-                            <div className={`
-                                relative flex-1 transition-all duration-300
-                                ${isAIMode 
-                                    ? 'ring-2 ring-purple-400/40 rounded-full' 
-                                    : ''
-                                }
-                            `}>
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder={isAIMode ? "✨ Ask AI..." : "Search..."}
-                                    className={`
-                                        w-full px-4 py-2 pr-10 rounded-full outline-none text-sm
-                                        ${isAIMode
-                                            ? 'border-2 border-purple-400 placeholder-purple-500/70'
-                                            : 'border-2 border-violet-200 focus:border-violet-500'
-                                        }
-                                    `}
-                                />
-                                <button 
-                                    type="submit"
-                                    className={`
-                                        absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full
-                                        ${isAIMode ? 'text-purple-500' : 'text-violet-500'}
-                                    `}
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </button>
-                            </div>
-                            
-                            {/* Mobile AI Mode Toggle */}
+                    {/* Search */}
+                    <form onSubmit={handleSearch} className="relative flex-1">
+                        <div className={`relative flex items-center rounded-full bg-[#151c2b] ring-1 transition-all ${isAIMode ? 'ring-2 ring-violet-500/60' : 'ring-white/10 focus-within:ring-lime-400/40'}`}>
+                            <svg className="ml-4 h-4 w-4 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder={isAIMode ? "Ask AI: 'snacks for movie night under $20'" : "Search for snacks, drinks, essentials..."}
+                                className="w-full bg-transparent px-3 py-2.5 text-sm text-white placeholder-gray-500 outline-none"
+                            />
                             <button
                                 type="button"
                                 onClick={() => setIsAIMode && setIsAIMode(!isAIMode)}
-                                className={`
-                                    flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs
-                                    transition-all duration-300 shadow-md whitespace-nowrap
-                                    ${isAIMode
-                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white ring-2 ring-purple-300'
-                                        : 'bg-gray-800 text-white'
-                                    }
-                                `}
+                                title={isAIMode ? "Disable AI Mode" : "Enable AI Mode"}
+                                className={`mr-1.5 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                                    isAIMode ? 'bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white' : 'bg-white/5 text-gray-400 hover:text-lime-300'
+                                }`}
                             >
-                                {isAIMode ? (
-                                    <>
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                        </svg>
-                                        <span>AI ON</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                                        </svg>
-                                        <span>AI</span>
-                                    </>
-                                )}
+                                <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                AI
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
 
-            {/* Quick Links Bar */}
-            <div className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white py-2 px-4 overflow-x-auto">
-                <div className="max-w-7xl mx-auto flex items-center gap-6 text-sm font-semibold whitespace-nowrap">
-                    <Link to="/groceries" className="hover:underline flex items-center gap-1">
-                        <span>🥬</span> Vegetables
+                    {/* Nav actions */}
+                    <div className="hidden items-center gap-5 md:flex">
+                        <Link to="/orders" className="flex items-center gap-1.5 text-sm font-medium text-gray-300 transition hover:text-lime-300">
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                            Orders
+                        </Link>
+                        <Link to="/cart" className="flex items-center gap-1.5 text-sm font-medium text-gray-300 transition hover:text-lime-300">
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                            Saved
+                        </Link>
+                    </div>
+
+                    {/* Cart */}
+                    <Link to="/cart" className="relative flex items-center gap-1.5 text-sm font-medium text-gray-300 transition hover:text-lime-300">
+                        <div className="relative">
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            {cartCount > 0 && (
+                                <span className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full bg-lime-400 text-[11px] font-black text-black">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </div>
+                        <span className="hidden lg:inline">Cart</span>
                     </Link>
-                    <Link to="/groceries" className="hover:underline flex items-center gap-1">
-                        <span>🥛</span> Dairy
-                    </Link>
-                    <Link to="/beauty" className="hover:underline flex items-center gap-1">
-                        <span>🧴</span> Personal Care
-                    </Link>
-                    <Link to="/home-decoration" className="hover:underline flex items-center gap-1">
-                        <span>🏠</span> Home
-                    </Link>
-                    <Link to="/smartphones" className="hover:underline flex items-center gap-1">
-                        <span>📱</span> Electronics
-                    </Link>
-                    <Link to="/groceries" className="hover:underline flex items-center gap-1">
-                        <span>🍿</span> Snacks
-                    </Link>
-                    <Link to="/allProducts" className="hover:underline flex items-center gap-1 animate-pulse">
-                        <span>🔥</span> View All
-                    </Link>
+
+                    {/* Avatar / Auth */}
+                    {userInfo ? (
+                        <div className="group relative">
+                            <div className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-gradient-to-br from-lime-400 to-lime-500 font-black text-black ring-2 ring-white/10">
+                                {userInfo.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="invisible absolute right-0 top-12 z-50 w-40 rounded-xl bg-[#151c2b] p-2 opacity-0 ring-1 ring-white/10 transition-all group-hover:visible group-hover:opacity-100">
+                                <p className="px-3 py-1 text-xs text-gray-400">Hi, {userInfo.name}</p>
+                                <button onClick={handleLogout} className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-200 hover:bg-white/5 hover:text-lime-300">
+                                    Sign out
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Link to="/signIn">
+                            <button className="rounded-full bg-lime-400 px-5 py-2 text-sm font-bold text-black transition hover:bg-lime-300">
+                                Login
+                            </button>
+                        </Link>
+                    )}
                 </div>
             </div>
-            
-            {/* CSS Animations */}
-            <style jsx="true">{`
-                @keyframes pulse-slow {
-                    0%, 100% {
-                        opacity: 1;
-                    }
-                    50% {
-                        opacity: 0.8;
-                    }
-                }
-                .animate-pulse-slow {
-                    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-                }
-            `}</style>
         </div>
     );
 }
-

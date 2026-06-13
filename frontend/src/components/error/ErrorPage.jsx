@@ -13,8 +13,8 @@ const ErrorPage = () => {
   }, [navigate]);
 
   return (
-    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-      <h1 className="text-center">OOPS!! Something went wrong. You will be re-directed to previous page in 3-seconds.</h1>
+    <div className="bg-[#151c2b] ring-1 ring-white/5 border border-white/10 text-gray-400 px-4 py-3 rounded relative">
+      <h1 className="text-center text-white">OOPS!! Something went wrong. You will be re-directed to previous page in 3-seconds.</h1>
     </div>
   )
 }

@@ -3,21 +3,17 @@ import { Link } from 'react-router-dom';
 
 const EmptyCart = () => {
     return (
-        <div className='w-full  bg-white py-6 px-5 my-8 mx-5 flex flex-row justify-between items-start'>
-            <div className='w-[50%] h-[60%]'>
-                <img src="https://m.media-amazon.com/images/G/31/cart/empty/kettle-desaturated._CB424694257_.svg" alt="emptyCart" />
-            </div>
-            <div className='w-[50%] p-5 pl-8 flex flex-col gap-6'>
-                <h1 className='text-[36px] font-semibold'>Your Amazon Cart is empty.</h1>
-                <h1 className='text-xl font-semibold '>An empty cart may seem like nothing, but it holds the promise of endless possibilities, waiting to be filled with the treasures of your desires and dreams.</h1>
-                <Link to="/allProducts">
-                    <div className='ml-[22%] mt-2'>
-                        <button className='w-[320px] border-[1px] bg-gray-100 border-gray-200 py-1 text-sm text-blue-600 rounded-lg
-                           text-center p-[4px] active:ring-2 active:ring-offset-1 active:ring-blue-600 '>
-                            Shop today’s deals</button>
-                    </div>
-                </Link>
-            </div>
+        <div className='mx-auto my-12 flex w-full max-w-4xl flex-col items-center gap-6 rounded-3xl bg-[#151c2b] px-6 py-12 text-center ring-1 ring-white/5'>
+            <div className='grid h-28 w-28 place-items-center rounded-full bg-lime-400/10 text-6xl'>🛒</div>
+            <h1 className='text-3xl font-black text-white'>Your cart is empty</h1>
+            <p className='max-w-md text-gray-400'>
+                Add your favourite snacks, drinks and essentials and get them dashed to your door in minutes.
+            </p>
+            <Link to="/allProducts">
+                <button className='rounded-full bg-lime-400 px-8 py-3 font-bold text-black transition hover:bg-lime-300'>
+                    Start shopping
+                </button>
+            </Link>
         </div>
     )
 }

@@ -37,8 +37,8 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         // Show success message
         setTimeout(() => {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
-            toast.innerHTML = `✅ Replaced! New total: ₹${newCost}`;
+            toast.className = 'fixed top-4 right-4 bg-lime-400 text-black font-bold px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
+            toast.innerHTML = `✅ Replaced! New total: $${newCost}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }, 300);
@@ -98,14 +98,14 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
             // Show success message
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl z-50 animate-slide-down flex items-center gap-3';
+            toast.className = 'fixed top-4 right-4 bg-lime-400 text-black px-8 py-4 rounded-2xl shadow-2xl z-50 animate-slide-down flex items-center gap-3';
             toast.innerHTML = `
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <div>
                     <div class="font-bold">Bundle Added!</div>
-                    <div class="text-sm opacity-90">${bundleProducts.length} items added to cart</div>
+                    <div class="text-sm opacity-80">${bundleProducts.length} items added to cart</div>
                 </div>
             `;
             document.body.appendChild(toast);
@@ -171,53 +171,46 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         <>
             <div className="max-w-6xl mx-auto px-4 py-6">
                 {/* Bundle Summary Card */}
-                <div className="bg-gradient-to-br from-white to-purple-50/30 rounded-3xl shadow-2xl border border-purple-100/50 overflow-hidden backdrop-blur-sm">
-                    {/* Header with Glassmorphism */}
-                    <div className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 p-8 text-white overflow-hidden">
-                        {/* Animated background pattern */}
-                        <div className="absolute inset-0 opacity-20">
-                            <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-                            <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2 animate-pulse delay-1000"></div>
+                <div className="bg-[#151c2b] rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden">
+                    {/* Header */}
+                    <div className="relative bg-[#0e1420] p-8 text-white overflow-hidden">
+                        {/* Animated glow accents */}
+                        <div className="absolute inset-0 opacity-100">
+                            <div className="absolute top-0 left-0 w-64 h-64 bg-lime-400/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse"></div>
+                            <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl animate-pulse delay-1000"></div>
                         </div>
 
                         <div className="relative z-10">
                             {/* AI Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-md rounded-full mb-4">
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-lime-400/15 ring-1 ring-lime-400/30 rounded-full mb-4">
+                                <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                 </svg>
-                                <span className="text-sm font-bold">AI Generated Bundle</span>
+                                <span className="text-sm font-bold text-lime-300">AI Generated Bundle</span>
                             </div>
 
                             {/* Bundle Title */}
-                            <h2 className="text-3xl md:text-4xl font-black mb-6">
+                            <h2 className="text-3xl md:text-4xl font-black mb-6 text-white">
                                 {bundle.title}
                             </h2>
 
                             {/* Stats Grid */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {/* Total Cost */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-sm opacity-90 mb-1">Total Cost</p>
-                                    <p className="text-3xl font-black">₹{bundleCost}</p>
+                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
+                                    <p className="text-sm text-gray-400 mb-1">Total Cost</p>
+                                    <p className="text-3xl font-black text-white">${bundleCost}</p>
                                 </div>
-
-                                {/* Savings */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-sm opacity-90 mb-1">You Save</p>
-                                    <p className="text-3xl font-black text-green-300">₹{bundle.savings}</p>
+                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
+                                    <p className="text-sm text-gray-400 mb-1">You Save</p>
+                                    <p className="text-3xl font-black text-lime-400">${bundle.savings}</p>
                                 </div>
-
-                                {/* Delivery */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-sm opacity-90 mb-1">Delivery</p>
-                                    <p className="text-3xl font-black">{bundle.deliveryETA}</p>
+                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
+                                    <p className="text-sm text-gray-400 mb-1">Delivery</p>
+                                    <p className="text-3xl font-black text-white">{bundle.deliveryETA}</p>
                                 </div>
-
-                                {/* AI Confidence */}
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-sm opacity-90 mb-1">AI Match</p>
-                                    <p className="text-3xl font-black">{bundle.confidence}%</p>
+                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
+                                    <p className="text-sm text-gray-400 mb-1">AI Match</p>
+                                    <p className="text-3xl font-black text-lime-400">{bundle.confidence}%</p>
                                 </div>
                             </div>
                         </div>
@@ -226,20 +219,20 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                     {/* Products Section */}
                     <div className="p-8">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-2xl font-bold text-gray-800">Bundle Items ({bundleProducts.length})</h3>
+                            <h3 className="text-2xl font-bold text-white">Bundle Items ({bundleProducts.length})</h3>
                             <button 
                                 onClick={handleAddAllToCart}
                                 disabled={isAddingToCart}
                                 className={`
-                                    px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white 
-                                    rounded-full font-bold shadow-lg hover:shadow-xl
+                                    px-6 py-3 bg-lime-400 text-black
+                                    rounded-full font-bold shadow-lg shadow-lime-400/20 hover:bg-lime-300
                                     transition-all duration-200 flex items-center gap-2
                                     ${isAddingToCart ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}
                                 `}
                             >
                                 {isAddingToCart ? (
                                     <>
-                                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                                        <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
                                         <span>Adding...</span>
                                     </>
                                 ) : (
@@ -258,35 +251,35 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                             {bundleProducts.map((product, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-purple-200 group"
+                                    className="flex-shrink-0 w-64 bg-[#0e1420] rounded-2xl ring-1 ring-white/5 hover:ring-lime-400/40 transition-all duration-300 group"
                                 >
                                     {/* Product Image */}
-                                    <div className="relative bg-gradient-to-br from-gray-50 to-purple-50/20 rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
+                                    <div className="relative bg-[#0b1120] rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
                                         <img
                                             src={product.image}
                                             alt={product.name}
                                             className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                                         />
                                         {/* Quantity Badge */}
-                                        <div className="absolute top-3 right-3 bg-purple-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+                                        <div className="absolute top-3 right-3 bg-lime-400 text-black text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                                             x{product.quantity}
                                         </div>
                                     </div>
 
                                     {/* Product Info */}
                                     <div className="p-4">
-                                        <h4 className="font-bold text-gray-800 mb-2 line-clamp-2 min-h-[48px]">
+                                        <h4 className="font-bold text-white mb-2 line-clamp-2 min-h-[48px]">
                                             {product.name}
                                         </h4>
 
                                         {/* Price */}
                                         <div className="flex items-baseline gap-2 mb-4">
-                                            <span className="text-2xl font-black text-gray-900">
-                                                ₹{product.price}
+                                            <span className="text-2xl font-black text-white">
+                                                ${product.price}
                                             </span>
                                             {product.originalPrice && (
                                                 <span className="text-sm text-gray-500 line-through">
-                                                    ₹{product.originalPrice}
+                                                    ${product.originalPrice}
                                                 </span>
                                             )}
                                         </div>
@@ -294,7 +287,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         {/* Replace Button */}
                                         <button
                                             onClick={() => handleReplaceProduct(product)}
-                                            className="w-full py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 font-bold rounded-xl hover:from-purple-100 hover:to-pink-100 hover:text-purple-700 transition-all duration-200 flex items-center justify-center gap-2 group-hover:scale-105"
+                                            className="w-full py-3 bg-white/5 text-gray-300 font-bold rounded-xl ring-1 ring-white/10 hover:bg-lime-400/10 hover:text-lime-300 hover:ring-lime-400/30 transition-all duration-200 flex items-center justify-center gap-2"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -309,9 +302,9 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
                     {/* Optimize Bundle Section */}
                     <div className="px-8 pb-8">
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="bg-[#0e1420] rounded-2xl p-6 ring-1 ring-white/5">
+                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <svg className="w-6 h-6 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                                 Optimize Your Bundle
@@ -319,21 +312,22 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                             
                             <div className="flex flex-wrap gap-3">
                                 {[
-                                    { label: 'Cheapest', icon: '💰', color: 'from-green-500 to-emerald-600' },
-                                    { label: 'Healthiest', icon: '🥗', color: 'from-green-500 to-teal-600' },
-                                    { label: 'Most Popular', icon: '⭐', color: 'from-yellow-500 to-orange-600' },
-                                    { label: 'Student Budget', icon: '🎓', color: 'from-blue-500 to-indigo-600' },
-                                    { label: 'Premium', icon: '👑', color: 'from-purple-500 to-pink-600' }
+                                    { label: 'Cheapest', icon: '💰' },
+                                    { label: 'Healthiest', icon: '🥗' },
+                                    { label: 'Most Popular', icon: '⭐' },
+                                    { label: 'Student Budget', icon: '🎓' },
+                                    { label: 'Premium', icon: '👑' }
                                 ].map((option, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => onOptimize(option.label.toLowerCase())}
-                                        className={`
-                                            px-6 py-3 bg-gradient-to-r ${option.color} text-white
-                                            rounded-full font-bold shadow-lg hover:shadow-xl
+                                        className="
+                                            px-6 py-3 bg-[#151c2b] text-gray-300 ring-1 ring-white/10
+                                            rounded-full font-bold
+                                            hover:bg-lime-400 hover:text-black hover:ring-transparent
                                             hover:scale-105 transition-all duration-200
                                             flex items-center gap-2
-                                        `}
+                                        "
                                     >
                                         <span className="text-xl">{option.icon}</span>
                                         <span>{option.label}</span>

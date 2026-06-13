@@ -75,21 +75,22 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="min-h-screen bg-[#0b1120]">
       {/* AI Mode Suggestions Banner */}
       {isAIMode && (
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center gap-3 mb-2">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-              </svg>
-              <span className="font-bold text-lg">AI Mode Active</span>
+        <div className="border-b border-white/5 bg-[#0e1420] py-5">
+          <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-lime-400/15 text-lime-400">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              </span>
+              <span className="text-lg font-bold text-white">AI Mode Active</span>
+              <span className="ml-1 rounded-full bg-lime-400/15 px-2 py-0.5 text-xs font-bold text-lime-300">BETA</span>
             </div>
-            <p className="text-sm mb-3 opacity-90">Try these AI-powered bundle suggestions:</p>
+            <p className="mb-3 text-sm text-gray-400">Try these AI-powered bundle suggestions:</p>
             <div className="flex flex-wrap gap-2">
               {[
-                '🥗 Healthy breakfast under ₹1000',
+                '🥗 Healthy breakfast under $15',
                 '🎂 Party supplies for 20 people',
                 '💪 Fitness supplements bundle',
                 '👶 Baby essentials kit'
@@ -97,7 +98,7 @@ const Home = () => {
                 <button
                   key={idx}
                   onClick={() => handleAISearch(suggestion.substring(2))}
-                  className="px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full text-sm hover:bg-white/30 transition-all duration-200 hover:scale-105"
+                  className="rounded-full bg-[#151c2b] px-4 py-2 text-sm text-gray-300 ring-1 ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:text-lime-300 hover:ring-lime-400/30"
                 >
                   {suggestion}
                 </button>

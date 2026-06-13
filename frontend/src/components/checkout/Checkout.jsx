@@ -21,21 +21,21 @@ const Checkout = () => {
   }, [userAddress]);
 
   return (
-    <div className='w-full h-full '>
+    <div className='min-h-screen w-full bg-[#0b1120]'>
       {/* header */}
-      <div className='relative flex flex-row justify-around items-center pt-[18px] pb-2 mx-5 border-b-[1px] shadow-inner-bottom'>
+      <div className='relative mx-5 flex flex-row items-center justify-around border-b border-white/10 pb-3 pt-[18px]'>
         <Link to="/">
-          <div onClick={() => dispatch(resetBuyNowProduct())} className="cursor-pointer px-2 h-12 flex items-center">
-            <img className="w-36 mt-2" src={logoBlack} alt="logo" />
+          <div onClick={() => dispatch(resetBuyNowProduct())} className="flex h-12 cursor-pointer items-center px-2">
+            <h1 className="text-2xl font-black tracking-tight"><span className="text-lime-400">Zip</span><span className="text-white">Dash</span></h1>
           </div>
         </Link>
         <div className=''>
-          <h1 className='text-[28px] font-semibold'>Checkout</h1>
+          <h1 className='text-[28px] font-bold text-white'>Checkout</h1>
         </div>
       </div>
 
       {/* addresssForm or userAddress and PaymentMethod */}
-      <div className='flex flex-row mx-5 gap-6 mt-3 justify-center '>
+      <div className='mx-auto mt-3 flex max-w-[1400px] flex-row justify-center gap-6 px-5'>
         <div className='w-[61%] '>
 
           {
@@ -43,15 +43,15 @@ const Checkout = () => {
               ? <AddressForm setShowAddressForm={setShowAddressForm} />
               : <UserAddresses setShowAddressForm={setShowAddressForm} />
           }
-          <div className='mt-3 border-b border-gray-500'></div>
+          <div className='mt-3 border-b border-white/10'></div>
 
           <PaymentMethod />
-          <div className='mt-3 border-b border-gray-500'></div>
+          <div className='mt-3 border-b border-white/10'></div>
 
         </div>
 
         {/* OrderSummary */}
-        <div className='w-[22%] h-full sticky top-3'>
+        <div className='sticky top-3 h-full w-[22%]'>
           <OrderSummary />
         </div>
 

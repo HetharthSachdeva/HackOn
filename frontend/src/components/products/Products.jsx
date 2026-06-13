@@ -11,19 +11,17 @@ const Products = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search');
 
-  // ── Price bounds from data ──
   const priceBounds = useMemo(() => {
     const prices = productsData.map((p) => p.price);
     return { min: Math.floor(Math.min(...prices)), max: Math.ceil(Math.max(...prices)) };
   }, [productsData]);
 
   const [maxPrice, setMaxPrice] = useState(priceBounds.max);
-  const [starRange, setStarRange] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [delivery, setDelivery] = useState('standard');
+  const [quickFilters, setQuickFilters] = useState({ organic: false, trending: false, onSale: false });
+  const [speed, setSpeed] = useState('dash');
   const [sortOrder, setSortOrder] = useState('default');
 
-  // ── Search filter ──
+  // ── Search ──
   let filtered = productsData;
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -35,44 +33,35 @@ const Products = () => {
     );
   }
 
-  // ── Category filter ──
   const categoryProducts = category ? filtered.filter((p) => p.category === category) : filtered;
 
-  // Brands available in current view
-  const availableBrands = useMemo(
-    () => Array.from(new Set(categoryProducts.map((p) => p.brand))).slice(0, 8),
-    [categoryProducts]
-  );
-
-  // ── Apply price / star / brand ──
+  // ── Apply price + quick filters ──
   const result = categoryProducts.filter((p) => {
-    const priceOk = p.price <= maxPrice;
-    const starOk = starRange ? p.rating >= parseFloat(starRange) : true;
-    const brandOk = selectedBrands.length ? selectedBrands.includes(p.brand) : true;
-    return priceOk && starOk && brandOk;
+    if (p.price > maxPrice) return false;
+    if (quickFilters.trending && p.rating < 4.5) return false;
+    if (quickFilters.onSale && !(p.discountPercentage > 0)) return false;
+    return true;
   });
 
-  // ── Sorting ──
   const sortedProducts = [...result];
   if (sortOrder === 'lowToHigh') sortedProducts.sort((a, b) => a.price - b.price);
   else if (sortOrder === 'highToLow') sortedProducts.sort((a, b) => b.price - a.price);
   else if (sortOrder === 'avgReview') sortedProducts.sort((a, b) => b.rating - a.rating);
 
-  const toggleBrand = (brand) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
-    );
-  };
-
-  const resetPrice = () => setMaxPrice(priceBounds.max);
-  const resetBrands = () => setSelectedBrands([]);
-
-  // Decorative chart + slider fill
-  const chartPath = "M0,30 L10,22 L20,26 L30,12 L40,18 L50,6 L60,16 L70,10 L80,20 L90,8 L100,24 L100,40 L0,40 Z";
+  const toggleFilter = (key) => setQuickFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   const pricePct = ((maxPrice - priceBounds.min) / (priceBounds.max - priceBounds.min)) * 100;
 
+  // Bar chart heights (decorative)
+  const bars = [30, 45, 35, 60, 80, 95, 70, 50, 40, 28, 20, 15];
+
+  const quickFilterList = [
+    { key: 'organic', label: 'Organic', icon: '🌿' },
+    { key: 'trending', label: 'Trending', icon: '🔥' },
+    { key: 'onSale', label: 'On Sale', icon: '🏷️' },
+  ];
+
   return (
-    <div className="min-h-screen w-full bg-[#f6f6f9] px-4 py-6 sm:px-6">
+    <div className="min-h-screen w-full bg-[#0b1120] px-4 py-6 sm:px-6">
       <ScrollRestoration />
 
       {/* ── Category Pills ── */}
@@ -80,22 +69,18 @@ const Products = () => {
         <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
           <button
             onClick={() => navigate('/allProducts')}
-            className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
-              !category
-                ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/30'
-                : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:ring-violet-300'
+            className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold transition-all ${
+              !category ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-lime-400/30'
             }`}
           >
-            All Categories
+            All
           </button>
           {uniqueCategories.map((item) => (
             <button
               key={item}
               onClick={() => navigate(`/${item}`)}
-              className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-semibold capitalize transition-all ${
-                category === item
-                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/30'
-                  : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:ring-violet-300'
+              className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold capitalize transition-all ${
+                category === item ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-lime-400/30'
               }`}
             >
               {item}
@@ -105,112 +90,80 @@ const Products = () => {
       </div>
 
       <div className="mx-auto flex max-w-[1400px] flex-col gap-6 lg:flex-row">
-        {/* ── Filter Sidebar ── */}
+        {/* ── Sidebar ── */}
         <aside className="w-full flex-shrink-0 space-y-5 lg:w-72">
           {/* Price Range */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-900">Price Range</h3>
-              <button onClick={resetPrice} className="text-xs font-semibold text-gray-400 hover:text-violet-600">Reset</button>
+              <h3 className="font-bold text-white">Price Range</h3>
+              <button onClick={() => setMaxPrice(priceBounds.max)} className="text-xs font-semibold text-gray-500 hover:text-lime-300">Reset</button>
             </div>
-            <p className="mt-1 text-xs text-gray-400">The average price is ₹{Math.round((priceBounds.min + priceBounds.max) / 2)}</p>
+            <p className="mt-1 text-xs text-gray-500">Average price: ${Math.round((priceBounds.min + priceBounds.max) / 2)}</p>
 
-            {/* Decorative chart */}
-            <div className="relative mt-4 h-16 w-full overflow-hidden">
-              <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="h-full w-full">
-                <defs>
-                  <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(124,58,237,0.35)" />
-                    <stop offset="100%" stopColor="rgba(124,58,237,0.02)" />
-                  </linearGradient>
-                </defs>
-                <path d={chartPath} fill="url(#priceFill)" stroke="#7c3aed" strokeWidth="0.8" />
-              </svg>
-            </div>
-
-            {/* Range slider */}
-            <div className="relative mt-2 px-1">
-              <input
-                type="range"
-                min={priceBounds.min}
-                max={priceBounds.max}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="price-slider w-full"
-              />
+            {/* Bar chart */}
+            <div className="mt-4 flex h-20 items-end justify-center gap-1.5">
+              {bars.map((h, i) => {
+                const active = (i / bars.length) * 100 <= pricePct;
+                return (
+                  <div
+                    key={i}
+                    style={{ height: `${h}%` }}
+                    className={`w-2 rounded-full transition-colors ${active ? 'bg-lime-400' : 'bg-white/10'}`}
+                  />
+                );
+              })}
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
-              <span className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white">₹{priceBounds.min}</span>
-              <span className="rounded-full bg-gray-900 px-4 py-1.5 text-sm font-bold text-white">₹{maxPrice}</span>
+            {/* Slider */}
+            <input
+              type="range"
+              min={priceBounds.min}
+              max={priceBounds.max}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              className="price-slider mt-3 w-full"
+            />
+
+            <div className="mt-3 flex items-center justify-between">
+              <span className="rounded-full bg-[#0e1420] px-3 py-1 text-xs font-bold text-gray-300">${priceBounds.min}</span>
+              <span className="rounded-full bg-[#0e1420] px-3 py-1 text-xs font-bold text-gray-300">${maxPrice}</span>
             </div>
           </div>
 
-          {/* Star Rating */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-            <h3 className="mb-3 text-base font-bold text-gray-900">Star Rating</h3>
-            {['4.5', '4', '3', '2'].map((rate) => (
-              <button
-                key={rate}
-                onClick={() => setStarRange((prev) => (prev === rate ? '' : rate))}
-                className={`mb-1.5 flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm transition ${
-                  starRange === rate ? 'bg-violet-50 ring-1 ring-violet-200' : 'hover:bg-gray-50'
-                }`}
-              >
-                <span className="flex text-amber-400">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <span key={s} className={s <= Math.floor(parseFloat(rate)) ? 'text-amber-400' : 'text-gray-300'}>★</span>
-                  ))}
-                </span>
-                <span className="text-xs font-semibold text-gray-500">{rate} & up</span>
-              </button>
-            ))}
+          {/* Quick Filters */}
+          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
+            <h3 className="mb-3 font-bold text-white">Quick Filters</h3>
+            {quickFilterList.map((f) => {
+              const checked = quickFilters[f.key];
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => toggleFilter(f.key)}
+                  className="mb-1 flex w-full items-center justify-between rounded-xl px-2 py-2 transition hover:bg-white/5"
+                >
+                  <span className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                    <span>{f.icon}</span> {f.label}
+                  </span>
+                  <span className={`grid h-5 w-5 place-items-center rounded-md border-2 transition ${checked ? 'border-lime-400 bg-lime-400' : 'border-white/15 bg-transparent'}`}>
+                    {checked && (
+                      <svg className="h-3 w-3 text-black" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Brand */}
-          {availableBrands.length > 0 && (
-            <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-gray-900">Brand</h3>
-                <button onClick={resetBrands} className="text-xs font-semibold text-gray-400 hover:text-violet-600">Reset</button>
-              </div>
-              <div className="mt-3 space-y-1">
-                {availableBrands.map((brand) => {
-                  const checked = selectedBrands.includes(brand);
-                  return (
-                    <label key={brand} className="flex cursor-pointer items-center justify-between rounded-xl px-2 py-2 hover:bg-gray-50">
-                      <span className="text-sm font-medium capitalize text-gray-700">{brand}</span>
-                      <span
-                        onClick={(e) => { e.preventDefault(); toggleBrand(brand); }}
-                        className={`grid h-5 w-5 place-items-center rounded-md border-2 transition ${
-                          checked ? 'border-violet-600 bg-violet-600' : 'border-gray-300 bg-white'
-                        }`}
-                      >
-                        {checked && (
-                          <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Delivery Options */}
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-            <h3 className="mb-3 text-base font-bold text-gray-900">Delivery Options</h3>
-            <div className="flex gap-2 rounded-full bg-gray-100 p-1">
-              {[{ id: 'standard', label: 'Standard' }, { id: 'pickup', label: 'Pick Up' }].map((opt) => (
+          {/* Speed */}
+          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
+            <h3 className="mb-3 font-bold text-white">Speed</h3>
+            <div className="flex gap-2 rounded-full bg-[#0e1420] p-1">
+              {[{ id: 'dash', label: 'Dash (10m)' }, { id: 'standard', label: 'Standard' }].map((opt) => (
                 <button
                   key={opt.id}
-                  onClick={() => setDelivery(opt.id)}
-                  className={`flex-1 rounded-full py-2 text-sm font-semibold transition ${
-                    delivery === opt.id
-                      ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow'
-                      : 'text-gray-500 hover:text-gray-700'
+                  onClick={() => setSpeed(opt.id)}
+                  className={`flex-1 rounded-full py-2 text-xs font-bold transition ${
+                    speed === opt.id ? 'bg-lime-400 text-black' : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   {opt.label}
@@ -220,19 +173,19 @@ const Products = () => {
           </div>
         </aside>
 
-        {/* ── Product Grid ── */}
+        {/* ── Main ── */}
         <main className="flex-1">
           <div className="mb-5 flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-extrabold text-gray-900">
+              <h1 className="text-xl font-extrabold text-white">
                 {searchQuery ? `Results for "${searchQuery}"` : category ? <span className="capitalize">{category}</span> : 'All Products'}
               </h1>
-              <p className="text-sm text-gray-400">{sortedProducts.length} items found</p>
+              <p className="text-sm text-gray-500">{sortedProducts.length} items · delivered in minutes</p>
             </div>
             <select
               onChange={(e) => setSortOrder(e.target.value)}
               value={sortOrder}
-              className="rounded-full border-0 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-gray-200 focus:ring-violet-300"
+              className="rounded-full border-0 bg-[#151c2b] px-4 py-2.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10 focus:ring-lime-400/40"
             >
               <option value="default">Sort: Featured</option>
               <option value="lowToHigh">Price: Low to High</option>
@@ -244,14 +197,35 @@ const Products = () => {
           {sortedProducts.length > 0 ? (
             <Product productsData={sortedProducts} />
           ) : (
-            <div className="rounded-3xl bg-white py-24 text-center shadow-sm ring-1 ring-gray-100">
-              <p className="text-2xl font-bold text-gray-700">No products found</p>
-              <p className="mt-2 text-gray-500">
+            <div className="rounded-2xl bg-[#151c2b] py-24 text-center ring-1 ring-white/5">
+              <p className="text-2xl font-bold text-white">No products found</p>
+              <p className="mt-2 text-gray-400">
                 Try adjusting your filters or{' '}
-                <Link to="/allProducts" className="font-semibold text-violet-600 hover:underline">browse all products</Link>
+                <Link to="/allProducts" className="font-semibold text-lime-300 hover:underline">browse all products</Link>
               </p>
             </div>
           )}
+
+          {/* ── Flash Deal Banner ── */}
+          <div className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-violet-500 to-lime-400 p-8">
+            <div className="relative z-10 max-w-lg">
+              <span className="inline-block rounded-md bg-black/30 px-3 py-1 text-xs font-bold tracking-wider text-lime-200 backdrop-blur">
+                FLASH DEAL
+              </span>
+              <h2 className="mt-4 text-3xl font-black text-white md:text-4xl">Late Night Cravings?</h2>
+              <p className="mt-2 text-sm text-white/90">
+                Get 20% off all snacks and energy drinks between 10PM and 2AM. Dash delivered.
+              </p>
+              <button
+                onClick={() => navigate('/allProducts')}
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-bold text-gray-900 transition hover:scale-105"
+              >
+                Shop Now
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </button>
+            </div>
+            <div className="pointer-events-none absolute -right-10 top-1/2 hidden -translate-y-1/2 text-[12rem] opacity-20 md:block">🛍️</div>
+          </div>
         </main>
       </div>
 
@@ -263,27 +237,26 @@ const Products = () => {
           appearance: none;
           height: 6px;
           border-radius: 9999px;
-          background: linear-gradient(to right, #7c3aed 0%, #7c3aed ${pricePct}%, #e5e7eb ${pricePct}%, #e5e7eb 100%);
+          background: linear-gradient(to right, #a3e635 0%, #a3e635 ${pricePct}%, rgba(255,255,255,0.1) ${pricePct}%, rgba(255,255,255,0.1) 100%);
           outline: none;
         }
         .price-slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          height: 20px;
-          width: 20px;
+          height: 18px;
+          width: 18px;
           border-radius: 9999px;
-          background: #111827;
-          border: 3px solid #fff;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+          background: #a3e635;
+          border: 3px solid #0b1120;
+          box-shadow: 0 0 0 1px rgba(163,230,53,0.5);
           cursor: pointer;
         }
         .price-slider::-moz-range-thumb {
-          height: 20px;
-          width: 20px;
+          height: 18px;
+          width: 18px;
           border-radius: 9999px;
-          background: #111827;
-          border: 3px solid #fff;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+          background: #a3e635;
+          border: 3px solid #0b1120;
           cursor: pointer;
         }
       `}</style>

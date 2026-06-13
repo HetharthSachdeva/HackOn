@@ -116,12 +116,12 @@ const CartItems = () => {
     };
 
     return (
-        <div className='flex flex-row gap-5'>
+        <div className='mx-auto flex max-w-[1400px] flex-row gap-5 px-4 sm:px-6'>
             <ScrollRestoration />
-            <div className=' w-[74%] flex flex-col gap-6 my-10 ml-5' >
-                <div className='w-full  bg-white py-7 px-5' >
-                    <h1 className='text-3xl font-semibold mb-1'>Shopping Cart</h1>
-                    <hr />
+            <div className=' w-[74%] flex flex-col gap-6 my-10' >
+                <div className='w-full rounded-2xl bg-[#151c2b] py-7 px-5 ring-1 ring-white/5' >
+                    <h1 className='text-3xl font-black text-white mb-3'>Shopping Cart</h1>
+                    <hr className='border-white/10' />
                     {userCart.length > 0
                         ?
                         <div ref={cartRef}>
@@ -154,68 +154,58 @@ const CartItems = () => {
                             }
                         </div>
                     }
-                    <div className='flex justify-between  '>
+                    <div className='mt-4 flex justify-between'>
                         <button onClick={() => handleClearCart()}
-                            className='w-[200px] border-[1px] bg-gray-100 border-gray-200 py-1 text-sm text-blue-600 rounded-lg
-                          text-center p-[4px] mt-1 active:ring-2 active:ring-offset-1 active:ring-blue-600
-                         '>Clear Cart</button>
-                        <div className='text-[22px] font-medium flex justify-end'>SubTotal ({userCart.length > 0 > 0 ? cartTotalQty : totalQty} items) :&nbsp;
-                            <div className='flex justify-center items-center '>
-                                <p className='font-medium text-[19px] '>₹&nbsp;</p>
-                                <span className='text-[23px] font-bold'>{userCart.length > 0 > 0 ? cartTotalPrice : totalPrice}.00</span>
-                            </div>
+                            className='w-[200px] rounded-lg bg-white/5 py-2 text-sm font-semibold text-gray-300 ring-1 ring-white/10 transition hover:text-red-400 hover:ring-red-400/30'>
+                            Clear Cart</button>
+                        <div className='flex items-baseline justify-end text-[22px] font-medium text-gray-300'>SubTotal ({userCart.length > 0 ? cartTotalQty : totalQty} items) :&nbsp;
+                            <span className='text-[24px] font-black text-white'>${userCart.length > 0 ? cartTotalPrice : totalPrice}.00</span>
                         </div>
                     </div>
                 </div>
-                <div className='w-full bg-white h-16'>
-                </div>
-                <p className='text-sm p-5'>
-                    The price and availability of items at Amazon.in are subject to change. The shopping cart is a temporary place to store a list of your items and reflects each item's most recent price.
-                    Do you have a promotional code? We'll ask you to enter your claim code when it's time to pay.
+                <p className='px-2 text-sm text-gray-500'>
+                    Prices and availability are subject to change. Your cart is a temporary place to store items and reflects each item's most recent price.
                 </p>
             </div>
             <div className=' w-[22%] flex flex-col gap-5 my-10 '>
-                <div className='w-full  bg-white py-6 px-5'>
+                <div className='w-full rounded-2xl bg-[#151c2b] py-6 px-5 ring-1 ring-white/5'>
                     <div className='flex flex-row gap-2 '>
-                        <img className='w-5 h-5' src={correct} alt="correct" />
-                        <span className='text-[13px] text-[#17a34acc]'>Part of your order qualifies for FREE Delivery.
-                            <span className='text-gray-500'>Select this option at checkout.</span>
+                        <span className='text-lime-400'>✓</span>
+                        <span className='text-[13px] text-lime-300'>Part of your order qualifies for FREE Delivery.
+                            <span className='text-gray-500'> Select this at checkout.</span>
                         </span>
                     </div>
-                    <div className='text-[18px] mt-4 font-medium flex justify-start items-center'>SubTotal ({userCart.length > 0 ? cartTotalQty : totalQty} items) :&nbsp;
-                        <div className='flex items-center '>
-                            <p className='font-medium text-[16px] '>₹&nbsp;</p>
-                            <span className='text-[18px] font-bold'>{userCart.length > 0 ? cartTotalPrice : totalPrice}.00</span>
-                        </div>
+                    <div className='mt-4 flex items-baseline text-[18px] font-medium text-gray-300'>SubTotal ({userCart.length > 0 ? cartTotalQty : totalQty} items) :&nbsp;
+                        <span className='text-[18px] font-black text-white'>${userCart.length > 0 ? cartTotalPrice : totalPrice}.00</span>
                     </div>
                     {
                         authenticated
                             ? <Link to="/checkout">
-                                <button className={`pt-2 w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
+                                <button className={`mt-3 w-full rounded-full bg-lime-400 py-2.5 text-center font-bold text-black transition hover:bg-lime-300`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
                             : <Link to="/signIn">
-                                <button className={`pt-2 w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
+                                <button className={`mt-3 w-full rounded-full bg-lime-400 py-2.5 text-center font-bold text-black transition hover:bg-lime-300`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
                     }
-                    <div className='border-[1px] border-gray-200 mt-4 flex items-center justify-center py-2 '>EMI Available</div>
+                    <div className='mt-4 flex items-center justify-center rounded-lg border border-white/10 py-2 text-sm text-gray-400'>EMI Available</div>
                 </div>
-                <div className='w-full  bg-white' >
-                    <h1 className='font-semibold mx-3 pt-3 '>Customers who bought other items</h1>
-                    <div style={{ height: productDivHeight }} className='bg-white flex flex-col gap-4 py-3 ml-3 custom-scrollbar overflow-y-hidden hover:overflow-y-scroll '>
+                <div className='w-full rounded-2xl bg-[#151c2b] ring-1 ring-white/5' >
+                    <h1 className='mx-3 pt-3 font-bold text-white'>You might also like</h1>
+                    <div style={{ height: productDivHeight }} className='custom-scrollbar ml-3 flex flex-col gap-4 overflow-y-hidden py-3 hover:overflow-y-scroll '>
                         {productsData.map((product, index) => (
                             <div className='flex flex-row gap-2' key={index} >
                                 <Link to={`/allProducts/${product.title}`}>
-                                    <img className='w-20 h-20' src={product.thumbnail} alt="productImage" />
+                                    <img className='h-16 w-16 rounded-lg bg-[#0e1420] object-contain p-1' src={product.thumbnail} alt="productImage" />
                                 </Link>
                                 <div className=''>
                                     <Link to={`/${product.category}/${product.title}`}>
-                                        <p className='text-blue-600 text-xl font-semibold'>{product.title.substring(0, 15)}</p>
+                                        <p className='text-sm font-semibold text-gray-200 hover:text-lime-300'>{product.title.substring(0, 18)}</p>
                                     </Link>
-                                    <p className='text-red-600 text-[20px] font-semibold mt-2'>₹ {product.price}.00</p>
+                                    <p className='mt-1 text-[18px] font-bold text-lime-400'>${product.price}</p>
                                 </div>
                             </div>
                         ))}

@@ -114,31 +114,31 @@ const OrderSummary = () => {
 
   return (
     <div>
-      <div className=" mx-auto border-[1px] border-gray-400 rounded-lg mt-3">
+      <div className=" mx-auto bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-3">
         <div className=" mt-2 px-[18px]">
-          <h3 className=" text-xl font-semibold pt-2 mb-3">Order Summary</h3>
-          <div className="flex justify-between mb-[2px] text-sm">
+          <h3 className=" text-xl font-semibold pt-2 mb-3 text-white">Order Summary</h3>
+          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
             <p>Total Items:</p>
             <p>{product ? productQty : cartTotalQty}</p>
           </div>
-          <div className="flex justify-between mb-[2px] text-sm">
+          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
             <p>Total Price:</p>
-            <p>₹{product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</p>
+            <p>${product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</p>
           </div>
-          <div className="flex justify-between mb-[2px] text-sm">
+          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
             <p>Delivery:</p>
-            <p>₹{deliveryCharges}.00</p>
+            <p>${deliveryCharges}.00</p>
           </div>
-          <div className="text-xl font-semibold flex justify-between py-2 border-t border-gray-400 text-red-700">
+          <div className="text-xl font-semibold flex justify-between py-2 border-t border-white/10 text-lime-400">
             <p>Order Total:</p>
-            <p>₹{product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
+            <p>${product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
           </div>
 
           {selectedAddress &&
             <div >
-              <h3 className="border-t border-gray-400 text-lg font-semibold py-2">Selected Address</h3>
-              <div className="mb-2 text-sm">
-                <p className='font-semibold'>Name : {selectedAddress.name}</p>
+              <h3 className="border-t border-white/10 text-lg font-semibold py-2 text-white">Selected Address</h3>
+              <div className="mb-2 text-sm text-gray-400">
+                <p className='font-semibold text-white'>Name : {selectedAddress.name}</p>
                 <span>{selectedAddress.address}, {selectedAddress.area}, {selectedAddress.landmark}, {selectedAddress.city}, {selectedAddress.pincode}, {selectedAddress.state}, {selectedAddress.country}</span>
               </div>
             </div>
@@ -146,32 +146,32 @@ const OrderSummary = () => {
 
           {selectedPayment &&
             <div >
-              <h3 className="border-t border-gray-400 text-lg font-semibold py-2">Selected Payment Method</h3>
-              <div className="mb-2 text-sm">
+              <h3 className="border-t border-white/10 text-lg font-semibold py-2 text-white">Selected Payment Method</h3>
+              <div className="mb-2 text-sm text-gray-400">
                 <p className='font-semibold capitalize'> {selectedPayment}</p>
               </div>
             </div>
           }
         </div>
 
-        <div className='mx-[18px] border-t border-gray-400'>
+        <div className='mx-[18px] border-t border-white/10'>
           {(selectedAddress && selectedPayment) &&
-            <button className="w-full text-center text-sm rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-blue-500"
+            <button className="w-full text-center text-sm rounded-lg bg-lime-400 text-black font-bold hover:bg-lime-300 p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-lime-400"
               onClick={makePayment}
             >
               Place your order
             </button>
           }
-          <p className="text-xs text-gray-600  my-2 text-center">
+          <p className="text-xs text-gray-400  my-2 text-center">
             By placing your order, you agree to Amazon's
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200522700" className='text-blue-500 hover:text-red-500 cursor-pointer'> privacy notice </a>
+            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200522700" className='text-lime-400 hover:text-lime-300 cursor-pointer'> privacy notice </a>
             and
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200545940" className='text-blue-500 hover:text-red-500 cursor-pointer'> conditions of use</a>.
+            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200545940" className='text-lime-400 hover:text-lime-300 cursor-pointer'> conditions of use</a>.
           </p>
         </div>
 
-        <div className="flex justify-between border-t border-gray-400 rounded-br-lg rounded-bl-lg bg-gray-200">
-          <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-blue-500 hover:underline hover:text-red-700 hover:cursor-pointer">
+        <div className="flex justify-between border-t border-white/10 rounded-br-lg rounded-bl-lg bg-[#0e1420]">
+          <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-lime-400 hover:underline hover:text-lime-300 hover:cursor-pointer">
             How are delivery costs calculated?
           </p>
         </div>
@@ -179,54 +179,54 @@ const OrderSummary = () => {
 
       {
         deliveryInfo &&
-        <div ref={deliveryInfoRef} className="border mt-2 w-[400px]">
+        <div ref={deliveryInfoRef} className="border border-white/10 bg-[#151c2b] ring-1 ring-white/5 mt-2 w-[400px]">
           <table className="w-full text-center">
             <thead>
-              <tr className="bg-gray-100 ">
-                <th className="px-2 py-1 border text-xs">Shipping Speed</th>
-                <th className="px-2 py-1 border text-xs">Prime Members</th>
-                <th className="px-2 py-1 border text-xs">Prime Lite Members</th>
-                <th className="px-2 py-1 border text-xs">Non-Prime Members</th>
+              <tr className="bg-[#0e1420] ">
+                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Shipping Speed</th>
+                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Members</th>
+                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Lite Members</th>
+                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Non-Prime Members</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-gray-100">
-                <td className="px-2 py-1 border text-xs">Same-Day Delivery</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">₹175</td>
-                <td className="px-2 py-1 border text-xs">₹175</td>
+              <tr className="bg-[#0e1420]">
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Same-Day Delivery</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$175</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$175</td>
               </tr>
               <tr>
-                <td className="px-2 py-1 border text-xs">One-Day Delivery</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">₹150</td>
-                <td className="px-2 py-1 border text-xs">₹150</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">One-Day Delivery</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
               </tr>
-              <tr className="bg-gray-100">
-                <td className="px-2 py-1 border text-xs">Two-Day Delivery</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">₹120</td>
+              <tr className="bg-[#0e1420]">
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Two-Day Delivery</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$120</td>
               </tr>
               <tr>
-                <td className="px-2 py-1 border text-xs">No-Rush Delivery</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">N.A</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">No-Rush Delivery</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">N.A</td>
               </tr>
-              <tr className="bg-gray-100">
-                <td className="px-2 py-1 border text-xs">Standard Delivery**</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">Free</td>
-                <td className="px-2 py-1 border text-xs">₹40</td>
+              <tr className="bg-[#0e1420]">
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Standard Delivery**</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$40</td>
               </tr>
             </tbody>
           </table>
-          <p className="text-sm text-gray-600 mt-2 p-2">
-            **Standard Delivery charges are free for non-Prime members for orders ₹499 or more.
+          <p className="text-sm text-gray-400 mt-2 p-2">
+            **Standard Delivery charges are free for non-Prime members for orders $499 or more.
           </p>
           <div className='flex justify-end relative'>
-            <button className='text-sm text-blue-500 hover:text-red-700 absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>
+            <button className='text-sm text-lime-400 hover:text-lime-300 absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>
           </div>
         </div>
       }

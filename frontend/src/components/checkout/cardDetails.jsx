@@ -61,44 +61,44 @@ function CardDetails() {
     }
 
     return (
-        <div className="w-[60%] mx-auto border-[1px] border-gray-400 rounded-lg ">
-            <div className="w-full py-3 pl-5 border-b border-gray-400 rounded-tl-lg rounded-tr-lg bg-gray-100">
-                <h1 className="text-lg font-semibold">Enter card details</h1>
+        <div className="w-[60%] mx-auto bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg ">
+            <div className="w-full py-3 pl-5 border-b border-white/10 rounded-tl-lg rounded-tr-lg bg-[#0e1420]">
+                <h1 className="text-lg font-semibold text-white">Enter card details</h1>
             </div>
             <form className='my-4 ml-10 flex flex-col gap-2'>
-                <label className='font-semibold flex items-center gap-3'>
+                <label className='font-semibold flex items-center gap-3 text-gray-300'>
                     <span>Card number</span>
-                    <input type="text" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} autoComplete="true" className='ml-[6px] border-[1px] border-[#a6a6a6] rounded p-1 w-56' />
+                    <input type="text" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} autoComplete="true" className='ml-[6px] bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 w-56' />
                 </label>
                 {cardNumberError && <p className="text-red-700">{cardNumberError}</p>}
-                <label className='font-semibold flex items-center gap-3'>
+                <label className='font-semibold flex items-center gap-3 text-gray-300'>
                     <span>Name on card</span>
-                    <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} autoComplete="true" className=' border-[1px] border-[#a6a6a6] rounded p-1 w-56' />
+                    <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 w-56' />
                 </label>
                 {cardNumberError && <p className="text-red-500">{cardNumberError}</p>}
                 <div className="flex gap-5">
-                    <label className='font-semibold flex items-center gap-3'>
+                    <label className='font-semibold flex items-center gap-3 text-gray-300'>
                         <span>Expiry date</span>
                         <div className="flex gap-2">
-                            <select className="border-[1px] border-[#a6a6a6] rounded p-1 ml-5" value={cardExpiryMonth} onChange={(e) => setCardExpiryMonth(e.target.value)}>
+                            <select className="bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 border-[1px] border-white/10 rounded p-1 ml-5" value={cardExpiryMonth} onChange={(e) => setCardExpiryMonth(e.target.value)}>
                                 {months.map((month) => (
                                     <option key={month} value={month}>{month}</option>
                                 ))}
                             </select>
-                            <select className="border-[1px] border-[#a6a6a6] rounded p-1" value={cardExpiryYear} onChange={(e) => setCardExpiryYear(e.target.value)}>
+                            <select className="bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 border-[1px] border-white/10 rounded p-1" value={cardExpiryYear} onChange={(e) => setCardExpiryYear(e.target.value)}>
                                 {years.map((year) => (
                                     <option key={year} value={year}>{year}</option>
                                 ))}
                             </select>
                         </div>
                     </label>
-                    <label className='font-semibold flex items-center gap-2'>
+                    <label className='font-semibold flex items-center gap-2 text-gray-300'>
                         <span>CVV</span>
-                        <input type="text" value={cvv} maxLength={3} onChange={(e) => setCvv(e.target.value)} autoComplete="true" className=' w-10 border-[1px] border-[#a6a6a6] rounded p-1 ' />
+                        <input type="text" value={cvv} maxLength={3} onChange={(e) => setCvv(e.target.value)} autoComplete="true" className=' w-10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                     </label>
                     {cvvError && <p className="text-red-500">{cvvError}</p>}
                 </div>
-                <button className="w-[58%] ml-28 text-center text-sm font-normal rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[7px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-500">
+                <button className="w-[58%] ml-28 text-center text-sm rounded-lg bg-lime-400 text-black font-bold hover:bg-lime-300 p-[7px] mt-3 active:ring-2 active:ring-offset-1 active:ring-lime-400">
                     Continue
                 </button>
             </form>

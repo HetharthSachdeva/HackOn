@@ -13,21 +13,21 @@ const FooterTop = () => {
   return (
     <>
       {!userInfo &&
-        <div className='w-full bg-white pt-10 pb-6'>
-          <div className='w-full border-[1px] rounded-md border-gray-200'>
+        <div className='w-full bg-[#0b1120] pt-10 pb-6'>
+          <div className='mx-auto w-72 rounded-md border border-white/10 bg-[#151c2b]'>
             <div className='mx-auto w-60 text-center pt-10 pb-5'>
-              <p className='text-sm'>See personalized recommendations</p>
+              <p className='text-sm text-gray-300'>See personalized recommendations</p>
               <Link to="/signIn" >
                 <button
-                  className='w-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-md py-1 font-semibold cursor-pointer hover:from-violet-600 hover:to-indigo-600 text-sm mt-[2px] mb-[2px]'
+                  className='w-full bg-lime-400 text-black rounded-md py-1.5 font-bold cursor-pointer hover:bg-lime-300 text-sm mt-2 mb-1'
                 >
                   Sign in
                 </button>
               </Link>
-              <p className='text-xs'>
+              <p className='text-xs text-gray-400'>
                 New customer? &nbsp;
                 <Link to="/createAccount" >
-                  <span className='text-xs text-blue-400 hover:text-red-500 cursor-pointer'>
+                  <span className='text-xs text-lime-400 hover:text-lime-300 cursor-pointer'>
                     Start here.
                   </span>
                 </Link>
