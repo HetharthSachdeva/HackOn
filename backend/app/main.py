@@ -48,6 +48,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         redis_enabled=redis_configured(),
         rate_limit_enabled=settings.rate_limit_enabled,
     )
+    if settings.dev_bypass_auth:
+        # Very loud, intentionally repeated banner so this can't slip past code review,
+        # log scraping, or a bleary-eyed glance at startup output.
+        log.warning(
+            "auth.dev_bypass_enabled_at_startup",
+            user_id=settings.dev_user_id,
+            user_email=settings.dev_user_email,
+            override_header="X-Dev-User-Id",
+            danger=(
+                "AUTH IS DISABLED — every request authenticates as the dev user. "
+                "This MUST be off in any non-dev environment."
+            ),
+        )
     get_engine()  # trigger lazy construction
     try:
         yield

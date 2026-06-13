@@ -216,6 +216,74 @@ await fetch("http://127.0.0.1:8000/api/v1/auth/me", {
 Test from `/docs`: click **Authorize**, paste the access token (no
 `Bearer ` prefix — FastAPI adds it), then invoke any secured endpoint.
 
+### Bypassing auth for local testing
+
+For quick local poking it's annoying to mint a real token. Flip on the
+dev bypass in `.env`:
+
+```ini
+APP_ENV="dev"
+DEV_BYPASS_AUTH=true
+DEV_USER_ID="00000000-0000-0000-0000-000000000001"
+DEV_USER_EMAIL="dev@local.test"
+```
+
+Restart the server. Every request now authenticates as the configured dev
+user — no `Authorization` header needed. You'll see a fat warning banner
+in the startup logs and on the first request.
+
+To act "as" a different user without restarting, send the
+`X-Dev-User-Id` header on the request:
+
+```powershell
+curl.exe http://127.0.0.1:8000/api/v1/auth/me `
+  -H "X-Dev-User-Id: 11111111-2222-3333-4444-555555555555"
+```
+
+> **Hard safety rails:** the app **refuses to start** if
+> `DEV_BYPASS_AUTH=true` while `APP_ENV` is anything other than `"dev"`.
+> Pydantic raises a validation error at import time, so a misconfigured
+> staging or prod deploy crashes fast instead of silently exposing every
+> route. Leave the flag at `false` in any committed `.env` file.
+
+---
+
+## Enabling Gemma 4 (Google AI Studio)
+
+The AI endpoints (`/ai/intent-to-cart`, `/ai/snap-to-cart`, etc.) ship with
+a deterministic stub provider so they work out of the box. To switch to a
+real model, point the backend at Google's hosted Gemma 4:
+
+1. Get a free API key at <https://aistudio.google.com/apikey>.
+2. Edit `.env`:
+
+   ```ini
+   LLM_PROVIDER="gemma"
+   LLM_API_KEY="<your AI Studio key>"
+   LLM_MODEL="gemma-4-31b-it"   # 31b dense (recommended). Alt: gemma-4-26b-a4b-it (MoE, faster but occasionally returns 500s)
+   ```
+3. Restart the server. No code changes required — every route that calls
+   `app.ai.llm.get_provider()` automatically picks up the new provider.
+
+> The provider sends a **`responseSchema`** with every `suggest_cart` call.
+> Gemma 4 otherwise narrates its reasoning before answering (no JSON-only
+> mode is honored without a schema); supplying the schema gives us
+> guaranteed structured output and ~10x cleaner responses.
+
+If the upstream API errors or returns malformed JSON, the provider logs a
+warning and degrades to the deterministic stub output for that single
+request — your demo never hard-fails.
+
+To run Gemma locally via Ollama (offline, no API key) instead, point the
+provider at Ollama's OpenAI-compatible endpoint:
+
+```ini
+LLM_PROVIDER="gemma"
+LLM_BASE_URL="http://localhost:11434/v1"
+LLM_API_KEY="ollama"
+LLM_MODEL="gemma3:4b"
+```
+
 ---
 
 ## Daily cheat sheet

@@ -38,6 +38,20 @@ def main(argv: list[str] | None = None) -> int:
         help="Rows per upsert statement. Smaller = shorter locks, more round-trips.",
     )
 
+    reembed = sub.add_parser(
+        "reembed-catalog",
+        help=(
+            "Locally recompute every product embedding from "
+            "title + category + tags (fixes search quality)."
+        ),
+    )
+    reembed.add_argument(
+        "--batch-size",
+        type=int,
+        default=128,
+        help="Batch size for the encoder and DB UPDATE. 128 is a good CPU default.",
+    )
+
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
     if args.cmd == "serve":
@@ -57,6 +71,17 @@ def main(argv: list[str] | None = None) -> int:
             f"sync-catalog complete: fetched={stats.fetched} "
             f"inserted={stats.inserted} updated={stats.updated} "
             f"skipped_invalid={stats.skipped_invalid} "
+            f"elapsed={stats.elapsed_seconds:.2f}s"
+        )
+        return 0
+
+    if args.cmd == "reembed-catalog":
+        from app.services.catalog_reembed import run_reembed
+
+        stats = run_reembed(batch_size=args.batch_size)
+        print(
+            f"reembed-catalog complete: fetched={stats.fetched} "
+            f"updated={stats.updated} skipped_empty={stats.skipped_empty} "
             f"elapsed={stats.elapsed_seconds:.2f}s"
         )
         return 0

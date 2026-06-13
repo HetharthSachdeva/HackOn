@@ -73,3 +73,50 @@ def embed_text(text: str) -> list[float]:
     model = get_embedder()
     vec = model.encode(text, normalize_embeddings=True, show_progress_bar=False)
     return vec.tolist()
+
+
+def embed_texts(texts: list[str], *, batch_size: int = 128) -> list[list[float]]:
+    """Batch-embed many strings at once.
+
+    Roughly 30-50x faster than calling :func:`embed_text` in a loop because
+    SentenceTransformer can vectorize the forward pass across a batch on
+    CPU/GPU. Used by the catalog re-embed job.
+    """
+    if not texts:
+        return []
+    model = get_embedder()
+    vecs = model.encode(
+        texts,
+        batch_size=batch_size,
+        normalize_embeddings=True,
+        show_progress_bar=False,
+        convert_to_numpy=True,
+    )
+    return [v.tolist() for v in vecs]
+
+
+def build_catalog_text(
+    *,
+    title: str,
+    category: str | None,
+    tags: str | None,
+) -> str:
+    """Build the canonical text we embed for one catalog row.
+
+    Why all three fields and not just the title?
+        Small models like ``all-MiniLM-L6-v2`` essentially match on word
+        overlap when the source text is a single short product title.
+        Without category/tags context, "Magnetic Chip Clips" ranks just as
+        high as "Potato Chips" for the query ``"chips"`` because both
+        titles contain the literal word. Folding the category and tag list
+        into the embedded text gives the model the disambiguating signal
+        it needs ("Household Essentials" vs "Groceries & Kitchen").
+
+    Format is deliberately readable English so the encoder treats it as
+    a coherent passage rather than a bag of fields. Missing values
+    degrade gracefully to ``"none"``.
+    """
+    cat = (category or "").strip() or "uncategorized"
+    raw_tags = (tags or "").replace(";", ", ").strip()
+    tag_part = raw_tags if raw_tags else "none"
+    return f"{title.strip()}. Category: {cat}. Tags: {tag_part}."

@@ -7,6 +7,10 @@ These are the small glue functions every router relies on:
   a :class:`~app.core.security.CurrentUser`.
 * :func:`get_optional_user` — like :func:`get_current_user` but returns
   ``None`` if no token was supplied (rather than raising).
+
+When ``DEV_BYPASS_AUTH=true`` (only legal with ``APP_ENV=dev``) both
+dependencies short-circuit and return a synthetic dev user — see
+:mod:`app.core.config` for the fail-closed cross-field validator.
 """
 
 from __future__ import annotations
@@ -14,17 +18,24 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from typing import Annotated
 
-from fastapi import Depends
+import structlog
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import Settings, get_settings
 from app.core.database import get_session_factory
 from app.core.errors import UnauthorizedError
 from app.core.security import CurrentUser, decode_supabase_jwt
 
+log = structlog.get_logger(__name__)
+
 # `auto_error=False` lets us produce our own structured 401 via UnauthorizedError
 # instead of FastAPI's default {"detail": "..."} body.
 _bearer_scheme = HTTPBearer(auto_error=False)
+
+_DEV_BYPASS_HEADER = "X-Dev-User-Id"
+_dev_bypass_warned: bool = False
 
 
 async def get_db() -> AsyncIterator[AsyncSession]:
@@ -44,19 +55,77 @@ async def get_db() -> AsyncIterator[AsyncSession]:
         await session.close()
 
 
+def _maybe_warn_dev_bypass(user_id: str) -> None:
+    """Emit a single, very loud warning the first time the bypass fires."""
+    global _dev_bypass_warned
+    if _dev_bypass_warned:
+        return
+    log.warning(
+        "auth.dev_bypass_active",
+        user_id=user_id,
+        notice=(
+            "DEV_BYPASS_AUTH is enabled — every request is authenticated as "
+            "the dev user with no JWT verification. NEVER deploy with this on."
+        ),
+    )
+    _dev_bypass_warned = True
+
+
+def _dev_bypass_user(settings: Settings, request: Request) -> CurrentUser:
+    """Build the synthetic CurrentUser returned while bypass is active.
+
+    A per-request ``X-Dev-User-Id`` header overrides the configured default
+    so you can test "as" different users from Swagger without restarting.
+    """
+    override = request.headers.get(_DEV_BYPASS_HEADER)
+    user_id = (override or settings.dev_user_id).strip()
+    if not user_id:
+        user_id = settings.dev_user_id
+    _maybe_warn_dev_bypass(user_id)
+    return CurrentUser(
+        id=user_id,
+        email=settings.dev_user_email or "dev@local.test",
+        role="authenticated",
+        raw_claims={
+            "sub": user_id,
+            "email": settings.dev_user_email or "dev@local.test",
+            "role": "authenticated",
+            "dev_bypass": True,
+        },
+    )
+
+
 def get_current_user(
+    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
 ) -> CurrentUser:
-    """Require a valid Supabase JWT and return the authenticated user."""
+    """Require a valid Supabase JWT and return the authenticated user.
+
+    When :data:`Settings.dev_bypass_auth` is true this short-circuits the
+    JWT check and returns a synthetic dev user instead.
+    """
+    settings = get_settings()
+    if settings.dev_bypass_auth:
+        return _dev_bypass_user(settings, request)
+
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise UnauthorizedError("Missing or invalid Authorization header")
     return decode_supabase_jwt(credentials.credentials)
 
 
 def get_optional_user(
+    request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_scheme)],
 ) -> CurrentUser | None:
-    """Return the authenticated user if a token is present, otherwise None."""
+    """Return the authenticated user if a token is present, otherwise None.
+
+    When :data:`Settings.dev_bypass_auth` is true this always returns the
+    synthetic dev user — there's no anonymous mode while bypass is on.
+    """
+    settings = get_settings()
+    if settings.dev_bypass_auth:
+        return _dev_bypass_user(settings, request)
+
     if credentials is None or credentials.scheme.lower() != "bearer":
         return None
     try:
