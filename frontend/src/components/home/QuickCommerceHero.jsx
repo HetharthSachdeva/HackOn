@@ -34,20 +34,20 @@ const QuickCommerceHero = () => {
                 <section className="relative overflow-hidden rounded-[28px] bg-[#151c2b] px-8 py-12 ring-1 ring-white/5 md:px-14 md:py-16">
                     {/* lime glow accents */}
                     <div className="pointer-events-none absolute inset-0">
-                        <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-lime-400/10 blur-3xl" />
+                        <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-[#FF9900]/10 blur-3xl" />
                         <div className="absolute -bottom-28 -left-10 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl" />
                     </div>
 
                     <div className="relative z-10 grid items-center gap-10 md:grid-cols-2">
                         <div>
                             <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-1.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10">
-                                <span className="h-2 w-2 animate-pulse rounded-full bg-lime-400" />
+                                <span className="h-2 w-2 animate-pulse rounded-full bg-[#FF9900]" />
                                 Delivering in your area now
                             </span>
 
                             <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white md:text-6xl">
                                 Everything you need,
-                                <span className="block text-lime-400">in <span className="tabular-nums">{deliveryTime}</span> minutes.</span>
+                                <span className="block text-[#FF9900]">in <span className="tabular-nums">{deliveryTime}</span> minutes.</span>
                             </h1>
 
                             <p className="mt-4 max-w-md text-base text-gray-400 md:text-lg">
@@ -57,7 +57,7 @@ const QuickCommerceHero = () => {
                             <div className="mt-8 flex flex-wrap items-center gap-3">
                                 <button
                                     onClick={() => navigate('/allProducts')}
-                                    className="group inline-flex items-center gap-2 rounded-full bg-lime-400 px-7 py-3.5 text-base font-bold text-black transition-all duration-300 hover:bg-lime-300 hover:-translate-y-0.5"
+                                    className="group inline-flex items-center gap-2 rounded-full bg-[#FF9900] px-7 py-3.5 text-base font-bold text-black transition-all duration-300 hover:bg-[#FFB145] hover:-translate-y-0.5"
                                 >
                                     Start shopping
                                     <span className="transition-transform group-hover:translate-x-1">→</span>
@@ -82,12 +82,12 @@ const QuickCommerceHero = () => {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Arriving in</p>
-                                        <p className="text-4xl font-black tabular-nums text-lime-400">{deliveryTime}:00</p>
+                                        <p className="text-4xl font-black tabular-nums text-[#FF9900]">{deliveryTime}:00</p>
                                     </div>
-                                    <div className="grid h-16 w-16 place-items-center rounded-2xl bg-lime-400/10 text-3xl">🏍️</div>
+                                    <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[#FF9900]/10 text-3xl">🏍️</div>
                                 </div>
                                 <div className="mt-5 h-2 w-full overflow-hidden rounded-full bg-white/10">
-                                    <div className="h-full w-2/3 rounded-full bg-lime-400 animate-progress" />
+                                    <div className="h-full w-2/3 rounded-full bg-[#FF9900] animate-progress" />
                                 </div>
                                 <div className="mt-5 space-y-3">
                                     {[
@@ -96,7 +96,7 @@ const QuickCommerceHero = () => {
                                         { label: 'At your doorstep', done: false },
                                     ].map((step) => (
                                         <div key={step.label} className="flex items-center gap-3">
-                                            <span className={`grid h-6 w-6 place-items-center rounded-full text-xs ${step.done ? 'bg-lime-400 text-black' : 'bg-white/10 text-gray-500'}`}>
+                                            <span className={`grid h-6 w-6 place-items-center rounded-full text-xs ${step.done ? 'bg-[#FF9900] text-black' : 'bg-white/10 text-gray-500'}`}>
                                                 {step.done ? '✓' : '•'}
                                             </span>
                                             <span className={`text-sm font-medium ${step.done ? 'text-white' : 'text-gray-500'}`}>{step.label}</span>
@@ -117,7 +117,7 @@ const QuickCommerceHero = () => {
                         { value: '4.8★', label: 'Customer rating' },
                     ].map((s) => (
                         <div key={s.label} className="rounded-2xl bg-[#151c2b] p-5 text-center ring-1 ring-white/5">
-                            <div className="text-2xl font-black text-lime-400 md:text-3xl">{s.value}</div>
+                            <div className="text-2xl font-black text-[#FF9900] md:text-3xl">{s.value}</div>
                             <div className="mt-1 text-xs font-medium text-gray-500 md:text-sm">{s.label}</div>
                         </div>
                     ))}
@@ -130,17 +130,17 @@ const QuickCommerceHero = () => {
                             <h2 className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">Shop by category</h2>
                             <p className="mt-1 text-sm text-gray-500">Everything you need, neatly organized</p>
                         </div>
-                        <button onClick={() => navigate('/allProducts')} className="hidden text-sm font-semibold text-lime-400 hover:text-lime-300 sm:inline">
+                        <button onClick={() => navigate('/allProducts')} className="hidden text-sm font-semibold text-[#FF9900] hover:text-[#FFB145] sm:inline">
                             View all →
                         </button>
                     </div>
                     <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8 sm:gap-4">
                         {categories.map((cat) => (
                             <button key={cat.id} onClick={() => navigate(`/${cat.category}`)} className="group flex flex-col items-center gap-3">
-                                <div className="grid h-20 w-full place-items-center rounded-2xl bg-[#151c2b] ring-1 ring-white/5 transition-all duration-300 group-hover:-translate-y-1 group-hover:ring-lime-400/30">
+                                <div className="grid h-20 w-full place-items-center rounded-2xl bg-[#151c2b] ring-1 ring-white/5 transition-all duration-300 group-hover:-translate-y-1 group-hover:ring-[#FF9900]/30">
                                     <span className="text-4xl transition-transform duration-300 group-hover:scale-110">{cat.icon}</span>
                                 </div>
-                                <p className="text-center text-xs font-semibold text-gray-400 group-hover:text-lime-300">{cat.name}</p>
+                                <p className="text-center text-xs font-semibold text-gray-400 group-hover:text-[#FFB145]">{cat.name}</p>
                             </button>
                         ))}
                     </div>

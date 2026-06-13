@@ -88,17 +88,17 @@ const Orders = () => {
   return (
     <div className='w-full relative py-6 flex flex-col gap-5 bg-[#0b1120] '>
       <div className='w-full h-10 flex gap-7 pl-[8%] mdl:pl-[15%] text-base mdl:text-2xl'>
-        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showOrders ? "text-lime-400" : "text-gray-400"}`} onClick={() => {
+        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
           setShowOrders(true);
           setShowCancelOrders(false);
           setShowReturnOrders(false);
         }}>Your Orders</p>
-        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showCancelOrders ? "text-lime-400" : "text-gray-400"}`} onClick={() => {
+        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showCancelOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
           setShowOrders(false);
           setShowCancelOrders(true);
           setShowReturnOrders(false);
         }}>Cancelled Orders</p>
-        <p className={`font-semibold cursor-pointer ${showReturnOrders ? "text-lime-400" : "text-gray-400"}`} onClick={() => {
+        <p className={`font-semibold cursor-pointer ${showReturnOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
           setShowOrders(false);
           setShowCancelOrders(false);
           setShowReturnOrders(true);

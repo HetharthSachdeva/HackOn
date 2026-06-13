@@ -70,7 +70,7 @@ const Products = () => {
           <button
             onClick={() => navigate('/allProducts')}
             className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold transition-all ${
-              !category ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-lime-400/30'
+              !category ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
             }`}
           >
             All
@@ -80,7 +80,7 @@ const Products = () => {
               key={item}
               onClick={() => navigate(`/${item}`)}
               className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold capitalize transition-all ${
-                category === item ? 'bg-lime-400 text-black shadow-lg shadow-lime-400/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-lime-400/30'
+                category === item ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
               }`}
             >
               {item}
@@ -96,7 +96,7 @@ const Products = () => {
           <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-white">Price Range</h3>
-              <button onClick={() => setMaxPrice(priceBounds.max)} className="text-xs font-semibold text-gray-500 hover:text-lime-300">Reset</button>
+              <button onClick={() => setMaxPrice(priceBounds.max)} className="text-xs font-semibold text-gray-500 hover:text-[#FFB145]">Reset</button>
             </div>
             <p className="mt-1 text-xs text-gray-500">Average price: ${Math.round((priceBounds.min + priceBounds.max) / 2)}</p>
 
@@ -108,7 +108,7 @@ const Products = () => {
                   <div
                     key={i}
                     style={{ height: `${h}%` }}
-                    className={`w-2 rounded-full transition-colors ${active ? 'bg-lime-400' : 'bg-white/10'}`}
+                    className={`w-2 rounded-full transition-colors ${active ? 'bg-[#FF9900]' : 'bg-white/10'}`}
                   />
                 );
               })}
@@ -144,7 +144,7 @@ const Products = () => {
                   <span className="flex items-center gap-2 text-sm font-medium text-gray-300">
                     <span>{f.icon}</span> {f.label}
                   </span>
-                  <span className={`grid h-5 w-5 place-items-center rounded-md border-2 transition ${checked ? 'border-lime-400 bg-lime-400' : 'border-white/15 bg-transparent'}`}>
+                  <span className={`grid h-5 w-5 place-items-center rounded-md border-2 transition ${checked ? 'border-[#FF9900] bg-[#FF9900]' : 'border-white/15 bg-transparent'}`}>
                     {checked && (
                       <svg className="h-3 w-3 text-black" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                     )}
@@ -163,7 +163,7 @@ const Products = () => {
                   key={opt.id}
                   onClick={() => setSpeed(opt.id)}
                   className={`flex-1 rounded-full py-2 text-xs font-bold transition ${
-                    speed === opt.id ? 'bg-lime-400 text-black' : 'text-gray-400 hover:text-white'
+                    speed === opt.id ? 'bg-[#FF9900] text-black' : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   {opt.label}
@@ -185,7 +185,7 @@ const Products = () => {
             <select
               onChange={(e) => setSortOrder(e.target.value)}
               value={sortOrder}
-              className="rounded-full border-0 bg-[#151c2b] px-4 py-2.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10 focus:ring-lime-400/40"
+              className="rounded-full border-0 bg-[#151c2b] px-4 py-2.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10 focus:ring-[#FF9900]/40"
             >
               <option value="default">Sort: Featured</option>
               <option value="lowToHigh">Price: Low to High</option>
@@ -201,15 +201,15 @@ const Products = () => {
               <p className="text-2xl font-bold text-white">No products found</p>
               <p className="mt-2 text-gray-400">
                 Try adjusting your filters or{' '}
-                <Link to="/allProducts" className="font-semibold text-lime-300 hover:underline">browse all products</Link>
+                <Link to="/allProducts" className="font-semibold text-[#FFB145] hover:underline">browse all products</Link>
               </p>
             </div>
           )}
 
           {/* ── Flash Deal Banner ── */}
-          <div className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-violet-500 to-lime-400 p-8">
+          <div className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 via-violet-500 to-[#FF9900] p-8">
             <div className="relative z-10 max-w-lg">
-              <span className="inline-block rounded-md bg-black/30 px-3 py-1 text-xs font-bold tracking-wider text-lime-200 backdrop-blur">
+              <span className="inline-block rounded-md bg-black/30 px-3 py-1 text-xs font-bold tracking-wider text-[#FFD9A6] backdrop-blur">
                 FLASH DEAL
               </span>
               <h2 className="mt-4 text-3xl font-black text-white md:text-4xl">Late Night Cravings?</h2>

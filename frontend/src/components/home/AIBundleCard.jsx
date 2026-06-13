@@ -37,7 +37,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         // Show success message
         setTimeout(() => {
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-lime-400 text-black font-bold px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
+            toast.className = 'fixed top-4 right-4 bg-[#FF9900] text-black font-bold px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
             toast.innerHTML = `✅ Replaced! New total: $${newCost}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
@@ -98,7 +98,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
             // Show success message
             const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-lime-400 text-black px-8 py-4 rounded-2xl shadow-2xl z-50 animate-slide-down flex items-center gap-3';
+            toast.className = 'fixed top-4 right-4 bg-[#FF9900] text-black px-8 py-4 rounded-2xl shadow-2xl z-50 animate-slide-down flex items-center gap-3';
             toast.innerHTML = `
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -176,17 +176,17 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                     <div className="relative bg-[#0e1420] p-8 text-white overflow-hidden">
                         {/* Animated glow accents */}
                         <div className="absolute inset-0 opacity-100">
-                            <div className="absolute top-0 left-0 w-64 h-64 bg-lime-400/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse"></div>
+                            <div className="absolute top-0 left-0 w-64 h-64 bg-[#FF9900]/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse"></div>
                             <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl animate-pulse delay-1000"></div>
                         </div>
 
                         <div className="relative z-10">
                             {/* AI Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-lime-400/15 ring-1 ring-lime-400/30 rounded-full mb-4">
-                                <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 24 24">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF9900]/15 ring-1 ring-[#FF9900]/30 rounded-full mb-4">
+                                <svg className="w-5 h-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                 </svg>
-                                <span className="text-sm font-bold text-lime-300">AI Generated Bundle</span>
+                                <span className="text-sm font-bold text-[#FFB145]">AI Generated Bundle</span>
                             </div>
 
                             {/* Bundle Title */}
@@ -202,7 +202,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                 </div>
                                 <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
                                     <p className="text-sm text-gray-400 mb-1">You Save</p>
-                                    <p className="text-3xl font-black text-lime-400">${bundle.savings}</p>
+                                    <p className="text-3xl font-black text-[#FF9900]">${bundle.savings}</p>
                                 </div>
                                 <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
                                     <p className="text-sm text-gray-400 mb-1">Delivery</p>
@@ -210,7 +210,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                 </div>
                                 <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
                                     <p className="text-sm text-gray-400 mb-1">AI Match</p>
-                                    <p className="text-3xl font-black text-lime-400">{bundle.confidence}%</p>
+                                    <p className="text-3xl font-black text-[#FF9900]">{bundle.confidence}%</p>
                                 </div>
                             </div>
                         </div>
@@ -224,8 +224,8 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                 onClick={handleAddAllToCart}
                                 disabled={isAddingToCart}
                                 className={`
-                                    px-6 py-3 bg-lime-400 text-black
-                                    rounded-full font-bold shadow-lg shadow-lime-400/20 hover:bg-lime-300
+                                    px-6 py-3 bg-[#FF9900] text-black
+                                    rounded-full font-bold shadow-lg shadow-[#FF9900]/20 hover:bg-[#FFB145]
                                     transition-all duration-200 flex items-center gap-2
                                     ${isAddingToCart ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}
                                 `}
@@ -251,7 +251,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                             {bundleProducts.map((product, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex-shrink-0 w-64 bg-[#0e1420] rounded-2xl ring-1 ring-white/5 hover:ring-lime-400/40 transition-all duration-300 group"
+                                    className="flex-shrink-0 w-64 bg-[#0e1420] rounded-2xl ring-1 ring-white/5 hover:ring-[#FF9900]/40 transition-all duration-300 group"
                                 >
                                     {/* Product Image */}
                                     <div className="relative bg-[#0b1120] rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
@@ -261,7 +261,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                             className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                                         />
                                         {/* Quantity Badge */}
-                                        <div className="absolute top-3 right-3 bg-lime-400 text-black text-sm font-bold px-3 py-1 rounded-full shadow-lg">
+                                        <div className="absolute top-3 right-3 bg-[#FF9900] text-black text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                                             x{product.quantity}
                                         </div>
                                     </div>
@@ -287,7 +287,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         {/* Replace Button */}
                                         <button
                                             onClick={() => handleReplaceProduct(product)}
-                                            className="w-full py-3 bg-white/5 text-gray-300 font-bold rounded-xl ring-1 ring-white/10 hover:bg-lime-400/10 hover:text-lime-300 hover:ring-lime-400/30 transition-all duration-200 flex items-center justify-center gap-2"
+                                            className="w-full py-3 bg-white/5 text-gray-300 font-bold rounded-xl ring-1 ring-white/10 hover:bg-[#FF9900]/10 hover:text-[#FFB145] hover:ring-[#FF9900]/30 transition-all duration-200 flex items-center justify-center gap-2"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -304,7 +304,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                     <div className="px-8 pb-8">
                         <div className="bg-[#0e1420] rounded-2xl p-6 ring-1 ring-white/5">
                             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                <svg className="w-6 h-6 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-[#FF9900]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                                 Optimize Your Bundle
@@ -324,7 +324,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         className="
                                             px-6 py-3 bg-[#151c2b] text-gray-300 ring-1 ring-white/10
                                             rounded-full font-bold
-                                            hover:bg-lime-400 hover:text-black hover:ring-transparent
+                                            hover:bg-[#FF9900] hover:text-black hover:ring-transparent
                                             hover:scale-105 transition-all duration-200
                                             flex items-center gap-2
                                         "

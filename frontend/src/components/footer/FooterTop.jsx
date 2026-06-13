@@ -19,7 +19,7 @@ const FooterTop = () => {
               <p className='text-sm text-gray-300'>See personalized recommendations</p>
               <Link to="/signIn" >
                 <button
-                  className='w-full bg-lime-400 text-black rounded-md py-1.5 font-bold cursor-pointer hover:bg-lime-300 text-sm mt-2 mb-1'
+                  className='w-full bg-[#FF9900] text-black rounded-md py-1.5 font-bold cursor-pointer hover:bg-[#FFB145] text-sm mt-2 mb-1'
                 >
                   Sign in
                 </button>
@@ -27,7 +27,7 @@ const FooterTop = () => {
               <p className='text-xs text-gray-400'>
                 New customer? &nbsp;
                 <Link to="/createAccount" >
-                  <span className='text-xs text-lime-400 hover:text-lime-300 cursor-pointer'>
+                  <span className='text-xs text-[#FF9900] hover:text-[#FFB145] cursor-pointer'>
                     Start here.
                   </span>
                 </Link>

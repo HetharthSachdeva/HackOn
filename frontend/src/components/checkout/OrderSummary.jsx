@@ -129,7 +129,7 @@ const OrderSummary = () => {
             <p>Delivery:</p>
             <p>${deliveryCharges}.00</p>
           </div>
-          <div className="text-xl font-semibold flex justify-between py-2 border-t border-white/10 text-lime-400">
+          <div className="text-xl font-semibold flex justify-between py-2 border-t border-white/10 text-[#FF9900]">
             <p>Order Total:</p>
             <p>${product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
           </div>
@@ -156,7 +156,7 @@ const OrderSummary = () => {
 
         <div className='mx-[18px] border-t border-white/10'>
           {(selectedAddress && selectedPayment) &&
-            <button className="w-full text-center text-sm rounded-lg bg-lime-400 text-black font-bold hover:bg-lime-300 p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-lime-400"
+            <button className="w-full text-center text-sm rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-[#FF9900]"
               onClick={makePayment}
             >
               Place your order
@@ -164,14 +164,14 @@ const OrderSummary = () => {
           }
           <p className="text-xs text-gray-400  my-2 text-center">
             By placing your order, you agree to Amazon's
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200522700" className='text-lime-400 hover:text-lime-300 cursor-pointer'> privacy notice </a>
+            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200522700" className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> privacy notice </a>
             and
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200545940" className='text-lime-400 hover:text-lime-300 cursor-pointer'> conditions of use</a>.
+            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200545940" className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> conditions of use</a>.
           </p>
         </div>
 
         <div className="flex justify-between border-t border-white/10 rounded-br-lg rounded-bl-lg bg-[#0e1420]">
-          <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-lime-400 hover:underline hover:text-lime-300 hover:cursor-pointer">
+          <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-[#FF9900] hover:underline hover:text-[#FFB145] hover:cursor-pointer">
             How are delivery costs calculated?
           </p>
         </div>
@@ -226,7 +226,7 @@ const OrderSummary = () => {
             **Standard Delivery charges are free for non-Prime members for orders $499 or more.
           </p>
           <div className='flex justify-end relative'>
-            <button className='text-sm text-lime-400 hover:text-lime-300 absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>
+            <button className='text-sm text-[#FF9900] hover:text-[#FFB145] absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>
           </div>
         </div>
       }

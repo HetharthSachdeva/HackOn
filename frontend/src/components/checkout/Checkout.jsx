@@ -26,7 +26,7 @@ const Checkout = () => {
       <div className='relative mx-5 flex flex-row items-center justify-around border-b border-white/10 pb-3 pt-[18px]'>
         <Link to="/">
           <div onClick={() => dispatch(resetBuyNowProduct())} className="flex h-12 cursor-pointer items-center px-2">
-            <h1 className="text-2xl font-black tracking-tight"><span className="text-lime-400">Zip</span><span className="text-white">Dash</span></h1>
+            <h1 className="text-2xl font-black tracking-tight"><span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span></h1>
           </div>
         </Link>
         <div className=''>

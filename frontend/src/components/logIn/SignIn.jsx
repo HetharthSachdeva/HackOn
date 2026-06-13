@@ -227,7 +227,7 @@ const SignIn = () => {
 
                 <Link to="/">
                     <div className="headerHover">
-                        <h1 className="text-2xl font-black tracking-tight mt-2"><span className="text-lime-400">Zip</span><span className="text-white">Dash</span></h1>
+                        <h1 className="text-2xl font-black tracking-tight mt-2"><span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span></h1>
                     </div>
                 </Link>
 
@@ -268,7 +268,7 @@ const SignIn = () => {
                                             <input type="text" autoComplete="true" value={inputValue} onChange={(e) => {
                                                 setInputValue(e.target.value.toString().toLowerCase());
                                                 setUserEmailError("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 placeholder-gray-500 rounded p-1' />
+                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                         </label>
                                         {
                                             userEmailError && <div className="flex  items-center  pt-1 pb-2">
@@ -281,7 +281,7 @@ const SignIn = () => {
                                             <input type="password" autoComplete="true" value={passwordValue} onChange={(e) => {
                                                 setPasswordValue(e.target.value);
                                                 setWarningPassword("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 placeholder-gray-500 rounded p-1' />
+                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                         </label>
                                         {
                                             warningPassword && <div className="flex  items-center pt-1 pb-2">
@@ -289,7 +289,7 @@ const SignIn = () => {
                                                 <div className="text-xs text-red-400">{warningPassword}</div>
                                             </div>
                                         }
-                                        <button className={`${isClicked ? "clicked" : ""} text-sm my-4 w-full text-center rounded-lg bg-lime-400 text-black font-bold hover:bg-lime-300 p-[6px]`}
+                                        <button className={`${isClicked ? "clicked" : ""} text-sm my-4 w-full text-center rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[6px]`}
                                             onClick={(e) => { handleNewClickEffect(e) }}>Continue</button>
                                         {
                                             loading && <div className='flex justify-center'>
@@ -308,9 +308,9 @@ const SignIn = () => {
                         <div className='text-xs tracking-wide text-gray-500 '>
                             <span className=''>
                                 By continuing, you agree to Amazon's
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940' className='text-lime-400 hover:text-lime-300 cursor-pointer'> Conditions of Use </a>
+                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Conditions of Use </a>
                                 and
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380' className='text-lime-400 hover:text-lime-300 cursor-pointer'> Privacy Notice</a>.
+                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Privacy Notice</a>.
                             </span>
                         </div>
                         <div className='flex items-center gap-2 mt-7 cursor-pointer group ' onClick={handleNeedHelp}>
@@ -322,11 +322,11 @@ const SignIn = () => {
                                 }
 
                             </div>
-                            <div className=' text-xs  text-lime-400 group-hover:underline group-hover:text-lime-300'>Need help?</div>
+                            <div className=' text-xs  text-[#FF9900] group-hover:underline group-hover:text-[#FFB145]'>Need help?</div>
                         </div>
                         {
                             needHelp ?
-                                (<div className=' text-xs  text-lime-400 cursor-pointer hover:underline hover:text-lime-300 ml-4 mt-2 mb-5'>
+                                (<div className=' text-xs  text-[#FF9900] cursor-pointer hover:underline hover:text-[#FFB145] ml-4 mt-2 mb-5'>
                                     <Link to="forgotPassword">
                                         Forgot password
                                     </Link>
@@ -339,7 +339,7 @@ const SignIn = () => {
                 <div className='text-sm text-gray-400 my-4'>
                     New to Amazon?
                 </div>
-                <div className='w-80 text-[12px] font-bold tracking-wide text-center bg-lime-400 text-black rounded-lg p-[5px] hover:bg-lime-300 mb-7 shadow active:ring-2 active:ring-offset-1 active:ring-blue-500'>
+                <div className='w-80 text-[12px] font-bold tracking-wide text-center bg-[#FF9900] text-black rounded-lg p-[5px] hover:bg-[#FFB145] mb-7 shadow active:ring-2 active:ring-offset-1 active:ring-blue-500'>
                     <Link to="/createAccount">
                         <div>Create your Amazon account</div>
                     </Link>
@@ -347,9 +347,9 @@ const SignIn = () => {
             </div>
             <hr className="w-11/12 mx-auto border-white/10" />
             <div className="flex flex-row text-[11px] gap-4 mx-auto text-white justify-center tracking-wide pt-5 my-4">
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940" className='text-gray-400 hover:text-lime-300 cursor-pointer'>Conditions of Use</a>
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380" className='text-gray-400 hover:text-lime-300 cursor-pointer'>Privacy Notice</a>
-                <p className='text-gray-400 hover:text-lime-300 cursor-pointer'>Interest-Based Ads</p>
+                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Conditions of Use</a>
+                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Privacy Notice</a>
+                <p className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Interest-Based Ads</p>
             </div>
             <div className='text-xs tracking-wider text-gray-500 flex justify-center mt-[4px] pb-16'>
                 © 1996-2023, Amazon.com, Inc. or its affiliates

@@ -19,11 +19,11 @@ const ProductsSlider = () => {
           <div>
             <h2 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-white md:text-3xl">
               Today's deals
-              <span className="rounded-full bg-lime-400/15 px-2.5 py-0.5 text-xs font-bold text-lime-300">HOT</span>
+              <span className="rounded-full bg-[#FF9900]/15 px-2.5 py-0.5 text-xs font-bold text-[#FFB145]">HOT</span>
             </h2>
             <p className="mt-1 text-sm text-gray-500">Hand-picked offers, refreshed daily</p>
           </div>
-          <Link to="/allProducts" className="whitespace-nowrap text-sm font-semibold text-lime-400 hover:text-lime-300">
+          <Link to="/allProducts" className="whitespace-nowrap text-sm font-semibold text-[#FF9900] hover:text-[#FFB145]">
             Shop all deals →
           </Link>
         </div>
@@ -37,18 +37,18 @@ const ProductsSlider = () => {
                 <Link
                   key={index}
                   to={`/allProducts/${product.title}`}
-                  className="group/card w-44 flex-shrink-0 rounded-2xl bg-[#0e1420] p-3 ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-lime-400/40"
+                  className="group/card w-44 flex-shrink-0 rounded-2xl bg-[#0e1420] p-3 ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-[#FF9900]/40"
                 >
                   <div className="relative h-36 w-full overflow-hidden rounded-xl bg-[#0b1120]">
                     {hasDiscount && (
-                      <span className="absolute left-2 top-2 z-10 rounded-full bg-lime-400 px-2 py-0.5 text-[10px] font-bold text-black">
+                      <span className="absolute left-2 top-2 z-10 rounded-full bg-[#FF9900] px-2 py-0.5 text-[10px] font-bold text-black">
                         {product.discountPercentage.toFixed(0)}% OFF
                       </span>
                     )}
                     <img className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover/card:scale-110" src={product.thumbnail} alt={product.title} />
                   </div>
                   <div className="mt-3">
-                    <p className="line-clamp-2 min-h-[40px] text-sm font-semibold text-white group-hover/card:text-lime-300">{product.title}</p>
+                    <p className="line-clamp-2 min-h-[40px] text-sm font-semibold text-white group-hover/card:text-[#FFB145]">{product.title}</p>
                     <div className="mt-2 flex items-baseline gap-2">
                       <span className="text-lg font-black text-white">${finalPrice.toFixed(0)}</span>
                       {hasDiscount && <span className="text-xs text-gray-500 line-through">${product.price.toFixed(0)}</span>}

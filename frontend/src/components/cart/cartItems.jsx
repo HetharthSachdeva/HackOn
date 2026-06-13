@@ -170,8 +170,8 @@ const CartItems = () => {
             <div className=' w-[22%] flex flex-col gap-5 my-10 '>
                 <div className='w-full rounded-2xl bg-[#151c2b] py-6 px-5 ring-1 ring-white/5'>
                     <div className='flex flex-row gap-2 '>
-                        <span className='text-lime-400'>✓</span>
-                        <span className='text-[13px] text-lime-300'>Part of your order qualifies for FREE Delivery.
+                        <span className='text-[#FF9900]'>✓</span>
+                        <span className='text-[13px] text-[#FFB145]'>Part of your order qualifies for FREE Delivery.
                             <span className='text-gray-500'> Select this at checkout.</span>
                         </span>
                     </div>
@@ -181,12 +181,12 @@ const CartItems = () => {
                     {
                         authenticated
                             ? <Link to="/checkout">
-                                <button className={`mt-3 w-full rounded-full bg-lime-400 py-2.5 text-center font-bold text-black transition hover:bg-lime-300`}>
+                                <button className={`mt-3 w-full rounded-full bg-[#FF9900] py-2.5 text-center font-bold text-black transition hover:bg-[#FFB145]`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
                             : <Link to="/signIn">
-                                <button className={`mt-3 w-full rounded-full bg-lime-400 py-2.5 text-center font-bold text-black transition hover:bg-lime-300`}>
+                                <button className={`mt-3 w-full rounded-full bg-[#FF9900] py-2.5 text-center font-bold text-black transition hover:bg-[#FFB145]`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
@@ -203,9 +203,9 @@ const CartItems = () => {
                                 </Link>
                                 <div className=''>
                                     <Link to={`/${product.category}/${product.title}`}>
-                                        <p className='text-sm font-semibold text-gray-200 hover:text-lime-300'>{product.title.substring(0, 18)}</p>
+                                        <p className='text-sm font-semibold text-gray-200 hover:text-[#FFB145]'>{product.title.substring(0, 18)}</p>
                                     </Link>
-                                    <p className='mt-1 text-[18px] font-bold text-lime-400'>${product.price}</p>
+                                    <p className='mt-1 text-[18px] font-bold text-[#FF9900]'>${product.price}</p>
                                 </div>
                             </div>
                         ))}

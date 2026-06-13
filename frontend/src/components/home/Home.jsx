@@ -81,11 +81,11 @@ const Home = () => {
         <div className="border-b border-white/5 bg-[#0e1420] py-5">
           <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
             <div className="mb-2 flex items-center gap-2">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-lime-400/15 text-lime-400">
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#FF9900]/15 text-[#FF9900]">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               </span>
               <span className="text-lg font-bold text-white">AI Mode Active</span>
-              <span className="ml-1 rounded-full bg-lime-400/15 px-2 py-0.5 text-xs font-bold text-lime-300">BETA</span>
+              <span className="ml-1 rounded-full bg-[#FF9900]/15 px-2 py-0.5 text-xs font-bold text-[#FFB145]">BETA</span>
             </div>
             <p className="mb-3 text-sm text-gray-400">Try these AI-powered bundle suggestions:</p>
             <div className="flex flex-wrap gap-2">
@@ -98,7 +98,7 @@ const Home = () => {
                 <button
                   key={idx}
                   onClick={() => handleAISearch(suggestion.substring(2))}
-                  className="rounded-full bg-[#151c2b] px-4 py-2 text-sm text-gray-300 ring-1 ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:text-lime-300 hover:ring-lime-400/30"
+                  className="rounded-full bg-[#151c2b] px-4 py-2 text-sm text-gray-300 ring-1 ring-white/10 transition-all duration-200 hover:-translate-y-0.5 hover:text-[#FFB145] hover:ring-[#FF9900]/30"
                 >
                   {suggestion}
                 </button>

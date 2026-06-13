@@ -24,12 +24,12 @@ const ProductCard = ({ product, onAdd }) => {
   };
 
   return (
-    <div className="group relative flex flex-col rounded-2xl bg-[#151c2b] p-3 ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-lime-400/40">
+    <div className="group relative flex flex-col rounded-2xl bg-[#151c2b] p-3 ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-[#FF9900]/40">
       {/* Image */}
       <Link to={`${product.title}`} className="relative block">
         <div className="relative flex h-44 items-center justify-center overflow-hidden rounded-xl bg-[#0e1420]">
           {/* Delivery ETA */}
-          <span className="absolute left-3 top-3 z-10 flex items-center gap-1 text-xs font-bold text-lime-300">
+          <span className="absolute left-3 top-3 z-10 flex items-center gap-1 text-xs font-bold text-[#FFB145]">
             <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             {eta}m
           </span>
@@ -48,7 +48,7 @@ const ProductCard = ({ product, onAdd }) => {
         aria-label="Save"
       >
         <svg
-          className={`h-4 w-4 transition-colors ${liked ? 'fill-lime-400 text-lime-400' : 'fill-none text-gray-300'}`}
+          className={`h-4 w-4 transition-colors ${liked ? 'fill-[#FF9900] text-[#FF9900]' : 'fill-none text-gray-300'}`}
           stroke="currentColor"
           strokeWidth={2}
           viewBox="0 0 24 24"
@@ -60,12 +60,12 @@ const ProductCard = ({ product, onAdd }) => {
       {/* Info */}
       <div className="flex flex-1 flex-col px-1 pt-4">
         {isPremium && (
-          <span className="mb-2 w-fit rounded-md bg-lime-400/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-lime-300 ring-1 ring-lime-400/30">
+          <span className="mb-2 w-fit rounded-md bg-[#FF9900]/10 px-2 py-0.5 text-[10px] font-bold tracking-wider text-[#FFB145] ring-1 ring-[#FF9900]/30">
             PREMIUM
           </span>
         )}
         <Link to={`${product.title}`}>
-          <h3 className="line-clamp-2 min-h-[40px] text-[15px] font-bold leading-tight text-white transition-colors group-hover:text-lime-300">
+          <h3 className="line-clamp-2 min-h-[40px] text-[15px] font-bold leading-tight text-white transition-colors group-hover:text-[#FFB145]">
             {product.title}
           </h3>
         </Link>
@@ -82,7 +82,7 @@ const ProductCard = ({ product, onAdd }) => {
           <button
             onClick={handleAdd}
             className={`grid h-9 w-9 place-items-center rounded-full text-black shadow-lg transition-all duration-200 hover:scale-110 ${
-              added ? 'bg-white' : 'bg-lime-400 hover:bg-lime-300'
+              added ? 'bg-white' : 'bg-[#FF9900] hover:bg-[#FFB145]'
             }`}
             aria-label="Add to cart"
           >

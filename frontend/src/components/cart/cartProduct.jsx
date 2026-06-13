@@ -7,14 +7,14 @@ const CartProduct = ({ product, handleCategoryClick, handleDecreaseQuantity, han
                 <img className='h-40 w-full object-contain' src={product.thumbnail} alt="productImage" />
             </div>
             <div className='-mt-2 flex w-4/5 flex-col gap-2'>
-                <h2 className='cursor-pointer text-[22px] font-semibold text-white hover:text-lime-300' onClick={() => handleCategoryClick(product.category, product.title)}>
+                <h2 className='cursor-pointer text-[22px] font-semibold text-white hover:text-[#FFB145]' onClick={() => handleCategoryClick(product.category, product.title)}>
                     {product.title || product.name || 'Product'}
                 </h2>
                 <p className='line-clamp-2 text-sm text-gray-400'>{product.description}</p>
                 <div className='flex items-baseline'>
                     <span className='text-[26px] font-black text-white'>${product.price}</span>
                 </div>
-                <p className='text-sm font-semibold text-lime-400'>In stock</p>
+                <p className='text-sm font-semibold text-[#FF9900]'>In stock</p>
                 <div className='flex flex-row gap-5 text-sm text-gray-400'>
                     <p className='capitalize'>Sold by : {product.brand}</p>
                     <p className='border-l border-white/10 pl-5 capitalize'>Category : {product.category}</p>
