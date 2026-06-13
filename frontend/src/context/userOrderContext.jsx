@@ -1,37 +1,78 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase.config";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+import { addToOrders, addTocancelOrders } from '../redux/amazonSlice';
 
 
 const UserOrdersContext = createContext();
 
 export const UserOrdersProvider = ({ children }) => {
     const [userOrders, setUserOrders] = useState([]);
+    const [userCancelOrders, setUserCancelOrders] = useState([]);
     const userInfo = useSelector((state) => state.amazon.userInfo);
     const authenticated = useSelector((state) => state.amazon.isAuthenticated);
+    const dispatch = useDispatch();
 
-    useEffect(() => {
-        // You can fetch the user's Orders data if authenticated and userInfo is available
-        if (authenticated && userInfo) {
-            // Function to fetch the user's Orders data from Firebase
-            const getUserOrdersFromFirebase = async (userInfo) => {
-                try {
-                    const userOrdersRef = doc(collection(db, 'users', userInfo.email, 'orders'), userInfo.id);
-                    const docSnapshot = await getDoc(userOrdersRef);
-                    if (docSnapshot.exists()) {
-                        setUserOrders(docSnapshot.data().orders);
-                    } else {
-                        setUserOrders([]); // reset the userOrders if the user is not authenticated
+    const fetchOrders = async () => {
+        if (authenticated && userInfo && userInfo.token) {
+            try {
+                const response = await axios.get("http://localhost:8000/api/v1/orders", {
+                    headers: {
+                        Authorization: `Bearer ${userInfo.token}`
                     }
-                } catch (error) {
-                    console.error('Error fetching user Orders data:', error);
-                }
-            };
-            getUserOrdersFromFirebase(userInfo);
+                });
+                const mappedOrders = [];
+                const mappedCancelled = [];
+                (response.data || []).forEach(order => {
+                    const addr = order.address_snapshot || {};
+                    const frontendAddr = {
+                        name: addr.recipient_name || "Jane Doe",
+                        mobile: addr.phone || "",
+                        address: addr.line1 || "",
+                        area: addr.line2 || "",
+                        landmark: addr.landmark || "",
+                        city: addr.city || "",
+                        pincode: addr.pincode || "",
+                        state: addr.state || "",
+                        country: "India",
+                    };
+
+                    (order.items || []).forEach(item => {
+                        const mappedItem = {
+                            date: order.created_at,
+                            price: parseFloat(item.line_total),
+                            uniqueNumber: order.id,
+                            thumbnail: item.img_url_snapshot || "",
+                            title: item.title_snapshot || "Unknown Item",
+                            quantity: item.quantity,
+                            category: "Groceries & Kitchen", // fallback category
+                            paymentMethod: order.payment?.provider || "cod",
+                            address: frontendAddr,
+                            status: order.status
+                        };
+
+                        if (order.status === "cancelled") {
+                            mappedCancelled.push(mappedItem);
+                        } else {
+                            mappedOrders.push(mappedItem);
+                        }
+                    });
+                });
+                setUserOrders(mappedOrders);
+                setUserCancelOrders(mappedCancelled);
+                dispatch(addToOrders(mappedOrders));
+                dispatch(addTocancelOrders(mappedCancelled));
+            } catch (error) {
+                console.error('Error fetching user Orders data from backend:', error);
+            }
         } else {
             setUserOrders([]); // reset the userOrders if user is not authenticated
+            setUserCancelOrders([]);
         }
+    };
+
+    useEffect(() => {
+        fetchOrders();
     }, [authenticated, userInfo]);
 
     // Function to update the userOrders
@@ -40,7 +81,7 @@ export const UserOrdersProvider = ({ children }) => {
     };
 
     return (
-        <UserOrdersContext.Provider value={{ userOrders, updateUserOrders }}>
+        <UserOrdersContext.Provider value={{ userOrders, userCancelOrders, fetchOrders, updateUserOrders }}>
             {children}
         </UserOrdersContext.Provider>
     );

@@ -3,8 +3,7 @@ import { ScrollRestoration, Link, useRouteLoaderData, useParams } from 'react-ro
 import { star, halfStar, emptyStar, offers, delivery, cod, exchange, delivered, transaction } from "../../assets/index";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, buyNow } from '../../redux/amazonSlice';
-import { db } from '../../firebase/firebase.config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import axios from 'axios';
 import { useCart } from '../../context/userCartContext';
 
 const ProductDetails = () => {
@@ -44,31 +43,37 @@ const ProductDetails = () => {
     setSelectedQuantity(newQuantity);
   };
 
-  // Function to save a product to Firebase cart
-  const saveProductToFirsebase = async (product) => {
-    const productWithDefaultQuantity = {
-      ...product,
-      quantity: selectedQuantity,
-    };
-    const cartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-    const snap = await getDoc(cartRef);
-    if (snap.exists()) {
-      const cart = snap.data().cart || [];
-      const existingProductIndex = cart.findIndex(
-        (item) => item.title === product.title
-      );
-      if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity += selectedQuantity;
-      } else {
-        cart.push(productWithDefaultQuantity);
-      }
-      await setDoc(cartRef, { cart: cart }, { merge: true });
-      updateUserCart(cart); // Update the user's cart in context to reflect the change
-    }
-    else {
-      await setDoc(cartRef, { cart: [productWithDefaultQuantity] }, { merge: true });
-      // Update the user's cart in context to reflect the change immeditely in our website
-      updateUserCart([...userCart, productWithDefaultQuantity]);
+  // Function to save a product to Backend cart
+  const saveProductToBackend = async (product) => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/v1/cart/items", {
+        asin: product.id,
+        quantity: selectedQuantity
+      }, {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`
+        }
+      });
+      const mappedItems = (response.data.items || []).map((item) => {
+        const prod = item.product || {};
+        return {
+          id: item.asin,
+          title: prod.title || "Unknown Product",
+          price: prod.price ? parseFloat(prod.price) : 0.0,
+          thumbnail: prod.img_url || "",
+          images: prod.img_url ? [prod.img_url] : [],
+          brand: prod.unit_size || "Q-Commerce",
+          quantity: item.quantity,
+          category: prod.category || "",
+          description: prod.tags || "",
+          rating: prod.stars || 0.0,
+          stock: prod.stock_qty || 0,
+          discountPercentage: 10,
+        };
+      });
+      updateUserCart(mappedItems);
+    } catch (error) {
+      console.error("Error saving product to backend cart:", error);
     }
   }
 
@@ -92,8 +97,8 @@ const ProductDetails = () => {
       }));
     }
     else {
-      // If user is authenticated, save to Firebase cart
-      saveProductToFirsebase(product);
+      // If user is authenticated, save to Backend cart
+      saveProductToBackend(product);
     }
   }
 

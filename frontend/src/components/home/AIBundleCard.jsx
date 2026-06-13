@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import ProductReplacePanel from './ProductReplacePanel';
 import { useCart } from '../../context/userCartContext';
 import { useSelector } from 'react-redux';
-import { doc, setDoc, collection } from 'firebase/firestore';
-import { db } from '../../firebase/firebase.config';
 
 const AIBundleCard = ({ bundle, onOptimize }) => {
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -12,7 +10,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
     const [bundleCost, setBundleCost] = useState(bundle.totalCost);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-    const { userCart, updateUserCart } = useCart();
+    const { userCart, updateUserCart, addToCartBackend } = useCart();
     const userInfo = useSelector((state) => state.amazon.userInfo);
     const authenticated = useSelector((state) => state.amazon.isAuthenticated);
 
@@ -53,48 +51,10 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         setIsAddingToCart(true);
 
         try {
-            let updatedCart = [...userCart];
-
-            // Add each bundle product to cart (treating each as 1 item regardless of quantity in bundle)
-            bundleProducts.forEach((product) => {
-                console.log('Adding product to cart:', product); // Debug log
-                const productTitle = product.name || product.title || 'Unknown Product';
-                const existingProduct = updatedCart.find(item => item.title === productTitle);
-                
-                if (existingProduct) {
-                    // Increment quantity by 1 (not by product.quantity)
-                    updatedCart = updatedCart.map(item =>
-                        item.title === productTitle
-                            ? { ...item, quantity: item.quantity + 1 }
-                            : item
-                    );
-                } else {
-                    // Add new product with quantity 1 - using 'title' field for cart compatibility
-                    const cartItem = {
-                        id: `bundle-${Date.now()}-${Math.random()}`, // Generate unique ID
-                        title: productTitle, // Cart component uses 'title' field - THIS IS CRITICAL
-                        price: product.price,
-                        oldPrice: product.originalPrice || product.price,
-                        quantity: 1, // Always add as 1 item
-                        image: product.image,
-                        thumbnail: product.image,
-                        category: 'bundle',
-                        rating: product.rating || 4.5,
-                        stock: 100,
-                        brand: 'Bundle Item',
-                        description: `Part of AI recommended bundle`
-                    };
-                    console.log('Cart item being added:', cartItem); // Debug log
-                    updatedCart.push(cartItem);
-                }
-            });
-
-            // Update Firebase
-            const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-            await setDoc(userCartRef, { cart: updatedCart });
-
-            // Update local cart state
-            updateUserCart(updatedCart);
+            // Add each bundle product to cart sequentially
+            for (const product of bundleProducts) {
+                await addToCartBackend(product.id, product.quantity);
+            }
 
             // Show success message
             const toast = document.createElement('div');
@@ -126,33 +86,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         }
 
         try {
-            const existingProduct = userCart.find(item => item.name === product.name);
-            let updatedCart;
-
-            if (existingProduct) {
-                updatedCart = userCart.map(item =>
-                    item.name === product.name
-                        ? { ...item, quantity: item.quantity + product.quantity }
-                        : item
-                );
-            } else {
-                updatedCart = [...userCart, {
-                    id: Date.now() + Math.random(),
-                    name: product.name,
-                    price: product.price,
-                    originalPrice: product.originalPrice || product.price,
-                    quantity: product.quantity,
-                    image: product.image,
-                    category: 'bundle',
-                    rating: product.rating || 4.5,
-                    stock: 100
-                }];
-            }
-
-            // Update Firebase
-            const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-            await setDoc(userCartRef, { cart: updatedCart });
-            updateUserCart(updatedCart);
+            await addToCartBackend(product.id, product.quantity || 1);
 
             // Show toast
             const toast = document.createElement('div');
@@ -348,7 +282,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                 />
             )}
 
-            <style jsx>{`
+            <style>{`
                 .scrollbar-hide::-webkit-scrollbar {
                     display: none;
                 }

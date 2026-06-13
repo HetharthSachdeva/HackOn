@@ -1,8 +1,7 @@
 import React from 'react';
 import { useSelector } from "react-redux";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase/firebase.config";
 import { useAddress } from '../../context/userAddressContext';
+import axios from 'axios';
 
 
 const UserAddresses = ({ setShowAddressForm }) => {
@@ -15,18 +14,23 @@ const UserAddresses = ({ setShowAddressForm }) => {
         updateSelectedAddress(selectedAddress);       // Pass the updated selected address to the context
     };
 
-    // function to delete selected address from Firebase
-    const deleteAddressFromFirebase = async (addressIndex) => {
-        const addressesRef = doc(collection(db, 'users', userInfo.email, 'shippingAddresses'), userInfo.id);
-        const docSnapshot = await getDoc(addressesRef);
-        if (docSnapshot.exists()) {
-            const addresses = docSnapshot.data().Addresses;
-            const updatedAddresses = addresses.filter((address, index) => index !== addressIndex);
-            await updateDoc(addressesRef, { Addresses: updatedAddresses });
+    // function to delete selected address from backend
+    const deleteAddressFromBackend = async (addressIndex) => {
+        const address = userAddress[addressIndex];
+        if (!address || !address.id) return;
+        try {
+            await axios.delete(`http://localhost:8000/api/v1/addresses/${address.id}`, {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`
+                }
+            });
             updateSelectedAddress(null);  // Update the selected address to null after deletion
             // Update the userAddresses state to reflect the change immediately on the UI
-            const updatedUserAddresses = userAddress.filter((address, index) => index !== addressIndex);
+            const updatedUserAddresses = userAddress.filter((_, index) => index !== addressIndex);
             updateUserAddress(updatedUserAddresses);
+        } catch (error) {
+            console.error('Error deleting address from backend:', error);
+            alert("Failed to delete address: " + (error.response?.data?.detail || error.message));
         }
     };
 
@@ -58,7 +62,7 @@ const UserAddresses = ({ setShowAddressForm }) => {
                                     <span>, State : {address.state}</span>
                                     <span>, Country : {address.country}</span>
                                     <span>, Mobile Number : {address.mobile} &nbsp;</span>
-                                    <button onClick={() => deleteAddressFromFirebase(index)} className='text-[#FF9900] hover:text-[#FFB145] hover:underline'>Delete this address</button>
+                                    <button onClick={() => deleteAddressFromBackend(index)} className='text-[#FF9900] hover:text-[#FFB145] hover:underline'>Delete this address</button>
                                 </span>
                             </label>
                         ))}

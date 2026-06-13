@@ -4,7 +4,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { getAuth, signOut } from "firebase/auth";
+import { supabase } from "../../api/supabaseClient";
 import { userSignOut, setUserAuthentication, resetOrders, resetCancelOrders, resetReturnOrders } from "../../redux/amazonSlice";
 import { useCart } from "../../context/userCartContext";
 import Location from "./location";
@@ -12,9 +12,6 @@ import Search from "./search";
 
 
 export default function Header() {
-
-    // Initialize Firebase authentication
-    const auth = getAuth();
 
     const dispatch = useDispatch();
     const localCartProducts = useSelector((state) => state.amazon.localCartProducts);
@@ -37,7 +34,7 @@ export default function Header() {
 
     // Handle user logout
     const handleLogout = () => {
-        signOut(auth).then(() => {
+        supabase.auth.signOut().then(() => {
             // Sign-out successful.
             dispatch(userSignOut());
             dispatch(setUserAuthentication(false));

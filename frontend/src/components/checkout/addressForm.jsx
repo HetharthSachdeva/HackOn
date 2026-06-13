@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { countryList, states } from "../../constants/index";
 import { RotatingLines } from "react-loader-spinner";
 import { motion } from "framer-motion";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase/firebase.config";
+import axios from 'axios';
 import { useSelector } from "react-redux";
 import { useAddress } from '../../context/userAddressContext';
 
@@ -106,29 +105,55 @@ const AddressForm = ({ setShowAddressForm }) => {
         return isValid;
     }
 
-    // function to save a user's shipping address to Firebase.
-    const saveShippingAddressToFirebase = async (userInfo, shippingAddress) => {
-        const addressRef = doc(collection(db, 'users', userInfo.email, 'shippingAddresses'), userInfo.id);
+    // function to save a user's shipping address to Backend.
+    const saveShippingAddressToBackend = async (shippingAddress) => {
         try {
-            const addressRefSnapshot = await getDoc(addressRef);
-            if (!addressRefSnapshot.exists()) {
-                await setDoc(addressRef, { Addresses: [shippingAddress] }, { merge: true });
-                updateUserAddress([shippingAddress]);
-                setLoading(false);
-                setSuccessMsg("Shipping address saved successfully");
-                setShowAddressForm(false);
-            } else {
-                const firebaseAddresses = addressRefSnapshot.data().Addresses || [];
-                const updatedAddresses = [...firebaseAddresses, shippingAddress];
-                await setDoc(addressRef, { Addresses: updatedAddresses }, { merge: true });
-                updateUserAddress(updatedAddresses);
-                setLoading(false);
-                setSuccessMsg("Shipping address saved successfully");
-                setShowAddressForm(false);
-            }
+            // Map the frontend address fields to backend schema
+            const payload = {
+                label: "Shipping",
+                recipient_name: shippingAddress.name,
+                phone: shippingAddress.mobile,
+                line1: shippingAddress.address,
+                line2: shippingAddress.area || null,
+                city: shippingAddress.city,
+                state: shippingAddress.state,
+                pincode: shippingAddress.pincode,
+                landmark: shippingAddress.landmark || null,
+                is_default: false
+            };
+
+            await axios.post("http://localhost:8000/api/v1/addresses", payload, {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`
+                }
+            });
+
+            // Re-fetch all addresses to sync frontend context
+            const response = await axios.get("http://localhost:8000/api/v1/addresses", {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`
+                }
+            });
+            const mapped = (response.data || []).map(addr => ({
+                name: addr.recipient_name,
+                mobile: addr.phone,
+                address: addr.line1,
+                area: addr.line2 || "",
+                landmark: addr.landmark || "",
+                city: addr.city,
+                pincode: addr.pincode,
+                state: addr.state,
+                country: "India",
+                id: addr.id
+            }));
+
+            updateUserAddress(mapped);
+            setLoading(false);
+            setSuccessMsg("Shipping address saved successfully");
+            setShowAddressForm(false);
         } catch (error) {
             setLoading(false);
-            setErrorMsg(error.message);
+            setErrorMsg(error.response?.data?.detail || error.message);
         }
     };
 
@@ -151,7 +176,7 @@ const AddressForm = ({ setShowAddressForm }) => {
             country: countryInput,
         };
         setLoading(true);
-        await saveShippingAddressToFirebase(userInfo, shippingAddress);
+        await saveShippingAddressToBackend(shippingAddress);
         setNameInput("");
         setMobileInput("");
         setAddressInput("");

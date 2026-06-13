@@ -2,14 +2,14 @@ import React from 'react';
 import { Link, useRouteLoaderData, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../redux/amazonSlice';
-import { db } from '../../firebase/firebase.config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
 import { useCart } from '../../context/userCartContext';
 import './scrollbar.css';
 
 const DealCard = ({ product, onAdd }) => {
-  const hasDiscount = product.discountPercentage > 0;
-  const finalPrice = hasDiscount ? product.price * (1 - product.discountPercentage / 100) : product.price;
+  const price = parseFloat(product.price || 0);
+  const discountPercentage = parseFloat(product.discountPercentage || 0);
+  const hasDiscount = discountPercentage > 0;
+  const finalPrice = hasDiscount ? price * (1 - discountPercentage / 100) : price;
   const sku = '#' + (product.brand || product.category || 'SKU').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() + '-' + String(product.id ?? 0).padStart(2, '0');
 
   return (
@@ -19,7 +19,7 @@ const DealCard = ({ product, onAdd }) => {
         <div className="relative flex h-44 items-center justify-center overflow-hidden rounded-t-lg bg-[#141414] p-4">
           {hasDiscount && (
             <span className="absolute right-3 top-3 rounded bg-[#FF9900] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-black">
-              {product.discountPercentage.toFixed(0)}% OFF
+              {discountPercentage.toFixed(0)}% OFF
             </span>
           )}
           <img src={product.thumbnail} alt={product.title} className="max-h-full max-w-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]" />
@@ -40,7 +40,7 @@ const DealCard = ({ product, onAdd }) => {
 
         <div className="mt-4 flex items-baseline gap-2">
           <span className="text-xl font-bold text-white">${finalPrice.toFixed(2)}</span>
-          {hasDiscount && <span className="text-sm text-gray-600 line-through">${product.price.toFixed(2)}</span>}
+          {hasDiscount && <span className="text-sm text-gray-600 line-through">${price.toFixed(2)}</span>}
         </div>
 
         <button
@@ -62,27 +62,11 @@ const ProductsSlider = () => {
   const dispatch = useDispatch();
   const userInfo = useSelector((state) => state.amazon.userInfo);
   const authenticated = useSelector((state) => state.amazon.isAuthenticated);
-  const { userCart, updateUserCart } = useCart();
+  const { addToCartBackend } = useCart();
 
   // Prefer discounted products for "deals"
   const deals = [...productsData].sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0)).slice(0, 8);
   const featuredThumbs = productsData.slice(0, 7);
-
-  const saveToFirebase = async (product) => {
-    const item = { ...product, quantity: 1 };
-    const cartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-    const snap = await getDoc(cartRef);
-    if (snap.exists()) {
-      const cart = snap.data().cart || [];
-      const idx = cart.findIndex((i) => i.title === product.title);
-      if (idx !== -1) cart[idx].quantity += 1; else cart.push(item);
-      await setDoc(cartRef, { cart }, { merge: true });
-      updateUserCart(cart);
-    } else {
-      await setDoc(cartRef, { cart: [item] }, { merge: true });
-      updateUserCart([...userCart, item]);
-    }
-  };
 
   const handleAdd = async (product) => {
     if (!authenticated) {
@@ -92,7 +76,7 @@ const ProductsSlider = () => {
         quantity: 1, discountPercentage: product.discountPercentage, rating: product.rating, stock: product.stock,
       }));
     } else {
-      await saveToFirebase(product);
+      await addToCartBackend(product.id, 1);
     }
   };
 

@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 const QuickProductCard = ({ product }) => {
     const navigate = useNavigate();
     
-    const discountedPrice = product.price * (1 - product.discountPercentage / 100);
+    const price = parseFloat(product.price || 0);
+    const discountPercentage = parseFloat(product.discountPercentage || 0);
+    const discountedPrice = price * (1 - discountPercentage / 100);
     const deliveryTime = Math.floor(Math.random() * 5) + 8; // 8-12 mins
 
     const handleProductClick = () => {
@@ -26,7 +28,7 @@ const QuickProductCard = ({ product }) => {
                 </span>
                 {product.discountPercentage > 0 && (
                     <span className="bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                        {product.discountPercentage.toFixed(0)}% OFF
+                    {discountPercentage.toFixed(0)}% OFF
                     </span>
                 )}
             </div>
@@ -73,7 +75,7 @@ const QuickProductCard = ({ product }) => {
                     </span>
                     {product.discountPercentage > 0 && (
                         <span className="text-sm text-gray-500 line-through">
-                            ₹{product.price.toFixed(0)}
+                            ₹{price.toFixed(0)}
                         </span>
                     )}
                 </div>

@@ -3,8 +3,7 @@ import { useCart } from '../../context/userCartContext';
 import { useAddress } from '../../context/userAddressContext';
 import { useOrders } from '../../context/userOrderContext';
 import { useDispatch, useSelector } from 'react-redux';
-import { collection, doc, setDoc } from "firebase/firestore";
-import { db } from "../../firebase/firebase.config";
+import axios from 'axios';
 import { resetBuyNowProduct, addToOrders } from '../../redux/amazonSlice';
 import { useNavigate } from 'react-router-dom';
 // import { loadStripe } from "@stripe/stripe-js";
@@ -61,55 +60,71 @@ const OrderSummary = () => {
   };
 
   const makePayment = async () => {
-      const uniqueNumber = generateUniqueNumber(); // Generate a unique number
-      if (product) {
-        const productOrderDetails = {
-          uniqueNumber,
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          description: product.description,
-          category: product.category,
-          images: product.images,
-          thumbnail: product.thumbnail,
-          brand: product.brand,
-          discountPercentage: product.discountPercentage,
-          rating: product.rating,
-          stock: product.stock,
-          address: selectedAddress,
-          paymentMethod: selectedPayment,
-          quantity: product.quantity,
-          date: new Date().toISOString(),
-        };
-        dispatch(addToOrders([...orders, productOrderDetails]));
-        updateUserOrders([...orders, productOrderDetails]);
-        await saveOrderToFirebase([...orders, productOrderDetails]);
-      } else {
-        const updatedCart = userCart.map((cartItem) => ({
-          ...cartItem,
-          address: selectedAddress,
-          paymentMethod: selectedPayment,
-          date: new Date().toISOString(),
-          uniqueNumber: generateUniqueNumber(),
-        }));
-        dispatch(addToOrders([...orders, ...updatedCart]));
-        updateUserOrders([...orders, ...updatedCart]);
-        await saveOrderToFirebase([...orders, ...updatedCart]);
-        const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        await setDoc(userCartRef, { cart: [] }, { merge: true });
-        updateUserCart([]);
-      }
-      resetBuyNow();
-      navigate("/orders");
-  };
+      try {
+          // If it's a "Buy Now" product, add it to the backend cart first
+          if (product) {
+              await axios.post("http://localhost:8000/api/v1/cart/items", {
+                  asin: product.id,
+                  quantity: product.quantity
+              }, {
+                  headers: { Authorization: `Bearer ${userInfo.token}` }
+              });
+          }
 
-  // Function to save an order to Firebase orders
-  const saveOrderToFirebase = async (order) => {
-    const usersCollectionRef = collection(db, "users");
-    const userRef = doc(usersCollectionRef, userInfo.email);
-    const userOrdersRef = collection(userRef, "orders");
-    const OrdersRef = doc(userOrdersRef, userInfo.id);
-      await setDoc(OrdersRef, { orders: order }, { merge: true });
+          // Place the order
+          await axios.post("http://localhost:8000/api/v1/orders", {
+              address_id: selectedAddress.id,
+              payment_provider: selectedPayment === "card" ? "mock_card" : "cod",
+              slot_type: "express"
+          }, {
+              headers: { Authorization: `Bearer ${userInfo.token}` }
+          });
+
+          // Fetch updated orders to sync context state
+          const ordersRes = await axios.get("http://localhost:8000/api/v1/orders", {
+              headers: { Authorization: `Bearer ${userInfo.token}` }
+          });
+          const mappedOrders = [];
+          (ordersRes.data || []).forEach(order => {
+              const addr = order.address_snapshot || {};
+              const frontendAddr = {
+                  name: addr.recipient_name || "Jane Doe",
+                  mobile: addr.phone || "",
+                  address: addr.line1 || "",
+                  area: addr.line2 || "",
+                  landmark: addr.landmark || "",
+                  city: addr.city || "",
+                  pincode: addr.pincode || "",
+                  state: addr.state || "",
+                  country: "India",
+              };
+
+              (order.items || []).forEach(item => {
+                  mappedOrders.push({
+                      date: order.created_at,
+                      price: parseFloat(item.line_total),
+                      uniqueNumber: order.id,
+                      thumbnail: item.img_url_snapshot || "",
+                      title: item.title_snapshot || "Unknown Item",
+                      quantity: item.quantity,
+                      category: "Groceries & Kitchen",
+                      paymentMethod: order.payment?.provider || "cod",
+                      address: frontendAddr
+                  });
+              });
+          });
+
+          dispatch(addToOrders(mappedOrders));
+          updateUserOrders(mappedOrders);
+
+          // Clear cart context
+          updateUserCart([]);
+          resetBuyNow();
+          navigate("/orders");
+      } catch (error) {
+          console.error("Checkout order placement failed:", error);
+          alert("Order placement failed: " + (error.response?.data?.detail || error.message));
+      }
   };
 
   return (

@@ -49,7 +49,7 @@ const AIBackground = ({ active }) => {
 
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
 
-            <style jsx>{`
+            <style>{`
                 .ai-wave {
                     position: absolute;
                     left: 50%;

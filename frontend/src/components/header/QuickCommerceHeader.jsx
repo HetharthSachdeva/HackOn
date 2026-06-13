@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
-import { getAuth, signOut } from "firebase/auth";
+import { supabase } from "../../api/supabaseClient";
 import { userSignOut, setUserAuthentication, resetOrders, resetCancelOrders, resetReturnOrders } from "../../redux/amazonSlice";
 import { useCart } from "../../context/userCartContext";
 
 export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch }) {
-    const auth = getAuth();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -30,7 +29,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
     }, [localCartProducts]);
 
     const handleLogout = () => {
-        signOut(auth).then(() => {
+        supabase.auth.signOut().then(() => {
             dispatch(userSignOut());
             dispatch(setUserAuthentication(false));
             dispatch(resetOrders());
@@ -136,7 +135,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                 </button>
             </div>
 
-            <style jsx>{`
+            <style>{`
                 .ai-search-wrap form { box-shadow: 0 0 22px rgba(167,139,250,0.45); }
                 .ai-search-wrap { border-radius: 9999px; padding: 2px; background: linear-gradient(90deg,#7c3aed,#d946ef,#22d3ee,#7c3aed); background-size: 300% 100%; animation: ai-border 3s linear infinite; }
                 @keyframes ai-border { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }

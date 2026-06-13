@@ -28,13 +28,13 @@ const Home = () => {
         const title = q.charAt(0).toUpperCase() + q.slice(1);
         setBundleData({
           title: `${title} — AI Bundle`,
-          totalCost: 945, savings: 155, deliveryETA: '12 min', confidence: 94,
+          totalCost: 29.13, savings: 5.00, deliveryETA: '12 min', confidence: 94,
           products: [
-            { name: 'Whole Wheat Bread (2 packs)', price: 85, originalPrice: 100, quantity: 2, image: 'https://via.placeholder.com/200?text=Bread' },
-            { name: 'Fresh Milk - 1L (7 packs)', price: 350, originalPrice: 420, quantity: 7, image: 'https://via.placeholder.com/200?text=Milk' },
-            { name: 'Farm Fresh Eggs (2 dozen)', price: 180, originalPrice: 200, quantity: 24, image: 'https://via.placeholder.com/200?text=Eggs' },
-            { name: 'Organic Oats - 1kg', price: 120, originalPrice: 150, quantity: 1, image: 'https://via.placeholder.com/200?text=Oats' },
-            { name: 'Mixed Fruits Pack', price: 210, originalPrice: 250, quantity: 1, image: 'https://via.placeholder.com/200?text=Fruits' },
+            { id: 'GROC_COKE_2L', name: 'Coca-Cola Original Taste Soda Pop, 2 Liter Bottle', price: 2.99, originalPrice: 3.50, quantity: 2, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80' },
+            { id: 'GROC_COKE_CANS', name: 'Coca-Cola Soda Pop, 12 fl oz Cans, 12 Pack', price: 7.49, originalPrice: 8.50, quantity: 1, image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=400&q=80' },
+            { id: 'GROC_PEPSI_2L', name: 'Pepsi Cola Soda Pop, 2 Liter Bottle', price: 2.79, originalPrice: 3.20, quantity: 2, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80' },
+            { id: 'GROC_LAYS_CLASSIC', name: "Lay's Classic Potato Chips, Family Size 13 oz Bag", price: 4.79, originalPrice: 5.50, quantity: 1, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d20?auto=format&fit=crop&w=400&q=80' },
+            { id: 'GROC_DORITOS_NACHO', name: 'Doritos Nacho Cheese Tortilla Chips, Party Size 14.5 oz Bag', price: 5.29, originalPrice: 6.00, quantity: 1, image: 'https://images.unsplash.com/photo-1518047601542-79f18c655718?auto=format&fit=crop&w=400&q=80' },
           ],
         });
         setIsGenerating(false);
@@ -58,7 +58,7 @@ const Home = () => {
           <ProductsSlider />
         </div>
         <ScrollRestoration />
-        <style jsx>{`
+        <style>{`
           @keyframes ai-enter { from { opacity: 0; transform: translateY(24px); filter: blur(6px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
           .ai-enter { animation: ai-enter 0.6s cubic-bezier(0.22,1,0.36,1) both; }
         `}</style>
@@ -167,7 +167,7 @@ const Home = () => {
         </>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes ai-enter { from { opacity: 0; transform: translateY(24px); filter: blur(6px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
         .ai-enter { animation: ai-enter 0.6s cubic-bezier(0.22,1,0.36,1) both; }
         @keyframes ai-cell-pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255,153,0,0.65); } 50% { opacity: 0.5; box-shadow: 0 0 6px rgba(255,153,0,0.3); } }
