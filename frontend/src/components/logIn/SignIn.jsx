@@ -4,23 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { right, down, required, google, facebook } from "../../assets/index";
 import { RotatingLines } from "react-loader-spinner";
 import { motion } from "framer-motion";
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, linkWithCredential, FacebookAuthProvider, fetchSignInMethodsForEmail } from "firebase/auth";
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserInfo, setUserAuthentication, resetCart, addToOrders, addTocancelOrders, addToreturnOrders } from "../../redux/amazonSlice";
-import { db } from '../../firebase/firebase.config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
-import { useCart } from "../../context/userCartContext";
-import { useOrders } from "../../context/userOrderContext";
+import { setUserInfo, setUserAuthentication } from "../../redux/amazonSlice";
+import { supabase } from "../../api/supabaseClient";
 
 const SignIn = () => {
-    const auth = getAuth();
-    const googleProvider = new GoogleAuthProvider();
-    const facebookProvider = new FacebookAuthProvider();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const cartItems = useSelector((state) => state.amazon.localCartProducts);
-    const { updateUserCart } = useCart(); // get the updateUserCart function from custom hook created in userCartContext.js
-    const { updateUserOrders } = useOrders(); // get the updateUserOrders function from custom hook created in userOrdersContext.js
     const [isClicked, setIsClicked] = useState(false);
     const [needHelp, setNeedHelp] = useState(false);
 
@@ -65,74 +55,15 @@ const SignIn = () => {
         return isValid;
     }
 
-    const saveUserDataToFirebase = async (user) => {
-        const userDetailsRef = doc(collection(db, 'users', user.email, 'details'), user.uid);
-        const userDetailsSnapshot = await getDoc(userDetailsRef);
-        if (!userDetailsSnapshot.exists()) {
-            await setDoc(userDetailsRef, {
-                id: user.uid,
-                name: user.displayName,
-                email: user.email,
-                image: user.photoURL,
-                mobile: user.phoneNumber,
-                createdOn: new Date(),
-            }, { merge: true });
-        };
-    };
-
-    const saveLocalCartToFirebase = async (user) => {
-        const userCartRef = doc(collection(db, 'users', user.email, 'cart'), user.uid);
-        const docSnapshot = await getDoc(userCartRef);
-        const firebaseCartItems = docSnapshot.exists() ? docSnapshot.data().cart : [];
-        const localCartItems = cartItems;
-        localCartItems.forEach((localItem) => {
-            const existingItemIndex = firebaseCartItems.findIndex((item) => item.title === localItem.title);
-            if (existingItemIndex !== -1) {
-                firebaseCartItems[existingItemIndex].quantity += localItem.quantity;
-            } else {
-                firebaseCartItems.push(localItem);
-            }
-        });
-        await setDoc(userCartRef, { cart: [...firebaseCartItems] }); //Update the Firestore cart with mergedCartItems
-        updateUserCart([...firebaseCartItems]); // Update the cart context with the mergedCartItems
-        dispatch(resetCart());
-    };
-
-    const fetchOrdersFromFirebase = async (user) => {
-        const OrdersRef = doc(collection(db, 'users', user.email, 'orders'), user.uid);
-        const docSnapshot = await getDoc(OrdersRef);
-        const firebaseOrders = docSnapshot.exists() ? docSnapshot.data().orders : [];
-        updateUserOrders(firebaseOrders);
-        dispatch(addToOrders(firebaseOrders));
-    }
-
-    const fetchCancelOrdersFromFirebase = async (user) => {
-        const userCancelOrdersRef = doc(collection(db, 'users', user.email, 'cancelOrders'), user.uid);
-        const docSnapshot = await getDoc(userCancelOrdersRef);
-        const firebaseCancelOrders = docSnapshot.exists() ? docSnapshot.data().cancelOrders : [];
-        dispatch(addTocancelOrders(firebaseCancelOrders));
-    }
-
-    const fetchReturnOrdersFromFirebase = async (user) => {
-        const userReturnOrdersRef = doc(collection(db, 'users', user.email, 'returnOrders'), user.uid);
-        const docSnapshot = await getDoc(userReturnOrdersRef);
-        const firebaseReturnOrders = docSnapshot.exists() ? docSnapshot.data().returnOrders : [];
-        dispatch(addToreturnOrders(firebaseReturnOrders));
-    }
-
-    const handleUser = (user) => {
+    const handleUser = (user, token) => {
         dispatch(setUserInfo({
-            id: user.uid,
-            name: user.displayName,
+            id: user.id,
+            name: user.user_metadata?.full_name || user.email,
             email: user.email,
-            image: user.photoURL
+            token: token,
+            image: user.user_metadata?.avatar_url || null
         }));
         dispatch(setUserAuthentication(true));
-        saveUserDataToFirebase(user);
-        saveLocalCartToFirebase(user);
-        fetchOrdersFromFirebase(user);
-        fetchCancelOrdersFromFirebase(user);
-        fetchReturnOrdersFromFirebase(user);
         setLoading(false);
         setSuccessMsg("Successfully Logged-in! Welcome back.");
         setTimeout(() => {
@@ -147,78 +78,60 @@ const SignIn = () => {
             return;
         }
         setLoading(true);
-        signInWithEmailAndPassword(auth, inputValue, passwordValue)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                handleUser(user);
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                setLoading(false);
-                if (errorCode.includes("auth/invalid-email")) {
-                    setUserEmailError("Enter a valid Email");
+        supabase.auth.signInWithPassword({
+            email: inputValue,
+            password: passwordValue
+        })
+        .then(({ data, error }) => {
+            setLoading(false);
+            if (error) {
+                if (error.message.includes("Email not confirmed")) {
+                    setUserEmailError("Please confirm your email address first.");
+                } else if (error.message.includes("Invalid login credentials")) {
+                    setWarningPassword("There was a problem. Your email or password is incorrect.");
+                } else {
+                    setUserEmailError(error.message);
                 }
-                if (errorCode.includes("auth/user-not-found")) {
-                    setUserEmailError("Invalid Email! User not found.");
-                }
-                if (errorCode.includes("auth/wrong-password")) {
-                    setWarningPassword("There was a problem.Your password is incorrect");
-                }
-            });
+                return;
+            }
+            if (data?.user) {
+                handleUser(data.user, data.session?.access_token);
+            }
+        })
+        .catch((error) => {
+            setLoading(false);
+            setUserEmailError("Something went wrong. Please try again.");
+        });
         setInputValue("");
         setPasswordValue("");
     }
 
-    const handleGoogle = () => {
-        signInWithPopup(auth, googleProvider)
-            .then((result) => {
-                const user = result.user;
-                handleUser(user);
-            })
+    const handleGoogle = async () => {
+        setLoading(true);
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin,
+            }
+        });
+        if (error) {
+            setLoading(false);
+            console.error("Google sign in error:", error.message);
+        }
     }
 
-    const handleFacebook = () => {
-        signInWithPopup(auth, facebookProvider)
-            .then((result) => {
-                const user = result.user;
-                user.emailVerified = true;
-                handleUser(user);
-            })
-            .catch((error) => {
-                // Check if the error is due to account linking
-                if (error.code === "auth/account-exists-with-different-credential") {
-                    const pendingCred = FacebookAuthProvider.credentialFromError(error);
-                    const email = error.customData.email;
-                    fetchSignInMethodsForEmail(auth, email)
-                        .then((methods) => {
-                            if (methods[0] === 'google.com') {
-                                signInWithPopup(auth, googleProvider)
-                                    .then((userCredential) => {
-                                        const data = userCredential.user
-                                        linkWithCredential(data, pendingCred)
-                                            .then((result) => {
-                                                const user = result.user;
-                                                user.emailVerified = true;
-                                                handleUser(user);
-                                            });
-                                    })
-                            }
-                            if (methods[0] === 'password') {
-                                var password = prompt("Email associated with your Facebook has already account on Amazon. Please enter your Amazon password to link your Facebook account to your Amazon account."); // Replace with your custom password prompt logic.
-                                signInWithEmailAndPassword(auth, email, password)
-                                    .then((userCredential) => {
-                                        const data = userCredential.user
-                                        linkWithCredential(data, pendingCred)
-                                            .then((result) => {
-                                                const user = result.user;
-                                                user.emailVerified = true;
-                                                handleUser(user);
-                                            });
-                                    })
-                            }
-                        });
-                };
-            });
+    const handleFacebook = async () => {
+        setLoading(true);
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'facebook',
+            options: {
+                redirectTo: window.location.origin,
+            }
+        });
+        if (error) {
+            setLoading(false);
+            console.error("Facebook sign in error:", error.message);
+        }
     }
 
     return (

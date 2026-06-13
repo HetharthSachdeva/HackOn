@@ -25,7 +25,7 @@ SortOption = Literal["price_asc", "price_desc", "stars_desc", "reviews_desc"]
 )
 async def list_products(
     db: DBSession,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
     category: str | None = None,
     min_price: Decimal | None = None,
@@ -89,7 +89,7 @@ async def list_categories(db: DBSession) -> list[CategoryRead]:
 async def search(
     q: Annotated[str, Query(min_length=1, max_length=200)],
     db: DBSession,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> Page[ProductRead]:
     items, total = await product_repo.list_products(

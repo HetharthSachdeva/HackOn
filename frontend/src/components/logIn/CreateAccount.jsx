@@ -3,14 +3,9 @@ import { logoBlack } from '../../assets';
 import { Link } from 'react-router-dom';
 import { i, right } from '../../assets';
 import { RotatingLines } from "react-loader-spinner";
-import { getAuth, createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from "firebase/auth";
-import { db } from '../../firebase/firebase.config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { supabase } from '../../api/supabaseClient';
 
 const CreateAccount = () => {
-    // Initialize Firebase auth
-    const auth = getAuth();
-
     const [nameInput, setNameInput] = useState("");
     const [mobileInput, setMobileInput] = useState("");
     const [emailInput, setEmailInput] = useState("");
@@ -30,7 +25,6 @@ const CreateAccount = () => {
         const reqName = /^[A-Za-z\s]+$/;
         const reqEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const reqMobile = /^[0-9]{10}$/;
-        // const reqPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
         const reqPassword = /^.{6,}$/;
         let isValid = true;
 
@@ -63,22 +57,6 @@ const CreateAccount = () => {
         return isValid;
     }
 
-    // Function to save user data to Firestore
-    const saveUserDataToFirebase = async (user) => {
-        const userDetailsRef = doc(collection(db, 'users', user.email, 'details'), user.uid);
-        const userDetailsSnapshot = await getDoc(userDetailsRef);
-        if (!userDetailsSnapshot.exists()) {
-            await setDoc(userDetailsRef, {
-                id: user.uid,
-                name: user.displayName,
-                email: user.email,
-                image: user.photoURL,
-                mobile: user.phoneNumber,
-                createdOn: new Date(),
-            }, { merge: true });
-        };
-    };
-
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -87,31 +65,34 @@ const CreateAccount = () => {
             return;
         }
         setLoading(true);
-        // Create user with email and password
-        createUserWithEmailAndPassword(auth, emailInput, passwordInput)
-            .then((userCredential) => {
-                updateProfile(auth.currentUser, {
-                    displayName: nameInput,
-                }).then(() => {
-                    const user = userCredential.user;
-                    saveUserDataToFirebase(user);
-                    sendEmailVerification(auth.currentUser).then(() => {
-                        // Send mail to verify the user's email
-                    })
-                    setLoading(false);
-                    setSuccessMsg(true);
-                }).catch((error) => {
-                    setLoading(false);
-                    setFirebaseError("Failed to create an account. Please try again later.");
-                });
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                if (errorCode.includes("auth/email-already-in-use")) {
-                    setFirebaseError("Email already in use. Try another one.");
-                    setLoading(false);
+        
+        supabase.auth.signUp({
+            email: emailInput,
+            password: passwordInput,
+            options: {
+                data: {
+                    full_name: nameInput,
+                    phone: mobileInput
                 }
-            });
+            }
+        })
+        .then(({ data, error }) => {
+            setLoading(false);
+            if (error) {
+                if (error.message.includes("already registered")) {
+                    setFirebaseError("Email already in use. Try another one.");
+                } else {
+                    setFirebaseError(error.message);
+                }
+                return;
+            }
+            setSuccessMsg(true);
+        })
+        .catch((err) => {
+            setLoading(false);
+            setFirebaseError("Failed to create an account. Please try again later.");
+        });
+
         // Reset input fields
         setEmailInput("");
         setMobileInput("");

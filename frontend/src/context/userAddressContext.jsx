@@ -1,8 +1,6 @@
-// Import required modules and functions
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase.config";
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 const UserAddressContext = createContext(); // Create a new context for user address data
 
@@ -26,17 +24,34 @@ export const UserAddressProvider = ({ children }) => {
         setSelectedPayment(updatedSelectedPayment);
     };
 
-    // Effect to fetch user's address data from Firebase when authentication or user info changes
+    // Effect to fetch user's address data from backend when authentication or user info changes
     useEffect(() => {
-        if (authenticated && userInfo) {
-            const getuserAddressesFromFirebase = async (userInfo) => {
-                const userAddressesRef = doc(collection(db, 'users', userInfo.email, 'shippingAddresses'), userInfo.id);
-                const docSnapshot = await getDoc(userAddressesRef);
-                if (docSnapshot.exists()) {
-                    setUserAddress(docSnapshot.data().Addresses);
+        if (authenticated && userInfo && userInfo.token) {
+            const getUserAddressesFromBackend = async () => {
+                try {
+                    const response = await axios.get("http://localhost:8000/api/v1/addresses", {
+                        headers: {
+                            Authorization: `Bearer ${userInfo.token}`
+                        }
+                    });
+                    const mapped = (response.data || []).map(addr => ({
+                        name: addr.recipient_name,
+                        mobile: addr.phone,
+                        address: addr.line1,
+                        area: addr.line2 || "",
+                        landmark: addr.landmark || "",
+                        city: addr.city,
+                        pincode: addr.pincode,
+                        state: addr.state,
+                        country: "India",
+                        id: addr.id
+                    }));
+                    setUserAddress(mapped);
+                } catch (error) {
+                    console.error('Error fetching user addresses from backend:', error);
                 }
             };
-            getuserAddressesFromFirebase(userInfo); // Call the function to fetch user's addresses from Firebase
+            getUserAddressesFromBackend();
         } else {
             setUserAddress([]); // Reset userAddress state if user is not authenticated
         }

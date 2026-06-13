@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ScrollRestoration, useNavigate, Link, useSearchParams, useRouteLoaderData, useParams } from 'react-router-dom';
 import Product from './Product';
 
@@ -20,6 +20,10 @@ const Products = () => {
   const [quickFilters, setQuickFilters] = useState({ organic: false, trending: false, onSale: false });
   const [speed, setSpeed] = useState('dash');
   const [sortOrder, setSortOrder] = useState('default');
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  // Reset visible count whenever the filtered/sorted result changes
+  useEffect(() => { setVisibleCount(12); }, [category, searchQuery, maxPrice, quickFilters, sortOrder]);
 
   // ── Search ──
   let filtered = productsData;
@@ -195,7 +199,44 @@ const Products = () => {
           </div>
 
           {sortedProducts.length > 0 ? (
-            <Product productsData={sortedProducts} />
+            <>
+              <Product productsData={sortedProducts.slice(0, visibleCount)} />
+
+              {/* Load More */}
+              {visibleCount < sortedProducts.length && (
+                <div className="mt-10 flex flex-col items-center gap-3">
+                  {/* progress text */}
+                  <p className="text-sm text-gray-500">
+                    Showing <span className="font-semibold text-gray-300">{Math.min(visibleCount, sortedProducts.length)}</span> of{' '}
+                    <span className="font-semibold text-gray-300">{sortedProducts.length}</span> products
+                  </p>
+                  {/* progress bar */}
+                  <div className="h-1 w-48 overflow-hidden rounded-full bg-white/10">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#FF9900] to-[#ffb733] transition-all duration-500"
+                      style={{ width: `${(visibleCount / sortedProducts.length) * 100}%` }}
+                    />
+                  </div>
+                  <button
+                    id="load-more-btn"
+                    onClick={() => setVisibleCount((c) => c + 12)}
+                    className="group mt-1 flex items-center gap-2.5 rounded-full border border-white/10 bg-[#0d0d0d] px-8 py-3 text-sm font-bold text-gray-200 ring-1 ring-white/5 transition-all hover:border-[#FF9900]/50 hover:text-[#FF9900] hover:shadow-[0_0_24px_-4px_rgba(255,153,0,0.3)]"
+                  >
+                    <svg className="h-4 w-4 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Load More
+                  </button>
+                </div>
+              )}
+
+              {/* All loaded indicator */}
+              {visibleCount >= sortedProducts.length && sortedProducts.length > 12 && (
+                <p className="mt-8 text-center text-xs font-semibold uppercase tracking-widest text-gray-600">
+                  ✓ All {sortedProducts.length} products loaded
+                </p>
+              )}
+            </>
           ) : (
             <div className="rounded-2xl bg-[#0d0d0d] py-24 text-center ring-1 ring-white/5">
               <p className="text-2xl font-bold text-white">No products found</p>
@@ -229,7 +270,7 @@ const Products = () => {
         </main>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .price-slider {

@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../redux/amazonSlice';
-import { db } from '../../firebase/firebase.config';
-import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import axios from 'axios';
 import { useCart } from '../../context/userCartContext';
 
 const ProductCard = ({ product, onAdd }) => {
   const [added, setAdded] = useState(false);
-  const hasDiscount = product.discountPercentage > 0;
+  const price = parseFloat(product.price || 0);
+  const discountPercentage = parseFloat(product.discountPercentage || 0);
+  const hasDiscount = discountPercentage > 0;
   const finalPrice = hasDiscount
-    ? product.price * (1 - product.discountPercentage / 100)
-    : product.price;
+    ? price * (1 - discountPercentage / 100)
+    : price;
   const inStock = (product.stock ?? 0) > 0;
   const sku = (product.brand || product.category || 'SKU')
     .replace(/[^a-zA-Z0-9]/g, '')
@@ -74,7 +75,7 @@ const ProductCard = ({ product, onAdd }) => {
             </p>
             <p className="mt-1 font-mono text-sm text-gray-300">
               <span className="text-white">${finalPrice.toFixed(2)}</span>
-              {hasDiscount && <span className="ml-2 text-xs text-gray-600 line-through">${product.price.toFixed(2)}</span>}
+              {hasDiscount && <span className="ml-2 text-xs text-gray-600 line-through">${price.toFixed(2)}</span>}
             </p>
           </div>
           <p className="font-mono text-sm uppercase tracking-[0.2em] text-gray-400">
@@ -97,13 +98,17 @@ const ProductCard = ({ product, onAdd }) => {
           >
             {added ? (
               <>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                Added
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Added</span>
               </>
             ) : (
               <>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                Add
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Add</span>
               </>
             )}
           </button>
@@ -120,20 +125,37 @@ const Product = (props) => {
   const authenticated = useSelector((state) => state.amazon.isAuthenticated);
   const { userCart, updateUserCart } = useCart();
 
-  const saveProductToFirsebase = async (product) => {
-    const productWithDefaultQuantity = { ...product, quantity: 1 };
-    const cartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-    const snap = await getDoc(cartRef);
-    if (snap.exists()) {
-      const cart = snap.data().cart || [];
-      const idx = cart.findIndex((item) => item.title === product.title);
-      if (idx !== -1) cart[idx].quantity += 1;
-      else cart.push(productWithDefaultQuantity);
-      await setDoc(cartRef, { cart: cart }, { merge: true });
-      updateUserCart(cart);
-    } else {
-      await setDoc(cartRef, { cart: [productWithDefaultQuantity] }, { merge: true });
-      updateUserCart([...userCart, productWithDefaultQuantity]);
+  // Save a product to Backend cart
+  const saveProductToBackend = async (product) => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/v1/cart/items", {
+        asin: product.id,
+        quantity: 1
+      }, {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`
+        }
+      });
+      const mappedItems = (response.data.items || []).map((item) => {
+        const prod = item.product || {};
+        return {
+          id: item.asin,
+          title: prod.title || "Unknown Product",
+          price: prod.price ? parseFloat(prod.price) : 0.0,
+          thumbnail: prod.img_url || "",
+          images: prod.img_url ? [prod.img_url] : [],
+          brand: prod.unit_size || "Q-Commerce",
+          quantity: item.quantity,
+          category: prod.category || "",
+          description: prod.tags || "",
+          rating: prod.stars || 0.0,
+          stock: prod.stock_qty || 0,
+          discountPercentage: 10,
+        };
+      });
+      updateUserCart(mappedItems);
+    } catch (error) {
+      console.error("Error saving product to backend cart:", error);
     }
   };
 
@@ -154,7 +176,7 @@ const Product = (props) => {
         stock: product.stock,
       }));
     } else {
-      await saveProductToFirsebase(product);
+      await saveProductToBackend(product);
     }
   };
 

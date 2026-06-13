@@ -39,29 +39,34 @@ def upgrade() -> None:
     # pgvector must be available before any `vector(N)` column is created.
     op.execute("CREATE EXTENSION IF NOT EXISTS vector")
 
-    op.create_table(
-        "qcommerce_products",
-        sa.Column("asin", sa.String, primary_key=True),
-        sa.Column("title", sa.Text, nullable=False),
-        sa.Column("category", sa.String, nullable=False),
-        sa.Column("price", sa.Numeric(10, 2), nullable=False),
-        sa.Column("img_url", sa.Text),
-        sa.Column("stars", sa.Float),
-        sa.Column("reviews", sa.Integer),
-        sa.Column("unit_size", sa.String),
-        sa.Column("stock_qty", sa.Integer),
-        sa.Column("in_stock", sa.Boolean),
-        sa.Column("delivery_time_mins", sa.Integer),
-        sa.Column("tags", sa.Text),
-        sa.Column("embedding", Vector(EMBEDDING_DIM)),
-    )
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    tables = inspector.get_table_names()
 
-    op.create_index(
-        "ix_qcommerce_products_category", "qcommerce_products", ["category"]
-    )
-    op.create_index(
-        "ix_qcommerce_products_in_stock", "qcommerce_products", ["in_stock"]
-    )
+    if "qcommerce_products" not in tables:
+        op.create_table(
+            "qcommerce_products",
+            sa.Column("asin", sa.String, primary_key=True),
+            sa.Column("title", sa.Text, nullable=False),
+            sa.Column("category", sa.String, nullable=False),
+            sa.Column("price", sa.Numeric(10, 2), nullable=False),
+            sa.Column("img_url", sa.Text),
+            sa.Column("stars", sa.Float),
+            sa.Column("reviews", sa.Integer),
+            sa.Column("unit_size", sa.String),
+            sa.Column("stock_qty", sa.Integer),
+            sa.Column("in_stock", sa.Boolean),
+            sa.Column("delivery_time_mins", sa.Integer),
+            sa.Column("tags", sa.Text),
+            sa.Column("embedding", Vector(EMBEDDING_DIM)),
+        )
+
+        op.create_index(
+            "ix_qcommerce_products_category", "qcommerce_products", ["category"]
+        )
+        op.create_index(
+            "ix_qcommerce_products_in_stock", "qcommerce_products", ["in_stock"]
+        )
 
     # HNSW cosine index. Skipped automatically by pgvector if `embedding` is
     # NULL on a row.

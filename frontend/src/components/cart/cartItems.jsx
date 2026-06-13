@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteProduct, resetCart, increaseQuantity, decreaseQuantity, addToCart } from '../../redux/amazonSlice';
 import { useNavigate, useRouteLoaderData, Link, ScrollRestoration } from 'react-router-dom';
-import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase/firebase.config";
 import { useCart } from '../../context/userCartContext';
 import CartProduct from './cartProduct';
 
@@ -19,7 +17,15 @@ const CartItems = () => {
     const localCartProducts = useSelector((state) => state.amazon.localCartProducts);
     const userInfo = useSelector((state) => state.amazon.userInfo);
     const authenticated = useSelector((state) => state.amazon.isAuthenticated);
-    const { userCart, updateUserCart, cartTotalQty, cartTotalPrice } = useCart();
+    const { 
+        userCart, 
+        updateUserCart, 
+        cartTotalQty, 
+        cartTotalPrice,
+        addToCartBackend,
+        updateCartItemQtyBackend,
+        deleteCartItemBackend
+    } = useCart();
     const [totalQty, setTotalQty] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
 
@@ -44,42 +50,18 @@ const CartItems = () => {
 
     const handleCategoryClick = (category, title) => navigate(`/${category}/${title}`);
 
-    const handleDecreaseQuantity = async (productTitle) => {
-        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-            const cart = snap.data().cart;
-            const i = cart.findIndex((p) => p.title === productTitle);
-            if (i !== -1 && cart[i].quantity > 1) {
-                cart[i].quantity -= 1;
-                await setDoc(ref, { cart }, { merge: true });
-                updateUserCart(userCart.map((p) => p.title === productTitle ? { ...p, quantity: p.quantity - 1 } : p));
-            }
+    const handleDecreaseQuantity = async (product) => {
+        if (product.quantity > 1) {
+            await updateCartItemQtyBackend(product.asin, product.quantity - 1);
         }
     };
 
-    const handleIncreaseQuantity = async (productTitle) => {
-        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-            const cart = snap.data().cart;
-            const i = cart.findIndex((p) => p.title === productTitle);
-            if (i !== -1) {
-                cart[i].quantity += 1;
-                await setDoc(ref, { cart }, { merge: true });
-                updateUserCart(userCart.map((p) => p.title === productTitle ? { ...p, quantity: p.quantity + 1 } : p));
-            }
-        }
+    const handleIncreaseQuantity = async (product) => {
+        await updateCartItemQtyBackend(product.asin, product.quantity + 1);
     };
 
-    const handleDeleteProduct = async (productTitle) => {
-        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-            const updated = snap.data().cart.filter((p) => p.title !== productTitle);
-            await updateDoc(ref, { cart: updated });
-            updateUserCart(userCart.filter((p) => p.title !== productTitle));
-        }
+    const handleDeleteProduct = async (product) => {
+        await deleteCartItemBackend(product.asin);
     };
 
     const handleSuggestedAdd = async (product) => {
@@ -91,14 +73,7 @@ const CartItems = () => {
             }));
             return;
         }
-        const item = { ...product, quantity: 1 };
-        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const snap = await getDoc(ref);
-        const cart = snap.exists() ? (snap.data().cart || []) : [];
-        const i = cart.findIndex((p) => p.title === product.title);
-        if (i !== -1) cart[i].quantity += 1; else cart.push(item);
-        await setDoc(ref, { cart }, { merge: true });
-        updateUserCart(cart);
+        await addToCartBackend(product.id || product.asin, 1);
     };
 
     const suggestions = productsData.slice(0, 4);
@@ -118,9 +93,9 @@ const CartItems = () => {
                                     key={index}
                                     product={product}
                                     handleCategoryClick={handleCategoryClick}
-                                    handleDecreaseQuantity={() => usingFirebase ? handleDecreaseQuantity(product.title) : dispatch(decreaseQuantity(product.title))}
-                                    handleIncreaseQuantity={() => usingFirebase ? handleIncreaseQuantity(product.title) : dispatch(increaseQuantity(product.title))}
-                                    handleDeleteProduct={() => usingFirebase ? handleDeleteProduct(product.title) : dispatch(deleteProduct(product.title))}
+                                    handleDecreaseQuantity={() => usingFirebase ? handleDecreaseQuantity(product) : dispatch(decreaseQuantity(product.title))}
+                                    handleIncreaseQuantity={() => usingFirebase ? handleIncreaseQuantity(product) : dispatch(increaseQuantity(product.title))}
+                                    handleDeleteProduct={() => usingFirebase ? handleDeleteProduct(product) : dispatch(deleteProduct(product.title))}
                                 />
                             ))}
                         </div>
@@ -139,7 +114,7 @@ const CartItems = () => {
                                         </Link>
                                         <div className="p-3">
                                             <p className="line-clamp-1 text-sm font-bold text-white">{product.title}</p>
-                                            <p className="mt-0.5 text-sm font-bold text-[#FF9900]">${product.price.toFixed(2)}</p>
+                                            <p className="mt-0.5 text-sm font-bold text-[#FF9900]">${parseFloat(product.price || 0).toFixed(2)}</p>
                                             <button
                                                 onClick={() => handleSuggestedAdd(product)}
                                                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-white/15 py-1.5 font-mono text-xs uppercase tracking-wider text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"

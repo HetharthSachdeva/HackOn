@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
 import QuickCommerceHeader from "./components/header/QuickCommerceHeader";
 import Footer from "./components/footer/Footer";
@@ -16,6 +16,9 @@ import { UserAddressProvider } from "./context/userAddressContext";
 import { UserOrdersProvider } from "./context/userOrderContext";
 import Checkout from "./components/checkout/Checkout";
 import { productsData } from "./api/api";
+import { useDispatch } from "react-redux";
+import { setUserInfo, setUserAuthentication, userSignOut } from "./redux/amazonSlice";
+import { supabase } from "./api/supabaseClient";
 
 
 // Layout component to combine components for main path("/") of routers which has to be rendered when website opens for the first time 
@@ -45,6 +48,38 @@ const Layout = () => {
 }
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // 1. Sync current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      syncSession(session);
+    });
+
+    // 2. Listen to session changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      syncSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [dispatch]);
+
+  const syncSession = (session) => {
+    if (session) {
+      dispatch(setUserInfo({
+        id: session.user.id,
+        name: session.user.user_metadata.full_name || session.user.email,
+        email: session.user.email,
+        token: session.access_token, // JWT used to verify on backend
+        image: session.user.user_metadata.avatar_url || null,
+      }));
+      dispatch(setUserAuthentication(true));
+    } else {
+      dispatch(userSignOut());
+      dispatch(setUserAuthentication(false));
+    }
+  };
+
   const router = createBrowserRouter([
     {
       id: "root", // Add ID so children can access this loader data

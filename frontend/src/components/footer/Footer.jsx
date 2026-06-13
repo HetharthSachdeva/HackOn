@@ -179,7 +179,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .footer-bigtext {
           font-weight: 900;
           line-height: 0.8;
