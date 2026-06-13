@@ -1,0 +1,41 @@
+version: "3.9"
+
+# Local-dev stack: API + Redis. Postgres lives in Supabase, not here —
+# point DATABASE_URL at your Supabase pooled connection in .env.
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1000", "--loglevel", "warning"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      args:
+        # Set to "true" to bake in sentence-transformers + torch. Adds ~2 GB.
+        INSTALL_AI: "false"
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Override the Redis URL so the container talks to the service above
+      # regardless of what .env says.
+      REDIS_URL: "redis://redis:6379/0"
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

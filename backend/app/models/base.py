@@ -1,0 +1,31 @@
+"""Shared model helpers: timestamp mixin, UUID/JSONB column aliases."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Annotated
+
+from sqlalchemy import DateTime, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+# Convenience type aliases for clean Mapped[...] signatures.
+TimestampTZ = Annotated[
+    datetime,
+    mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now()),
+]
+
+
+class TimestampMixin:
+    """Adds ``created_at`` and ``updated_at`` columns with sane defaults."""
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )

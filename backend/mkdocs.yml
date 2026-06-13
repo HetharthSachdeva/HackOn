@@ -1,0 +1,60 @@
+site_name: Quick-Commerce Backend
+site_description: AI-first FastAPI backend with Supabase + pgvector
+site_url: http://localhost:8000
+repo_url: https://example.com  # update when you push to git
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Overview: index.md
+  - Local Setup (New PC): local-setup.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Domain Model: domain-model.md
+  - AI Module: ai-module.md
+  - Realtime (WebSockets + Redis): realtime.md
+  - Deployment: deployment.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
