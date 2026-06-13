@@ -138,15 +138,15 @@ const OrderSummary = () => {
           </div>
           <div className="flex justify-between mb-[2px] text-sm text-gray-400">
             <p>Total Price:</p>
-            <p>${product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</p>
+            <p>₹{product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</p>
           </div>
           <div className="flex justify-between mb-[2px] text-sm text-gray-400">
             <p>Delivery:</p>
-            <p>${deliveryCharges}.00</p>
+            <p>₹{deliveryCharges}.00</p>
           </div>
           <div className="text-xl font-semibold flex justify-between py-2 border-t border-white/10 text-[#FF9900]">
             <p>Order Total:</p>
-            <p>${product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
+            <p>₹{product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
           </div>
 
           {selectedAddress &&
@@ -208,20 +208,20 @@ const OrderSummary = () => {
               <tr className="bg-[#141414]">
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Same-Day Delivery</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$175</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$175</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹175</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹175</td>
               </tr>
               <tr>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">One-Day Delivery</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹150</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹150</td>
               </tr>
               <tr className="bg-[#141414]">
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Two-Day Delivery</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$120</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹120</td>
               </tr>
               <tr>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">No-Rush Delivery</td>
@@ -233,12 +233,12 @@ const OrderSummary = () => {
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Standard Delivery**</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$40</td>
+                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹40</td>
               </tr>
             </tbody>
           </table>
           <p className="text-sm text-gray-400 mt-2 p-2">
-            **Standard Delivery charges are free for non-Prime members for orders $499 or more.
+            **Standard Delivery charges are free for non-Prime members for orders ₹499 or more.
           </p>
           <div className='flex justify-end relative'>
             <button className='text-sm text-[#FF9900] hover:text-[#FFB145] absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>

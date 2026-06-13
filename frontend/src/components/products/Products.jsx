@@ -129,8 +129,8 @@ const Products = () => {
             />
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">${priceBounds.min}</span>
-              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">${maxPrice}</span>
+              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">₹{priceBounds.min}</span>
+              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">₹{maxPrice}</span>
             </div>
           </div>
 

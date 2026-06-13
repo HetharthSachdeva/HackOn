@@ -155,7 +155,7 @@ const ProductDetails = () => {
         </div>
         <div className='border-b-[1px] border-white/10 pb-2'>
           <div className='flex items-center mt-1 text-[#FF9900]'>
-            <p className='font-medium mb-1'>&nbsp;$&nbsp;</p>
+            <p className='font-medium mb-1'>&nbsp;₹&nbsp;</p>
             <span className='text-[26px] font-medium'>{product.price}</span>
             <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
           </div>
@@ -173,7 +173,7 @@ const ProductDetails = () => {
             </div>
             <div className='w-[30%] border-2 border-white/10 rounded-lg p-2 text-gray-400'>
               <p className='font-bold text-white'>Bank Offers</p>
-              <p>Upto $1,750.00 discount on select Credit Cards, HDFC…</p>
+              <p>Upto ₹1,750.00 discount on select Credit Cards, HDFC…</p>
             </div>
             <div className='w-[30%] border-2 border-white/10 rounded-lg p-2 text-gray-400'>
               <p className='font-bold text-white'>Partner Offers</p>
@@ -211,7 +211,7 @@ const ProductDetails = () => {
 
       <div className='w-[20%] h-[380px] bg-[#0d0d0d] ring-1 ring-white/5 border-[0.066rem] border-white/10 rounded-lg p-5 mr-1'>
         <div className='flex items-center mt-1'>
-          <span className='text-[26px] font-medium text-[#FF9900]'>$&nbsp;{product.price}</span>
+          <span className='text-[26px] font-medium text-[#FF9900]'>₹&nbsp;{product.price}</span>
           <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
         </div>
         <span className='text-gray-400'>Delivery&nbsp;</span><span className='text-gray-400'>within Two Days.</span>

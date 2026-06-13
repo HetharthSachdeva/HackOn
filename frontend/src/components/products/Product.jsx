@@ -74,8 +74,8 @@ const ProductCard = ({ product, onAdd }) => {
               {inStock ? 'Available' : 'Out of stock'}
             </p>
             <p className="mt-1 font-mono text-sm text-gray-300">
-              <span className="text-white">${finalPrice.toFixed(2)}</span>
-              {hasDiscount && <span className="ml-2 text-xs text-gray-600 line-through">${price.toFixed(2)}</span>}
+              <span className="text-white">₹{finalPrice.toFixed(2)}</span>
+              {hasDiscount && <span className="ml-2 text-xs text-gray-600 line-through">₹{price.toFixed(2)}</span>}
             </p>
           </div>
           <p className="font-mono text-sm uppercase tracking-[0.2em] text-gray-400">
