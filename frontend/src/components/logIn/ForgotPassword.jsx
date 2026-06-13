@@ -19,7 +19,7 @@ const ForgotPassword = () => {
     }
     
     return (
-        <div className='bg-[#0b1120]'>
+        <div className='bg-[#0a0a0a]'>
             <div className='flex flex-col justify-center items-center '>
 
                 <Link to="/">
@@ -28,7 +28,7 @@ const ForgotPassword = () => {
                     </div>
                 </Link>
 
-                <div className='w-80 mt-4 bg-[#151c2b] ring-1 ring-white/10 border-white/10 rounded-lg '>
+                <div className='w-80 mt-4 bg-[#0d0d0d] ring-1 ring-white/10 border-white/10 rounded-lg '>
                     <div className='my-4 mx-5 '>
                         <span className='text-[28px] font-semibold text-white'>
                             Password assistance
@@ -39,7 +39,7 @@ const ForgotPassword = () => {
                         <form onSubmit={handleSubmit} className='my-3'>
                             <label className='text-sm font-semibold text-gray-300'>
                                 Email or mobile phone number
-                                <input type="text" value={input} autoComplete="true" onChange={(e) => { setInput(e.target.value); setError('') }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                <input type="text" value={input} autoComplete="true" onChange={(e) => { setInput(e.target.value); setError('') }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                             </label>
                             <button className={`text-sm w-full text-center rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[6px] mt-4 shadow active:ring-2 active:ring-offset-1 active:ring-violet-500`}
                             >Continue</button>

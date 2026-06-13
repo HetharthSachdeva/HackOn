@@ -21,7 +21,7 @@ const Checkout = () => {
   }, [userAddress]);
 
   return (
-    <div className='min-h-screen w-full bg-[#0b1120]'>
+    <div className='min-h-screen w-full bg-[#0a0a0a]'>
       {/* header */}
       <div className='relative mx-5 flex flex-row items-center justify-around border-b border-white/10 pb-3 pt-[18px]'>
         <Link to="/">

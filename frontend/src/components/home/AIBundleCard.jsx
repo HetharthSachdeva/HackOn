@@ -171,9 +171,9 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         <>
             <div className="max-w-6xl mx-auto px-4 py-6">
                 {/* Bundle Summary Card */}
-                <div className="bg-[#151c2b] rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden">
+                <div className="bg-[#0d0d0d] rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden">
                     {/* Header */}
-                    <div className="relative bg-[#0e1420] p-8 text-white overflow-hidden">
+                    <div className="relative bg-[#141414] p-8 text-white overflow-hidden">
                         {/* Animated glow accents */}
                         <div className="absolute inset-0 opacity-100">
                             <div className="absolute top-0 left-0 w-64 h-64 bg-[#FF9900]/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse"></div>
@@ -251,10 +251,10 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                             {bundleProducts.map((product, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex-shrink-0 w-64 bg-[#0e1420] rounded-2xl ring-1 ring-white/5 hover:ring-[#FF9900]/40 transition-all duration-300 group"
+                                    className="flex-shrink-0 w-64 bg-[#141414] rounded-2xl ring-1 ring-white/5 hover:ring-[#FF9900]/40 transition-all duration-300 group"
                                 >
                                     {/* Product Image */}
-                                    <div className="relative bg-[#0b1120] rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
+                                    <div className="relative bg-[#0a0a0a] rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
                                         <img
                                             src={product.image}
                                             alt={product.name}
@@ -302,7 +302,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
                     {/* Optimize Bundle Section */}
                     <div className="px-8 pb-8">
-                        <div className="bg-[#0e1420] rounded-2xl p-6 ring-1 ring-white/5">
+                        <div className="bg-[#141414] rounded-2xl p-6 ring-1 ring-white/5">
                             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                                 <svg className="w-6 h-6 text-[#FF9900]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -322,7 +322,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         key={idx}
                                         onClick={() => onOptimize(option.label.toLowerCase())}
                                         className="
-                                            px-6 py-3 bg-[#151c2b] text-gray-300 ring-1 ring-white/10
+                                            px-6 py-3 bg-[#0d0d0d] text-gray-300 ring-1 ring-white/10
                                             rounded-full font-bold
                                             hover:bg-[#FF9900] hover:text-black hover:ring-transparent
                                             hover:scale-105 transition-all duration-200

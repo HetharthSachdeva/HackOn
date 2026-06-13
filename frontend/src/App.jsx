@@ -21,14 +21,15 @@ import { productsData } from "./api/api";
 // Layout component to combine components for main path("/") of routers which has to be rendered when website opens for the first time 
 const Layout = () => {
   const [isAIMode, setIsAIMode] = useState(false);
-  const [aiSearchQuery, setAiSearchQuery] = useState('');
-  
+  const [aiSearch, setAiSearch] = useState({ query: '', nonce: 0 });
+
   const handleAISearch = (query) => {
-    setAiSearchQuery(query);
+    // Bump nonce every call so identical queries still re-trigger generation
+    setAiSearch((prev) => ({ query, nonce: prev.nonce + 1 }));
   };
 
   return (
-    <div className="bg-[#0b1120] min-h-screen">
+    <div className="bg-[#0a0a0a] min-h-screen">
     {/* <div className="bg-[#f89206] min-h-screen"> */}
 
       <QuickCommerceHeader 
@@ -37,7 +38,7 @@ const Layout = () => {
         onAISearch={handleAISearch}
       />
       <ScrollRestoration />
-      <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery, handleAISearch }} />
+      <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch }} />
       <Footer />
     </div>
   );

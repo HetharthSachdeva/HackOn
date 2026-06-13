@@ -10,7 +10,7 @@ const Cart = () => {
     const { userCart } = useCart();  // Use the useCart hook to get the userCart data from userCartContext
 
     return (
-        <div className='flex gap-5 w-full min-h-screen bg-[#0b1120] '>
+        <div className='flex gap-5 w-full min-h-screen bg-[#0a0a0a] '>
             <ScrollRestoration />
             {/* Check if there are Products in the Redux store or user Firebasecart then show <CartItem /> */}
             {

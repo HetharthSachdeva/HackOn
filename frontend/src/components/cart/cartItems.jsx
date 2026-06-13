@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { correct } from '../../assets/index';
-import { deleteProduct, resetCart, increaseQuantity, decreaseQuantity } from '../../redux/amazonSlice';
+import { deleteProduct, resetCart, increaseQuantity, decreaseQuantity, addToCart } from '../../redux/amazonSlice';
 import { useNavigate, useRouteLoaderData, Link, ScrollRestoration } from 'react-router-dom';
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase.config";
 import { useCart } from '../../context/userCartContext';
 import CartProduct from './cartProduct';
+
+const FREE_DELIVERY_THRESHOLD = 29;
+const DELIVERY_FEE = 4.99;
+const TAX_RATE = 0.06;
 
 const CartItems = () => {
     const navigate = useNavigate();
@@ -19,204 +22,202 @@ const CartItems = () => {
     const { userCart, updateUserCart, cartTotalQty, cartTotalPrice } = useCart();
     const [totalQty, setTotalQty] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
-    const cartRef = useRef(null);
-    const [productDivHeight, setProductDivHeight] = useState(0);
 
     useEffect(() => {
-        let allPrice = 0;
-        let allQty = 0;
-        localCartProducts.forEach((product) => {
-            allPrice += product.quantity * product.price;
-            allQty += product.quantity;
-        });
+        let allPrice = 0, allQty = 0;
+        localCartProducts.forEach((p) => { allPrice += p.quantity * p.price; allQty += p.quantity; });
         setTotalPrice(allPrice);
         setTotalQty(allQty);
-        // Function to update cart height
-        const updateCartHeight = () => {
-            if (cartRef.current) {
-                const cartHeight = cartRef.current.clientHeight;
-                const setHeight = cartHeight + 8;
-                setProductDivHeight(setHeight);
-            }
-        };
-        // Call the function when cart items change
-        updateCartHeight();
-
     }, [localCartProducts, userCart]);
 
-    const handleCategoryClick = (category, title) => {
-        navigate(`/${category}/${title}`); // Navigate to the products page with the selected category as a URL parameter
-    };
+    const usingFirebase = userCart.length > 0;
+    const items = usingFirebase ? userCart : localCartProducts;
+    const itemCount = usingFirebase ? cartTotalQty : totalQty;
+    const subtotal = usingFirebase ? cartTotalPrice : totalPrice;
 
-    // Function to decrease the quantity of a product in the user's Firebase cart
+    const tax = subtotal * TAX_RATE;
+    const freeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
+    const deliveryFee = freeDelivery ? 0 : DELIVERY_FEE;
+    const remainingForFree = Math.max(FREE_DELIVERY_THRESHOLD - subtotal, 0);
+    const progressPct = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100);
+    const total = subtotal + tax + deliveryFee;
+
+    const handleCategoryClick = (category, title) => navigate(`/${category}/${title}`);
+
     const handleDecreaseQuantity = async (productTitle) => {
-        const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const docSnapshot = await getDoc(userCartRef);
-        if (docSnapshot.exists()) {
-            const userCartData = docSnapshot.data().cart;
-            const productIndex = userCartData.findIndex(product => product.title === productTitle);
-            if (productIndex !== -1) {
-                if (userCartData[productIndex].quantity > 1) {
-                    userCartData[productIndex].quantity -= 1;
-                    await setDoc(userCartRef, { cart: userCartData }, { merge: true });
-                    const updatedUserCart = userCart.map(product =>
-                        product.title === productTitle
-                            ? { ...product, quantity: product.quantity - 1 }
-                            : product
-                    );
-                    updateUserCart(updatedUserCart);
-                }
+        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+            const cart = snap.data().cart;
+            const i = cart.findIndex((p) => p.title === productTitle);
+            if (i !== -1 && cart[i].quantity > 1) {
+                cart[i].quantity -= 1;
+                await setDoc(ref, { cart }, { merge: true });
+                updateUserCart(userCart.map((p) => p.title === productTitle ? { ...p, quantity: p.quantity - 1 } : p));
             }
         }
     };
 
-    // Function to increase the quantity of a product in the user's Firebase cart
     const handleIncreaseQuantity = async (productTitle) => {
-        const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const docSnapshot = await getDoc(userCartRef);
-        if (docSnapshot.exists()) {
-            const userCartData = docSnapshot.data().cart;
-            const productIndex = userCartData.findIndex(product => product.title === productTitle);
-            if (productIndex !== -1) {
-                userCartData[productIndex].quantity += 1;
-                await setDoc(userCartRef, { cart: userCartData }, { merge: true });
-                const updatedUserCart = userCart.map(product =>
-                    product.title === productTitle
-                        ? { ...product, quantity: product.quantity + 1 }
-                        : product
-                );
-                updateUserCart(updatedUserCart);
+        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+            const cart = snap.data().cart;
+            const i = cart.findIndex((p) => p.title === productTitle);
+            if (i !== -1) {
+                cart[i].quantity += 1;
+                await setDoc(ref, { cart }, { merge: true });
+                updateUserCart(userCart.map((p) => p.title === productTitle ? { ...p, quantity: p.quantity + 1 } : p));
             }
         }
     };
 
-    // Function to delete a product from the user's Firebase cart
     const handleDeleteProduct = async (productTitle) => {
-        const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-        const docSnapshot = await getDoc(userCartRef);
-        if (docSnapshot.exists()) {
-            const userCartData = docSnapshot.data().cart;
-            const updatedCart = userCartData.filter(product => product.title !== productTitle);
-            await updateDoc(userCartRef, { cart: updatedCart });
-            const updatedUserCart = userCart.filter(product => product.title !== productTitle);
-            updateUserCart(updatedUserCart);
+        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+            const updated = snap.data().cart.filter((p) => p.title !== productTitle);
+            await updateDoc(ref, { cart: updated });
+            updateUserCart(userCart.filter((p) => p.title !== productTitle));
         }
     };
 
-    // Function to clear the cartItem
-    const handleClearCart = async () => {
-        if (authenticated) {
-            const userCartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
-            await setDoc(userCartRef, { cart: [] }, { merge: true });
-            updateUserCart([]);
-        } else {
-            // If user is not signed in, only clear the Redux cart
-            dispatch(resetCart());
+    const handleSuggestedAdd = async (product) => {
+        if (!authenticated) {
+            dispatch(addToCart({
+                id: product.id, title: product.title, price: product.price, description: product.description,
+                category: product.category, images: product.images, thumbnail: product.thumbnail, brand: product.brand,
+                quantity: 1, discountPercentage: product.discountPercentage, rating: product.rating, stock: product.stock,
+            }));
+            return;
         }
+        const item = { ...product, quantity: 1 };
+        const ref = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
+        const snap = await getDoc(ref);
+        const cart = snap.exists() ? (snap.data().cart || []) : [];
+        const i = cart.findIndex((p) => p.title === product.title);
+        if (i !== -1) cart[i].quantity += 1; else cart.push(item);
+        await setDoc(ref, { cart }, { merge: true });
+        updateUserCart(cart);
     };
+
+    const suggestions = productsData.slice(0, 4);
 
     return (
-        <div className='mx-auto flex max-w-[1400px] flex-row gap-5 px-4 sm:px-6'>
+        <div className="min-h-screen w-full bg-[#0a0a0a]">
             <ScrollRestoration />
-            <div className=' w-[74%] flex flex-col gap-6 my-10' >
-                <div className='w-full rounded-2xl bg-[#151c2b] py-7 px-5 ring-1 ring-white/5' >
-                    <h1 className='text-3xl font-black text-white mb-3'>Shopping Cart</h1>
-                    <hr className='border-white/10' />
-                    {userCart.length > 0
-                        ?
-                        <div ref={cartRef}>
-                            {
-                                userCart.map((product, index) => (
-                                    <CartProduct
-                                        key={index}
-                                        product={product}
-                                        handleCategoryClick={handleCategoryClick}
-                                        handleDecreaseQuantity={() => handleDecreaseQuantity(product.title)}
-                                        handleIncreaseQuantity={() => handleIncreaseQuantity(product.title)}
-                                        handleDeleteProduct={() => handleDeleteProduct(product.title)}
-                                      />
-                                ))
-                            }
+            <div className="mx-auto max-w-[1500px] px-6 py-10">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    {/* ── Left: items + suggestions ── */}
+                    <div className="lg:col-span-2">
+                        <h1 className="mb-6 text-4xl font-black text-white">Shopping Cart</h1>
+
+                        <div className="space-y-4">
+                            {items.map((product, index) => (
+                                <CartProduct
+                                    key={index}
+                                    product={product}
+                                    handleCategoryClick={handleCategoryClick}
+                                    handleDecreaseQuantity={() => usingFirebase ? handleDecreaseQuantity(product.title) : dispatch(decreaseQuantity(product.title))}
+                                    handleIncreaseQuantity={() => usingFirebase ? handleIncreaseQuantity(product.title) : dispatch(increaseQuantity(product.title))}
+                                    handleDeleteProduct={() => usingFirebase ? handleDeleteProduct(product.title) : dispatch(deleteProduct(product.title))}
+                                />
+                            ))}
                         </div>
-                        :
-                        <div ref={cartRef}>
-                            {
-                                localCartProducts.map((product, index) => (
-                                    <CartProduct
-                                        key={index}
-                                        product={product}
-                                        handleCategoryClick={handleCategoryClick}
-                                        handleDecreaseQuantity={() => dispatch(decreaseQuantity(product.title))}
-                                        handleIncreaseQuantity={() => dispatch(increaseQuantity(product.title))}
-                                        handleDeleteProduct={() => dispatch(deleteProduct(product.title))}
-                                      />
-                                ))
-                            }
-                        </div>
-                    }
-                    <div className='mt-4 flex justify-between'>
-                        <button onClick={() => handleClearCart()}
-                            className='w-[200px] rounded-lg bg-white/5 py-2 text-sm font-semibold text-gray-300 ring-1 ring-white/10 transition hover:text-red-400 hover:ring-red-400/30'>
-                            Clear Cart</button>
-                        <div className='flex items-baseline justify-end text-[22px] font-medium text-gray-300'>SubTotal ({userCart.length > 0 ? cartTotalQty : totalQty} items) :&nbsp;
-                            <span className='text-[24px] font-black text-white'>${userCart.length > 0 ? cartTotalPrice : totalPrice}.00</span>
+
+                        {/* You might also like */}
+                        <div className="mt-12">
+                            <h2 className="mb-1 font-mono text-sm uppercase tracking-[0.2em] text-gray-400">You might also like</h2>
+                            <div className="mb-5 border-b border-white/10" />
+                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+                                {suggestions.map((product, i) => (
+                                    <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-[#0d0d0d]">
+                                        <Link to={`/allProducts/${product.title}`}>
+                                            <div className="flex h-36 items-center justify-center bg-[#141414] p-3">
+                                                <img src={product.thumbnail} alt={product.title} className="max-h-full max-w-full object-contain" />
+                                            </div>
+                                        </Link>
+                                        <div className="p-3">
+                                            <p className="line-clamp-1 text-sm font-bold text-white">{product.title}</p>
+                                            <p className="mt-0.5 text-sm font-bold text-[#FF9900]">${product.price.toFixed(2)}</p>
+                                            <button
+                                                onClick={() => handleSuggestedAdd(product)}
+                                                className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-white/15 py-1.5 font-mono text-xs uppercase tracking-wider text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
+                                            >
+                                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                                Add
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <p className='px-2 text-sm text-gray-500'>
-                    Prices and availability are subject to change. Your cart is a temporary place to store items and reflects each item's most recent price.
-                </p>
-            </div>
-            <div className=' w-[22%] flex flex-col gap-5 my-10 '>
-                <div className='w-full rounded-2xl bg-[#151c2b] py-6 px-5 ring-1 ring-white/5'>
-                    <div className='flex flex-row gap-2 '>
-                        <span className='text-[#FF9900]'>✓</span>
-                        <span className='text-[13px] text-[#FFB145]'>Part of your order qualifies for FREE Delivery.
-                            <span className='text-gray-500'> Select this at checkout.</span>
-                        </span>
-                    </div>
-                    <div className='mt-4 flex items-baseline text-[18px] font-medium text-gray-300'>SubTotal ({userCart.length > 0 ? cartTotalQty : totalQty} items) :&nbsp;
-                        <span className='text-[18px] font-black text-white'>${userCart.length > 0 ? cartTotalPrice : totalPrice}.00</span>
-                    </div>
-                    {
-                        authenticated
-                            ? <Link to="/checkout">
-                                <button className={`mt-3 w-full rounded-full bg-[#FF9900] py-2.5 text-center font-bold text-black transition hover:bg-[#FFB145]`}>
-                                    Proceed to Buy
-                                </button>
-                            </Link>
-                            : <Link to="/signIn">
-                                <button className={`mt-3 w-full rounded-full bg-[#FF9900] py-2.5 text-center font-bold text-black transition hover:bg-[#FFB145]`}>
-                                    Proceed to Buy
-                                </button>
-                            </Link>
-                    }
-                    <div className='mt-4 flex items-center justify-center rounded-lg border border-white/10 py-2 text-sm text-gray-400'>EMI Available</div>
-                </div>
-                <div className='w-full rounded-2xl bg-[#151c2b] ring-1 ring-white/5' >
-                    <h1 className='mx-3 pt-3 font-bold text-white'>You might also like</h1>
-                    <div style={{ height: productDivHeight }} className='custom-scrollbar ml-3 flex flex-col gap-4 overflow-y-hidden py-3 hover:overflow-y-scroll '>
-                        {productsData.map((product, index) => (
-                            <div className='flex flex-row gap-2' key={index} >
-                                <Link to={`/allProducts/${product.title}`}>
-                                    <img className='h-16 w-16 rounded-lg bg-[#0e1420] object-contain p-1' src={product.thumbnail} alt="productImage" />
-                                </Link>
-                                <div className=''>
-                                    <Link to={`/${product.category}/${product.title}`}>
-                                        <p className='text-sm font-semibold text-gray-200 hover:text-[#FFB145]'>{product.title.substring(0, 18)}</p>
-                                    </Link>
-                                    <p className='mt-1 text-[18px] font-bold text-[#FF9900]'>${product.price}</p>
+
+                    {/* ── Right: order summary ── */}
+                    <div className="lg:col-span-1">
+                        <div className="sticky top-24 overflow-hidden rounded-2xl border-t-2 border-[#FF9900] bg-[#0f0f0f] p-6 ring-1 ring-white/10">
+                            <h2 className="text-2xl font-black text-white">Order Summary</h2>
+
+                            <div className="mt-6 space-y-3 text-sm">
+                                <div className="flex justify-between text-gray-300">
+                                    <span>Subtotal ({itemCount} items)</span>
+                                    <span className="font-semibold text-white">${subtotal.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-300">
+                                    <span>Tax</span>
+                                    <span className="font-semibold text-white">${tax.toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-gray-300">
+                                    <span className="flex items-center gap-1">Delivery Fee <span className="text-gray-600">ⓘ</span></span>
+                                    <span className="flex items-center gap-2">
+                                        {!freeDelivery && <span className="text-gray-600 line-through">${DELIVERY_FEE.toFixed(2)}</span>}
+                                        {freeDelivery ? <span className="font-bold text-[#FF9900]">FREE</span> : <span className="font-semibold text-white">${DELIVERY_FEE.toFixed(2)}</span>}
+                                    </span>
+                                </div>
+
+                                {/* Free delivery progress */}
+                                <div className="pt-1">
+                                    <div className="mb-1.5 flex justify-between font-mono text-[11px] text-gray-500">
+                                        <span>{freeDelivery ? 'You unlocked Free Delivery' : `Add $${remainingForFree.toFixed(2)} for Free Delivery`}</span>
+                                        <span className="text-[#FF9900]">{progressPct.toFixed(0)}%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                                        <div className="h-full rounded-full bg-gradient-to-r from-[#FF9900] to-[#ffae33] transition-all" style={{ width: `${progressPct}%` }} />
+                                    </div>
                                 </div>
                             </div>
-                        ))}
+
+                            <div className="my-5 border-t border-white/10" />
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-lg text-gray-300">Total</span>
+                                <span className="text-3xl font-black text-white">${total.toFixed(2)}</span>
+                            </div>
+
+                            {authenticated ? (
+                                <Link to="/checkout">
+                                    <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#FF9900] py-3 font-bold text-black transition hover:bg-[#ffae33]">
+                                        Proceed to Checkout <span>→</span>
+                                    </button>
+                                </Link>
+                            ) : (
+                                <Link to="/signIn">
+                                    <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#FF9900] py-3 font-bold text-black transition hover:bg-[#ffae33]">
+                                        Proceed to Checkout <span>→</span>
+                                    </button>
+                                </Link>
+                            )}
+
+                            <p className="mt-4 flex items-center justify-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-gray-500">
+                                🔒 Secure Encrypted Checkout
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default CartItems;
-
-
-

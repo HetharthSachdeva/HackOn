@@ -166,20 +166,20 @@ const AddressForm = ({ setShowAddressForm }) => {
         <div>
             <p className='text-lg font-semibold text-white'>1 &nbsp; Enter a new shipping address</p>
             <div className='w-full flex justify-end'>
-                <div className='w-[96%] bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 pl-4 py-3'>
+                <div className='w-[96%] bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 pl-4 py-3'>
                     <p className='text-2xl font-semibold text-white'>Add new address</p>
 
                     <form onSubmit={handleSubmit} className='w-[73%] my-4 flex flex-col gap-3'>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Full name (First and Last name)
-                            <input onChange={(e) => { setNameInput(e.target.value); setNameError(""); }} value={nameInput} type="text" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setNameInput(e.target.value); setNameError(""); }} value={nameInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                             {
                                 nameError && <div className='text-sm text-[#d14444]  pl-5'>{nameError}</div>
                             }
                         </label>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Mobile number
-                            <input onChange={(e) => { setMobileInput(e.target.value); setMobileError(""); }} value={mobileInput} type="tel" maxLength="10" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setMobileInput(e.target.value); setMobileError(""); }} value={mobileInput} type="tel" maxLength="10" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                             <p className='text-xs font-normal text-gray-400'>May be used to assist delivery</p>
                             {
                                 mobileError && <div className='text-sm text-[#d14444]  pl-5'>{mobileError}</div>
@@ -187,30 +187,30 @@ const AddressForm = ({ setShowAddressForm }) => {
                         </label>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Pincode
-                            <input onChange={(e) => { setPincodeInput(e.target.value); setPincodeError(""); }} value={pincodeInput} type="tel" maxLength="6" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setPincodeInput(e.target.value); setPincodeError(""); }} value={pincodeInput} type="tel" maxLength="6" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                             {
                                 pincodeError && <div className='text-sm text-[#d14444]  pl-5'>{pincodeError}</div>
                             }
                         </label>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Flat, House no., Building, Company, Apartment
-                            <input onChange={(e) => { setAddressInput(e.target.value); setAddressError(""); }} value={addressInput} type="text" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setAddressInput(e.target.value); setAddressError(""); }} value={addressInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                             {
                                 addressError && <div className='text-sm text-[#d14444]  pl-5'>{addressError}</div>
                             }
                         </label>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Area, Street, Sector, Village
-                            <input onChange={(e) => { setAreaInput(e.target.value) }} value={areaInput} type="text" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setAreaInput(e.target.value) }} value={areaInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                         </label>
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Landmark
-                            <input onChange={(e) => { setLandmarkInput(e.target.value) }} value={landmarkInput} type="text" placeholder="E.g. near apollo hospital" autoComplete="true" className=' bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
+                            <input onChange={(e) => { setLandmarkInput(e.target.value) }} value={landmarkInput} type="text" placeholder="E.g. near apollo hospital" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
                         </label>
                         <div className='w-full flex flex-row gap-3'>
                             <label className='text-sm font-semibold w-[50%] text-gray-300'>
                                 Town/City
-                                <input onChange={(e) => { setCityInput(e.target.value); setCityError(""); }} value={cityInput} type="text" autoComplete="true" className='w-full bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]' />
+                                <input onChange={(e) => { setCityInput(e.target.value); setCityError(""); }} value={cityInput} type="text" autoComplete="true" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]' />
                                 {
                                     cityError && <div className='text-sm text-[#d14444]  pl-5'>{cityError}</div>
                                 }
@@ -220,7 +220,7 @@ const AddressForm = ({ setShowAddressForm }) => {
                                 State
                                 <select value={stateInput} // Bind the state variable to the value of the select element
                                     onChange={(e) => setStateInput(e.target.value)} // Update state when an option is selected
-                                    type="text" className='w-full bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]'>
+                                    type="text" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]'>
                                     {
                                         states.map((item, index) => (
                                             <option value={item} className="hover:bg-[#FF9900] pl-1 text-sm flex flex-col items-start cursor-pointer"
@@ -236,7 +236,7 @@ const AddressForm = ({ setShowAddressForm }) => {
                         <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
                             Country
                             <select defaultValue="India"
-                                type="text" className='w-full bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1'>
+                                type="text" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1'>
                                 {
                                     countryList.map((item, index) => (
                                         <option

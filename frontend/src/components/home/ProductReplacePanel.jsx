@@ -85,9 +85,9 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
             ></div>
 
             {/* Side Panel */}
-            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-[#0b1120] shadow-2xl z-50 animate-slide-in overflow-y-auto ring-1 ring-white/5">
+            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-[#0a0a0a] shadow-2xl z-50 animate-slide-in overflow-y-auto ring-1 ring-white/5">
                 {/* Header */}
-                <div className="sticky top-0 bg-[#0e1420] text-white p-6 z-10 border-b border-white/5">
+                <div className="sticky top-0 bg-[#141414] text-white p-6 z-10 border-b border-white/5">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-2xl font-black">Find Better Alternative</h2>
                         <button
@@ -113,7 +113,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                     </div>
 
                     {/* AI Intent Buttons */}
-                    <div className="bg-[#151c2b] rounded-2xl p-5 ring-1 ring-white/10">
+                    <div className="bg-[#0d0d0d] rounded-2xl p-5 ring-1 ring-white/10">
                         <div className="flex items-center gap-2 mb-4">
                             <svg className="w-5 h-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M13 10V3L4 14h7v7l9-11h-7z"/>

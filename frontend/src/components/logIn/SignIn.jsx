@@ -222,7 +222,7 @@ const SignIn = () => {
     }
 
     return (
-        <div className='bg-[#0b1120] w-full h-full'>
+        <div className='bg-[#0a0a0a] w-full h-full'>
             <div className='flex flex-col justify-center items-center'>
 
                 <Link to="/">
@@ -231,7 +231,7 @@ const SignIn = () => {
                     </div>
                 </Link>
 
-                <div className='w-80 mt-4 bg-[#151c2b] ring-1 ring-white/10 border-white/10 rounded-lg'>
+                <div className='w-80 mt-4 bg-[#0d0d0d] ring-1 ring-white/10 border-white/10 rounded-lg'>
                     <div className='my-4 mx-7 '>
                         <span className='text-[28px] font-semibold text-white'>
                             Sign in
@@ -268,7 +268,7 @@ const SignIn = () => {
                                             <input type="text" autoComplete="true" value={inputValue} onChange={(e) => {
                                                 setInputValue(e.target.value.toString().toLowerCase());
                                                 setUserEmailError("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                            }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                         </label>
                                         {
                                             userEmailError && <div className="flex  items-center  pt-1 pb-2">
@@ -281,7 +281,7 @@ const SignIn = () => {
                                             <input type="password" autoComplete="true" value={passwordValue} onChange={(e) => {
                                                 setPasswordValue(e.target.value);
                                                 setWarningPassword("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                            }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                         </label>
                                         {
                                             warningPassword && <div className="flex  items-center pt-1 pb-2">

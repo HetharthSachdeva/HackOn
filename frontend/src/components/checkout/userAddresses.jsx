@@ -34,7 +34,7 @@ const UserAddresses = ({ setShowAddressForm }) => {
         <div >
             <p className='text-lg font-semibold text-white'>1 &nbsp; Select a delivery address</p>
             <div className='w-full flex justify-end'>
-                <div className='w-[96%] bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-2'>
+                <div className='w-[96%] bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-2'>
                     <div className='flex flex-row justify-between border-b border-white/10'>
                         <p className='text-lg font-semibold text-white'>Your addresses</p>
                         <button onClick={() => { setShowAddressForm(true) }} className='text-lg font-semibold text-[#FF9900] hover:text-[#FFB145] hover:underline'>Add new address</button>

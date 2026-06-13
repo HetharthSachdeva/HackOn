@@ -13,8 +13,8 @@ const FooterTop = () => {
   return (
     <>
       {!userInfo &&
-        <div className='w-full bg-[#0b1120] pt-10 pb-6'>
-          <div className='mx-auto w-72 rounded-md border border-white/10 bg-[#151c2b]'>
+        <div className='w-full bg-[#0a0a0a] pt-10 pb-6'>
+          <div className='mx-auto w-72 rounded-md border border-white/10 bg-[#0d0d0d]'>
             <div className='mx-auto w-60 text-center pt-10 pb-5'>
               <p className='text-sm text-gray-300'>See personalized recommendations</p>
               <Link to="/signIn" >

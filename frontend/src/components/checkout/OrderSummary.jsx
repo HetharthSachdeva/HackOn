@@ -114,7 +114,7 @@ const OrderSummary = () => {
 
   return (
     <div>
-      <div className=" mx-auto bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-3">
+      <div className=" mx-auto bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-3">
         <div className=" mt-2 px-[18px]">
           <h3 className=" text-xl font-semibold pt-2 mb-3 text-white">Order Summary</h3>
           <div className="flex justify-between mb-[2px] text-sm text-gray-400">
@@ -170,7 +170,7 @@ const OrderSummary = () => {
           </p>
         </div>
 
-        <div className="flex justify-between border-t border-white/10 rounded-br-lg rounded-bl-lg bg-[#0e1420]">
+        <div className="flex justify-between border-t border-white/10 rounded-br-lg rounded-bl-lg bg-[#141414]">
           <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-[#FF9900] hover:underline hover:text-[#FFB145] hover:cursor-pointer">
             How are delivery costs calculated?
           </p>
@@ -179,10 +179,10 @@ const OrderSummary = () => {
 
       {
         deliveryInfo &&
-        <div ref={deliveryInfoRef} className="border border-white/10 bg-[#151c2b] ring-1 ring-white/5 mt-2 w-[400px]">
+        <div ref={deliveryInfoRef} className="border border-white/10 bg-[#0d0d0d] ring-1 ring-white/5 mt-2 w-[400px]">
           <table className="w-full text-center">
             <thead>
-              <tr className="bg-[#0e1420] ">
+              <tr className="bg-[#141414] ">
                 <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Shipping Speed</th>
                 <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Members</th>
                 <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Lite Members</th>
@@ -190,7 +190,7 @@ const OrderSummary = () => {
               </tr>
             </thead>
             <tbody>
-              <tr className="bg-[#0e1420]">
+              <tr className="bg-[#141414]">
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Same-Day Delivery</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$175</td>
@@ -202,7 +202,7 @@ const OrderSummary = () => {
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">$150</td>
               </tr>
-              <tr className="bg-[#0e1420]">
+              <tr className="bg-[#141414]">
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Two-Day Delivery</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
@@ -214,7 +214,7 @@ const OrderSummary = () => {
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">N.A</td>
               </tr>
-              <tr className="bg-[#0e1420]">
+              <tr className="bg-[#141414]">
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Standard Delivery**</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
                 <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>

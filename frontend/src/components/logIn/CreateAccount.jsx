@@ -120,7 +120,7 @@ const CreateAccount = () => {
     };
 
     return (
-        <div className='bg-[#0b1120]'>
+        <div className='bg-[#0a0a0a]'>
             <div className='flex flex-col w-full h-full justify-center mb-10 items-center'>
 
                 <Link to="/">
@@ -129,7 +129,7 @@ const CreateAccount = () => {
                     </div>
                 </Link>
 
-                <div className='w-80 mt-4 bg-[#151c2b] ring-1 ring-white/10 border-white/10 rounded-lg'>
+                <div className='w-80 mt-4 bg-[#0d0d0d] ring-1 ring-white/10 border-white/10 rounded-lg'>
                     <div className='my-4 mx-5 '>
                         <span className='text-[28px] font-semibold text-white'>
                             Create Account
@@ -153,7 +153,7 @@ const CreateAccount = () => {
                                         <input type="text" placeholder="First and last name" autoComplete="true" value={nameInput} onChange={(e) => {
                                             setNameInput(e.target.value);
                                             setNameError("");
-                                        }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1 ' />
+                                        }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1 ' />
                                     </label>
                                     {
                                         nameError && <div className='text-sm text-red-400'>{nameError}</div>
@@ -164,7 +164,7 @@ const CreateAccount = () => {
                                             setEmailInput(e.target.value.toString().toLowerCase());
                                             setEmailError("");
                                             setFirebaseError("");
-                                        }} className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                        }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
 
                                     </label>
                                     {
@@ -173,11 +173,11 @@ const CreateAccount = () => {
                                     <label className='text-sm font-semibold my-3 text-gray-300'>
                                         Mobile number (Optional)
                                         <div className='flex items-center justify-between mt-1'>
-                                            <div className='w-[22%] border-[1px] rounded-md border-white/10 bg-[#0e1420] text-white p-1'>IN +91</div>
+                                            <div className='w-[22%] border-[1px] rounded-md border-white/10 bg-[#141414] text-white p-1'>IN +91</div>
                                             <input type="tel" autoComplete="true" maxLength="10" placeholder="Mobile number" value={mobileInput} onChange={(e) => {
                                                 setMobileInput(e.target.value);
                                                 setMobileError("");
-                                            }} className='w-[74%] border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                            }} className='w-[74%] border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                         </div>
                                     </label>
                                     {
@@ -188,7 +188,7 @@ const CreateAccount = () => {
                                         <input type="password" autoComplete="true" value={passwordInput} onChange={(e) => {
                                             setPasswordInput(e.target.value);
                                             setPasswordError("");
-                                        }} placeholder="At least 6 characters" className='w-full border-[1px] border-white/10 bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
+                                        }} placeholder="At least 6 characters" className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
                                     </label>
                                     {
                                         passwordError && <div className='text-sm text-red-400'>{passwordError}</div>

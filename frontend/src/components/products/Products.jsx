@@ -61,7 +61,7 @@ const Products = () => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#0b1120] px-4 py-6 sm:px-6">
+    <div className="min-h-screen w-full bg-[#0a0a0a] px-4 py-6 sm:px-6">
       <ScrollRestoration />
 
       {/* ── Category Pills ── */}
@@ -70,7 +70,7 @@ const Products = () => {
           <button
             onClick={() => navigate('/allProducts')}
             className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold transition-all ${
-              !category ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
+              !category ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#0d0d0d] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
             }`}
           >
             All
@@ -80,7 +80,7 @@ const Products = () => {
               key={item}
               onClick={() => navigate(`/${item}`)}
               className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-bold capitalize transition-all ${
-                category === item ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#151c2b] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
+                category === item ? 'bg-[#FF9900] text-black shadow-lg shadow-[#FF9900]/20' : 'bg-[#0d0d0d] text-gray-300 ring-1 ring-white/5 hover:ring-[#FF9900]/30'
               }`}
             >
               {item}
@@ -93,7 +93,7 @@ const Products = () => {
         {/* ── Sidebar ── */}
         <aside className="w-full flex-shrink-0 space-y-5 lg:w-72">
           {/* Price Range */}
-          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
+          <div className="rounded-2xl bg-[#0d0d0d] p-5 ring-1 ring-white/5">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-white">Price Range</h3>
               <button onClick={() => setMaxPrice(priceBounds.max)} className="text-xs font-semibold text-gray-500 hover:text-[#FFB145]">Reset</button>
@@ -125,13 +125,13 @@ const Products = () => {
             />
 
             <div className="mt-3 flex items-center justify-between">
-              <span className="rounded-full bg-[#0e1420] px-3 py-1 text-xs font-bold text-gray-300">${priceBounds.min}</span>
-              <span className="rounded-full bg-[#0e1420] px-3 py-1 text-xs font-bold text-gray-300">${maxPrice}</span>
+              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">${priceBounds.min}</span>
+              <span className="rounded-full bg-[#141414] px-3 py-1 text-xs font-bold text-gray-300">${maxPrice}</span>
             </div>
           </div>
 
           {/* Quick Filters */}
-          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
+          <div className="rounded-2xl bg-[#0d0d0d] p-5 ring-1 ring-white/5">
             <h3 className="mb-3 font-bold text-white">Quick Filters</h3>
             {quickFilterList.map((f) => {
               const checked = quickFilters[f.key];
@@ -155,9 +155,9 @@ const Products = () => {
           </div>
 
           {/* Speed */}
-          <div className="rounded-2xl bg-[#151c2b] p-5 ring-1 ring-white/5">
+          <div className="rounded-2xl bg-[#0d0d0d] p-5 ring-1 ring-white/5">
             <h3 className="mb-3 font-bold text-white">Speed</h3>
-            <div className="flex gap-2 rounded-full bg-[#0e1420] p-1">
+            <div className="flex gap-2 rounded-full bg-[#141414] p-1">
               {[{ id: 'dash', label: 'Dash (10m)' }, { id: 'standard', label: 'Standard' }].map((opt) => (
                 <button
                   key={opt.id}
@@ -185,7 +185,7 @@ const Products = () => {
             <select
               onChange={(e) => setSortOrder(e.target.value)}
               value={sortOrder}
-              className="rounded-full border-0 bg-[#151c2b] px-4 py-2.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10 focus:ring-[#FF9900]/40"
+              className="rounded-full border-0 bg-[#0d0d0d] px-4 py-2.5 text-sm font-semibold text-gray-300 ring-1 ring-white/10 focus:ring-[#FF9900]/40"
             >
               <option value="default">Sort: Featured</option>
               <option value="lowToHigh">Price: Low to High</option>
@@ -197,7 +197,7 @@ const Products = () => {
           {sortedProducts.length > 0 ? (
             <Product productsData={sortedProducts} />
           ) : (
-            <div className="rounded-2xl bg-[#151c2b] py-24 text-center ring-1 ring-white/5">
+            <div className="rounded-2xl bg-[#0d0d0d] py-24 text-center ring-1 ring-white/5">
               <p className="text-2xl font-bold text-white">No products found</p>
               <p className="mt-2 text-gray-400">
                 Try adjusting your filters or{' '}
@@ -237,7 +237,7 @@ const Products = () => {
           appearance: none;
           height: 6px;
           border-radius: 9999px;
-          background: linear-gradient(to right, #a3e635 0%, #a3e635 ${pricePct}%, rgba(255,255,255,0.1) ${pricePct}%, rgba(255,255,255,0.1) 100%);
+          background: linear-gradient(to right, #FF9900 0%, #FF9900 ${pricePct}%, rgba(255,255,255,0.1) ${pricePct}%, rgba(255,255,255,0.1) 100%);
           outline: none;
         }
         .price-slider::-webkit-slider-thumb {
@@ -246,17 +246,17 @@ const Products = () => {
           height: 18px;
           width: 18px;
           border-radius: 9999px;
-          background: #a3e635;
-          border: 3px solid #0b1120;
-          box-shadow: 0 0 0 1px rgba(163,230,53,0.5);
+          background: #FF9900;
+          border: 3px solid #0a0a0a;
+          box-shadow: 0 0 0 1px rgba(255,153,0,0.5);
           cursor: pointer;
         }
         .price-slider::-moz-range-thumb {
           height: 18px;
           width: 18px;
           border-radius: 9999px;
-          background: #a3e635;
-          border: 3px solid #0b1120;
+          background: #FF9900;
+          border: 3px solid #0a0a0a;
           cursor: pointer;
         }
       `}</style>
