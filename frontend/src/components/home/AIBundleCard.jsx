@@ -11,6 +11,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
     const [bundleProducts, setBundleProducts] = useState(bundle.products);
     const [bundleCost, setBundleCost] = useState(bundle.totalCost);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
+    const [activeOptimize, setActiveOptimize] = useState('cheapest');
 
     const { userCart, updateUserCart } = useCart();
     const userInfo = useSelector((state) => state.amazon.userInfo);
@@ -169,171 +170,148 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
     return (
         <>
-            <div className="max-w-6xl mx-auto px-4 py-6">
-                {/* Bundle Summary Card */}
-                <div className="bg-[#0d0d0d] rounded-3xl shadow-2xl ring-1 ring-white/5 overflow-hidden">
-                    {/* Header */}
-                    <div className="relative bg-[#141414] p-8 text-white overflow-hidden">
-                        {/* Animated glow accents */}
-                        <div className="absolute inset-0 opacity-100">
-                            <div className="absolute top-0 left-0 w-64 h-64 bg-[#FF9900]/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl animate-pulse"></div>
-                            <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl animate-pulse delay-1000"></div>
+            <div className="mx-auto max-w-[1500px] px-6 py-8">
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    {/* ── Left column ── */}
+                    <div className="lg:col-span-2">
+                        {/* Heading */}
+                        <div className="mb-6">
+                            <h1 className="flex items-center gap-3 text-4xl font-black text-white">
+                                <span className="text-[#FF9900]">✨</span> AI Generated Bundle
+                            </h1>
+                            <p className="mt-2 text-sm text-gray-400">
+                                We've curated the perfect selection based on your recent searches and preferences.
+                            </p>
                         </div>
 
-                        <div className="relative z-10">
-                            {/* AI Badge */}
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF9900]/15 ring-1 ring-[#FF9900]/30 rounded-full mb-4">
-                                <svg className="w-5 h-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                </svg>
-                                <span className="text-sm font-bold text-[#FFB145]">AI Generated Bundle</span>
+                        {/* Stat tiles */}
+                        <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                            <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
+                                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Total Cost</p>
+                                <p className="mt-2 text-2xl font-black text-white">${Number(bundleCost).toFixed(2)}</p>
                             </div>
-
-                            {/* Bundle Title */}
-                            <h2 className="text-3xl md:text-4xl font-black mb-6 text-white">
-                                {bundle.title}
-                            </h2>
-
-                            {/* Stats Grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
-                                    <p className="text-sm text-gray-400 mb-1">Total Cost</p>
-                                    <p className="text-3xl font-black text-white">${bundleCost}</p>
-                                </div>
-                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
-                                    <p className="text-sm text-gray-400 mb-1">You Save</p>
-                                    <p className="text-3xl font-black text-[#FF9900]">${bundle.savings}</p>
-                                </div>
-                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
-                                    <p className="text-sm text-gray-400 mb-1">Delivery</p>
-                                    <p className="text-3xl font-black text-white">{bundle.deliveryETA}</p>
-                                </div>
-                                <div className="bg-white/5 rounded-2xl p-4 ring-1 ring-white/10">
-                                    <p className="text-sm text-gray-400 mb-1">AI Match</p>
-                                    <p className="text-3xl font-black text-[#FF9900]">{bundle.confidence}%</p>
-                                </div>
+                            <div className="rounded-xl border-2 border-[#FF9900] bg-[#FF9900]/5 p-4">
+                                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF9900]">You Save</p>
+                                <p className="mt-2 text-2xl font-black text-[#FF9900]">${Number(bundle.savings).toFixed(2)}</p>
+                            </div>
+                            <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
+                                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Delivery Time</p>
+                                <p className="mt-2 text-2xl font-black text-white">~{bundle.deliveryETA}</p>
+                            </div>
+                            <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
+                                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">AI Match</p>
+                                <p className="mt-2 text-2xl font-black text-white">{bundle.confidence}%</p>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Products Section */}
-                    <div className="p-8">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-2xl font-bold text-white">Bundle Items ({bundleProducts.length})</h3>
-                            <button 
-                                onClick={handleAddAllToCart}
-                                disabled={isAddingToCart}
-                                className={`
-                                    px-6 py-3 bg-[#FF9900] text-black
-                                    rounded-full font-bold shadow-lg shadow-[#FF9900]/20 hover:bg-[#FFB145]
-                                    transition-all duration-200 flex items-center gap-2
-                                    ${isAddingToCart ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105'}
-                                `}
-                            >
-                                {isAddingToCart ? (
-                                    <>
-                                        <div className="animate-spin h-5 w-5 border-2 border-black border-t-transparent rounded-full"></div>
-                                        <span>Adding...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        Add All to Cart
-                                    </>
-                                )}
-                            </button>
-                        </div>
-
-                        {/* Product Cards - Horizontal Scroll */}
-                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                        {/* Included items */}
+                        <p className="mb-3 font-mono text-sm uppercase tracking-[0.2em] text-gray-400">Included Items</p>
+                        <div className="mb-4 border-b border-white/10" />
+                        <div className="space-y-4">
                             {bundleProducts.map((product, idx) => (
-                                <div
-                                    key={idx}
-                                    className="flex-shrink-0 w-64 bg-[#141414] rounded-2xl ring-1 ring-white/5 hover:ring-[#FF9900]/40 transition-all duration-300 group"
-                                >
-                                    {/* Product Image */}
-                                    <div className="relative bg-[#0a0a0a] rounded-t-2xl p-4 h-48 flex items-center justify-center overflow-hidden">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                                        />
-                                        {/* Quantity Badge */}
-                                        <div className="absolute top-3 right-3 bg-[#FF9900] text-black text-sm font-bold px-3 py-1 rounded-full shadow-lg">
-                                            x{product.quantity}
-                                        </div>
+                                <div key={idx} className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
+                                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-[#141414] p-1.5">
+                                        <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
                                     </div>
-
-                                    {/* Product Info */}
-                                    <div className="p-4">
-                                        <h4 className="font-bold text-white mb-2 line-clamp-2 min-h-[48px]">
-                                            {product.name}
-                                        </h4>
-
-                                        {/* Price */}
-                                        <div className="flex items-baseline gap-2 mb-4">
-                                            <span className="text-2xl font-black text-white">
-                                                ${product.price}
-                                            </span>
-                                            {product.originalPrice && (
-                                                <span className="text-sm text-gray-500 line-through">
-                                                    ${product.originalPrice}
-                                                </span>
+                                    <div className="min-w-0 flex-1">
+                                        <h4 className="truncate font-bold text-white">{product.name}</h4>
+                                        <p className="mt-0.5 font-mono text-xs text-gray-500">Qty: {product.quantity}</p>
+                                        <div className="mt-1 flex items-baseline gap-2">
+                                            {product.originalPrice && product.originalPrice !== product.price && (
+                                                <span className="text-sm text-gray-600 line-through">${product.originalPrice}</span>
                                             )}
+                                            <span className="font-bold text-[#FF9900]">${product.price}</span>
                                         </div>
-
-                                        {/* Replace Button */}
-                                        <button
-                                            onClick={() => handleReplaceProduct(product)}
-                                            className="w-full py-3 bg-white/5 text-gray-300 font-bold rounded-xl ring-1 ring-white/10 hover:bg-[#FF9900]/10 hover:text-[#FFB145] hover:ring-[#FF9900]/30 transition-all duration-200 flex items-center justify-center gap-2"
-                                        >
-                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            Replace
-                                        </button>
                                     </div>
+                                    <button
+                                        onClick={() => handleReplaceProduct(product)}
+                                        className="flex flex-shrink-0 items-center gap-2 rounded-md border border-white/15 px-4 py-2 text-sm text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
+                                    >
+                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                        Replace
+                                    </button>
                                 </div>
                             ))}
                         </div>
-                    </div>
 
-                    {/* Optimize Bundle Section */}
-                    <div className="px-8 pb-8">
-                        <div className="bg-[#141414] rounded-2xl p-6 ring-1 ring-white/5">
-                            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                <svg className="w-6 h-6 text-[#FF9900]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
+                        {/* Optimize bundle */}
+                        <div className="mt-8 rounded-xl border border-white/10 bg-[#0d0d0d] p-5">
+                            <h3 className="mb-4 flex items-center gap-2 font-mono text-sm uppercase tracking-[0.2em] text-gray-300">
+                                <svg className="h-4 w-4 text-[#FF9900]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L14 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 018 21v-7.586L3.293 6.707A1 1 0 013 6V4z" /></svg>
                                 Optimize Your Bundle
                             </h3>
-                            
                             <div className="flex flex-wrap gap-3">
-                                {[
-                                    { label: 'Cheapest', icon: '💰' },
-                                    { label: 'Healthiest', icon: '🥗' },
-                                    { label: 'Most Popular', icon: '⭐' },
-                                    { label: 'Student Budget', icon: '🎓' },
-                                    { label: 'Premium', icon: '👑' }
-                                ].map((option, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => onOptimize(option.label.toLowerCase())}
-                                        className="
-                                            px-6 py-3 bg-[#0d0d0d] text-gray-300 ring-1 ring-white/10
-                                            rounded-full font-bold
-                                            hover:bg-[#FF9900] hover:text-black hover:ring-transparent
-                                            hover:scale-105 transition-all duration-200
-                                            flex items-center gap-2
-                                        "
-                                    >
-                                        <span className="text-xl">{option.icon}</span>
-                                        <span>{option.label}</span>
-                                    </button>
-                                ))}
+                                {['Cheapest', 'Healthiest', 'Most Popular', 'High Protein', 'Vegan'].map((label) => {
+                                    const key = label.toLowerCase();
+                                    const on = activeOptimize === key;
+                                    return (
+                                        <button
+                                            key={label}
+                                            onClick={() => { setActiveOptimize(key); onOptimize(key); }}
+                                            className={`rounded-full px-5 py-2 font-mono text-xs uppercase tracking-wider transition ${
+                                                on ? 'border border-[#FF9900] bg-[#FF9900]/10 text-[#FF9900]' : 'border border-white/15 text-gray-300 hover:border-white/40 hover:text-white'
+                                            }`}
+                                        >
+                                            {label}
+                                        </button>
+                                    );
+                                })}
                             </div>
+                        </div>
+                    </div>
+
+                    {/* ── Right: Bundle Summary ── */}
+                    <div className="lg:col-span-1">
+                        <div className="sticky top-24 overflow-hidden rounded-2xl border-t-2 border-[#FF9900] bg-[#0f0f0f] p-6 ring-1 ring-white/10">
+                            <h2 className="text-2xl font-black text-white">Bundle Summary</h2>
+
+                            <div className="mt-6 space-y-3 text-sm">
+                                <div className="flex justify-between text-gray-300">
+                                    <span>Items Total ({bundleProducts.length} items)</span>
+                                    <span className="font-semibold text-white">${Number(bundleCost).toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-300">
+                                    <span>Bundle Discount</span>
+                                    <span className="font-semibold text-[#FF9900]">-${Number(bundle.savings).toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-300">
+                                    <span>Tax</span>
+                                    <span className="font-semibold text-white">${(bundleCost * 0.06).toFixed(2)}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-gray-300">
+                                    <span className="flex items-center gap-1">Delivery Fee <span className="text-gray-600">ⓘ</span></span>
+                                    <span className="font-bold text-[#FF9900]">FREE</span>
+                                </div>
+                            </div>
+
+                            <div className="my-5 border-t border-white/10" />
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-lg text-gray-300">Total</span>
+                                <span className="text-3xl font-black text-white">${(bundleCost + bundleCost * 0.06).toFixed(2)}</span>
+                            </div>
+
+                            <button
+                                onClick={handleAddAllToCart}
+                                disabled={isAddingToCart}
+                                className={`mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#FF9900] py-3 font-bold text-black transition hover:bg-[#ffae33] ${isAddingToCart ? 'opacity-70' : ''}`}
+                            >
+                                {isAddingToCart ? (
+                                    <>
+                                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                                        Adding…
+                                    </>
+                                ) : (
+                                    <>
+                                        Add Bundle to Cart
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                    </>
+                                )}
+                            </button>
+
+                            <p className="mt-4 flex items-center justify-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-gray-500">
+                                🔒 Secure Encrypted Checkout
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -349,33 +327,10 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
             )}
 
             <style jsx>{`
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                }
-                .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes slide-down {
-                    from { 
-                        opacity: 0; 
-                        transform: translateY(-100px); 
-                    }
-                    to { 
-                        opacity: 1; 
-                        transform: translateY(0); 
-                    }
-                }
-                .animate-fade-in {
-                    animation: fade-in 0.5s ease-out;
-                }
-                .animate-slide-down {
-                    animation: slide-down 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                }
+                @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes slide-down { from { opacity: 0; transform: translateY(-100px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fade-in { animation: fade-in 0.5s ease-out; }
+                .animate-slide-down { animation: slide-down 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
             `}</style>
         </>
     );
