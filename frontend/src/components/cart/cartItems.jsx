@@ -114,7 +114,7 @@ const CartItems = () => {
                                         </Link>
                                         <div className="p-3">
                                             <p className="line-clamp-1 text-sm font-bold text-white">{product.title}</p>
-                                            <p className="mt-0.5 text-sm font-bold text-[#FF9900]">${parseFloat(product.price || 0).toFixed(2)}</p>
+                                            <p className="mt-0.5 text-sm font-bold text-[#FF9900]">₹{parseFloat(product.price || 0).toFixed(2)}</p>
                                             <button
                                                 onClick={() => handleSuggestedAdd(product)}
                                                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-white/15 py-1.5 font-mono text-xs uppercase tracking-wider text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
@@ -137,24 +137,24 @@ const CartItems = () => {
                             <div className="mt-6 space-y-3 text-sm">
                                 <div className="flex justify-between text-gray-300">
                                     <span>Subtotal ({itemCount} items)</span>
-                                    <span className="font-semibold text-white">${subtotal.toFixed(2)}</span>
+                                    <span className="font-semibold text-white">₹{subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-300">
                                     <span>Tax</span>
-                                    <span className="font-semibold text-white">${tax.toFixed(2)}</span>
+                                    <span className="font-semibold text-white">₹{tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-gray-300">
                                     <span className="flex items-center gap-1">Delivery Fee <span className="text-gray-600">ⓘ</span></span>
                                     <span className="flex items-center gap-2">
-                                        {!freeDelivery && <span className="text-gray-600 line-through">${DELIVERY_FEE.toFixed(2)}</span>}
-                                        {freeDelivery ? <span className="font-bold text-[#FF9900]">FREE</span> : <span className="font-semibold text-white">${DELIVERY_FEE.toFixed(2)}</span>}
+                                        {!freeDelivery && <span className="text-gray-600 line-through">₹{DELIVERY_FEE.toFixed(2)}</span>}
+                                        {freeDelivery ? <span className="font-bold text-[#FF9900]">FREE</span> : <span className="font-semibold text-white">₹{DELIVERY_FEE.toFixed(2)}</span>}
                                     </span>
                                 </div>
 
                                 {/* Free delivery progress */}
                                 <div className="pt-1">
                                     <div className="mb-1.5 flex justify-between font-mono text-[11px] text-gray-500">
-                                        <span>{freeDelivery ? 'You unlocked Free Delivery' : `Add $${remainingForFree.toFixed(2)} for Free Delivery`}</span>
+                                        <span>{freeDelivery ? 'You unlocked Free Delivery' : `Add ₹${remainingForFree.toFixed(2)} for Free Delivery`}</span>
                                         <span className="text-[#FF9900]">{progressPct.toFixed(0)}%</span>
                                     </div>
                                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
@@ -167,7 +167,7 @@ const CartItems = () => {
 
                             <div className="flex items-center justify-between">
                                 <span className="text-lg text-gray-300">Total</span>
-                                <span className="text-3xl font-black text-white">${total.toFixed(2)}</span>
+                                <span className="text-3xl font-black text-white">₹{total.toFixed(2)}</span>
                             </div>
 
                             {authenticated ? (

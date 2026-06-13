@@ -23,7 +23,7 @@ const CartProduct = ({ product, handleCategoryClick, handleDecreaseQuantity, han
                     {title}
                 </h3>
                 <p className="mt-0.5 truncate font-mono text-xs text-gray-500">{subtitle}</p>
-                <p className="mt-1.5 font-bold text-[#FF9900]">${Number(product.price).toFixed(2)}</p>
+                <p className="mt-1.5 font-bold text-[#FF9900]">₹{Number(product.price).toFixed(2)}</p>
             </div>
 
             {/* Quantity stepper */}

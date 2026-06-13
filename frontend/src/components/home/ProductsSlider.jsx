@@ -39,8 +39,8 @@ const DealCard = ({ product, onAdd }) => {
         <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{product.brand || product.category}</p>
 
         <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-xl font-bold text-white">${finalPrice.toFixed(2)}</span>
-          {hasDiscount && <span className="text-sm text-gray-600 line-through">${price.toFixed(2)}</span>}
+          <span className="text-xl font-bold text-white">₹{finalPrice.toFixed(2)}</span>
+          {hasDiscount && <span className="text-sm text-gray-600 line-through">₹{price.toFixed(2)}</span>}
         </div>
 
         <button

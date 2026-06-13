@@ -37,7 +37,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         setTimeout(() => {
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 bg-[#FF9900] text-black font-bold px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
-            toast.innerHTML = `✅ Replaced! New total: $${newCost}`;
+            toast.innerHTML = `✅ Replaced! New total: ₹${newCost}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }, 300);
@@ -122,11 +122,11 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                         <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
                             <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Total Cost</p>
-                                <p className="mt-2 text-2xl font-black text-white">${Number(bundleCost).toFixed(2)}</p>
+                                <p className="mt-2 text-2xl font-black text-white">₹{Number(bundleCost).toFixed(2)}</p>
                             </div>
                             <div className="rounded-xl border-2 border-[#FF9900] bg-[#FF9900]/5 p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF9900]">You Save</p>
-                                <p className="mt-2 text-2xl font-black text-[#FF9900]">${Number(bundle.savings).toFixed(2)}</p>
+                                <p className="mt-2 text-2xl font-black text-[#FF9900]">₹{Number(bundle.savings).toFixed(2)}</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Delivery Time</p>
@@ -152,9 +152,9 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         <p className="mt-0.5 font-mono text-xs text-gray-500">Qty: {product.quantity}</p>
                                         <div className="mt-1 flex items-baseline gap-2">
                                             {product.originalPrice && product.originalPrice !== product.price && (
-                                                <span className="text-sm text-gray-600 line-through">${product.originalPrice}</span>
+                                                <span className="text-sm text-gray-600 line-through">₹{product.originalPrice}</span>
                                             )}
-                                            <span className="font-bold text-[#FF9900]">${product.price}</span>
+                                            <span className="font-bold text-[#FF9900]">₹{product.price}</span>
                                         </div>
                                     </div>
                                     <button
@@ -202,7 +202,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                             <div className="mt-6 space-y-3 text-sm">
                                 <div className="flex justify-between text-gray-300">
                                     <span>Items Total ({bundleProducts.length} items)</span>
-                                    <span className="font-semibold text-white">${Number(bundleCost).toFixed(2)}</span>
+                                    <span className="font-semibold text-white">₹{Number(bundleCost).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-300">
                                     <span>Bundle Discount</span>
@@ -210,7 +210,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                 </div>
                                 <div className="flex justify-between text-gray-300">
                                     <span>Tax</span>
-                                    <span className="font-semibold text-white">${(bundleCost * 0.06).toFixed(2)}</span>
+                                    <span className="font-semibold text-white">₹{(bundleCost * 0.06).toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-gray-300">
                                     <span className="flex items-center gap-1">Delivery Fee <span className="text-gray-600">ⓘ</span></span>
@@ -222,7 +222,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
                             <div className="flex items-center justify-between">
                                 <span className="text-lg text-gray-300">Total</span>
-                                <span className="text-3xl font-black text-white">${(bundleCost + bundleCost * 0.06).toFixed(2)}</span>
+                                <span className="text-3xl font-black text-white">₹{(bundleCost + bundleCost * 0.06).toFixed(2)}</span>
                             </div>
 
                             <button

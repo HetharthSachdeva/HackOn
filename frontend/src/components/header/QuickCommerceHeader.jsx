@@ -81,7 +81,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder={isAIMode ? "Ask AI: 'snacks for movie night under $20'" : "Search snacks, drinks, produce..."}
+                            placeholder={isAIMode ? "Ask AI: 'snacks for movie night under ₹1500'" : "Search snacks, drinks, produce..."}
                             className="w-full bg-transparent px-3 py-2 text-sm text-white placeholder-gray-500 outline-none"
                         />
                         <button

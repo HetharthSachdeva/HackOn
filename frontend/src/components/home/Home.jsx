@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, ScrollRestoration } from 'react-router-dom';
+import { useOutletContext, ScrollRestoration, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 import AIBundleCard from './AIBundleCard';
 import QuickCommerceHero from './QuickCommerceHero';
 import ProductsSlider from "./ProductsSlider";
@@ -15,39 +17,72 @@ const GRID_PATTERN = [
 
 const Home = () => {
   const { isAIMode, aiSearchQuery, aiSearchNonce, handleAISearch } = useOutletContext();
+  const userInfo = useSelector((state) => state.amazon.userInfo);
+
   const [showBundle, setShowBundle] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [bundleData, setBundleData] = useState(null);
+  const [error, setError] = useState(null);
+
+  const fetchBundle = async (query) => {
+    setShowBundle(false);
+    setError(null);
+    setIsGenerating(true);
+
+    try {
+      const headers = userInfo?.token
+        ? { Authorization: `Bearer ${userInfo.token}` }
+        : {};
+
+      const { data } = await axios.post(
+        'http://localhost:8000/api/v1/ai/cart-from-intent',
+        { prompt: query, max_items: 6, apply_to_cart: false },
+        { headers }
+      );
+
+      // Map IntentToCartResponse → AIBundleCard bundle shape
+      const subtotal = parseFloat(data.subtotal || 0);
+      const savings = data.budget ? Math.max(0, parseFloat(data.budget) - subtotal) : (subtotal * 0.1);
+
+      setBundleData({
+        title: data.explanation || `${query} — AI Bundle`,
+        totalCost: subtotal,
+        savings: savings.toFixed(2),
+        deliveryETA: '10 min',
+        confidence: data.used_semantic ? 96 : 82,
+        products: (data.items || []).map((item) => ({
+          id: item.asin,
+          name: item.title,
+          price: parseFloat(item.unit_price || 0).toFixed(2),
+          originalPrice: (parseFloat(item.unit_price || 0) * 1.1).toFixed(2),
+          quantity: item.quantity,
+          image: item.img_url || `https://placehold.co/200x200/141414/FF9900?text=${encodeURIComponent(item.title.slice(0,8))}`,
+          rationale: item.rationale,
+        })),
+      });
+      setShowBundle(true);
+    } catch (err) {
+      console.error('AI bundle error:', err);
+      setError(err.response?.data?.detail || 'Could not generate bundle. Try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (isAIMode && aiSearchNonce > 0 && aiSearchQuery) {
-      setShowBundle(false);
-      setIsGenerating(true);
-      const t = setTimeout(() => {
-        const q = aiSearchQuery.trim();
-        const title = q.charAt(0).toUpperCase() + q.slice(1);
-        setBundleData({
-          title: `${title} — AI Bundle`,
-          totalCost: 29.13, savings: 5.00, deliveryETA: '12 min', confidence: 94,
-          products: [
-            { id: 'GROC_COKE_2L', name: 'Coca-Cola Original Taste Soda Pop, 2 Liter Bottle', price: 2.99, originalPrice: 3.50, quantity: 2, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80' },
-            { id: 'GROC_COKE_CANS', name: 'Coca-Cola Soda Pop, 12 fl oz Cans, 12 Pack', price: 7.49, originalPrice: 8.50, quantity: 1, image: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?auto=format&fit=crop&w=400&q=80' },
-            { id: 'GROC_PEPSI_2L', name: 'Pepsi Cola Soda Pop, 2 Liter Bottle', price: 2.79, originalPrice: 3.20, quantity: 2, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80' },
-            { id: 'GROC_LAYS_CLASSIC', name: "Lay's Classic Potato Chips, Family Size 13 oz Bag", price: 4.79, originalPrice: 5.50, quantity: 1, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d20?auto=format&fit=crop&w=400&q=80' },
-            { id: 'GROC_DORITOS_NACHO', name: 'Doritos Nacho Cheese Tortilla Chips, Party Size 14.5 oz Bag', price: 5.29, originalPrice: 6.00, quantity: 1, image: 'https://images.unsplash.com/photo-1518047601542-79f18c655718?auto=format&fit=crop&w=400&q=80' },
-          ],
-        });
-        setIsGenerating(false);
-        setShowBundle(true);
-      }, 1800);
-      return () => clearTimeout(t);
+      fetchBundle(aiSearchQuery.trim());
     } else {
       setShowBundle(false);
       setIsGenerating(false);
+      setError(null);
     }
   }, [isAIMode, aiSearchNonce, aiSearchQuery]);
 
-  const handleOptimize = (type) => console.log('Optimizing for:', type);
+  const handleOptimize = (type) => {
+    if (!aiSearchQuery) return;
+    fetchBundle(`${aiSearchQuery.trim()}, optimized for ${type}`);
+  };
 
   // ── Normal mode ──
   if (!isAIMode) {
@@ -78,6 +113,19 @@ const Home = () => {
             <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#FF9900] border-r-[#ff7a00]" />
           </div>
           <p className="mt-6 animate-pulse font-mono text-sm uppercase tracking-[0.2em] text-[#FFB145]">Curating your bundle…</p>
+          <p className="mt-2 font-mono text-xs text-gray-600">Searching catalog · Ranking matches · Asking AI</p>
+        </div>
+      ) : error ? (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 text-2xl">⚠️</div>
+          <p className="font-mono text-sm uppercase tracking-widest text-red-400">Bundle generation failed</p>
+          <p className="max-w-sm text-sm text-gray-500">{error}</p>
+          <button
+            onClick={() => aiSearchQuery && fetchBundle(aiSearchQuery.trim())}
+            className="mt-2 rounded-full border border-white/15 px-6 py-2 font-mono text-xs uppercase tracking-wider text-gray-300 transition hover:border-[#FF9900] hover:text-[#FF9900]"
+          >
+            Try Again
+          </button>
         </div>
       ) : showBundle ? (
         <div className="ai-enter px-4 py-8">
