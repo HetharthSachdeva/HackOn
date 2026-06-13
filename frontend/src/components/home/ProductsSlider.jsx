@@ -1,69 +1,147 @@
-import React, { useRef } from 'react';
-import { Link, useRouteLoaderData } from 'react-router-dom';
+import React from 'react';
+import { Link, useRouteLoaderData, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../../redux/amazonSlice';
+import { db } from '../../firebase/firebase.config';
+import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { useCart } from '../../context/userCartContext';
 import './scrollbar.css';
+
+const DealCard = ({ product, onAdd }) => {
+  const hasDiscount = product.discountPercentage > 0;
+  const finalPrice = hasDiscount ? product.price * (1 - product.discountPercentage / 100) : product.price;
+  const sku = '#' + (product.brand || product.category || 'SKU').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() + '-' + String(product.id ?? 0).padStart(2, '0');
+
+  return (
+    <div className="flex flex-col rounded-lg border border-white/10 bg-[#0d0d0d] transition-colors hover:border-white/20">
+      {/* Image */}
+      <Link to={`/allProducts/${product.title}`} className="relative block">
+        <div className="relative flex h-44 items-center justify-center overflow-hidden rounded-t-lg bg-[#141414] p-4">
+          {hasDiscount && (
+            <span className="absolute right-3 top-3 rounded bg-[#FF9900] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-black">
+              {product.discountPercentage.toFixed(0)}% OFF
+            </span>
+          )}
+          <img src={product.thumbnail} alt={product.title} className="max-h-full max-w-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]" />
+        </div>
+      </Link>
+
+      {/* Info */}
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-center justify-between">
+          <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-gray-400">{product.category}</span>
+          <span className="font-mono text-[11px] tracking-wider text-gray-600">{sku}</span>
+        </div>
+
+        <Link to={`/allProducts/${product.title}`}>
+          <h3 className="mt-3 line-clamp-1 text-base font-bold text-white hover:text-gray-200">{product.title}</h3>
+        </Link>
+        <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{product.brand || product.category}</p>
+
+        <div className="mt-4 flex items-baseline gap-2">
+          <span className="text-xl font-bold text-white">${finalPrice.toFixed(2)}</span>
+          {hasDiscount && <span className="text-sm text-gray-600 line-through">${product.price.toFixed(2)}</span>}
+        </div>
+
+        <button
+          onClick={() => onAdd(product)}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-white/15 py-2 font-mono text-xs uppercase tracking-[0.15em] text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const ProductsSlider = () => {
   const data = useRouteLoaderData("root");
   const productsData = data.data.products;
-  const sliderRef = useRef(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state) => state.amazon.userInfo);
+  const authenticated = useSelector((state) => state.amazon.isAuthenticated);
+  const { userCart, updateUserCart } = useCart();
 
-  const handleScroll = (direction) => {
-    if (!sliderRef.current) return;
-    sliderRef.current.scrollLeft += direction === 'left' ? -600 : 600;
+  // Prefer discounted products for "deals"
+  const deals = [...productsData].sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0)).slice(0, 8);
+  const featuredThumbs = productsData.slice(0, 7);
+
+  const saveToFirebase = async (product) => {
+    const item = { ...product, quantity: 1 };
+    const cartRef = doc(collection(db, 'users', userInfo.email, 'cart'), userInfo.id);
+    const snap = await getDoc(cartRef);
+    if (snap.exists()) {
+      const cart = snap.data().cart || [];
+      const idx = cart.findIndex((i) => i.title === product.title);
+      if (idx !== -1) cart[idx].quantity += 1; else cart.push(item);
+      await setDoc(cartRef, { cart }, { merge: true });
+      updateUserCart(cart);
+    } else {
+      await setDoc(cartRef, { cart: [item] }, { merge: true });
+      updateUserCart([...userCart, item]);
+    }
+  };
+
+  const handleAdd = async (product) => {
+    if (!authenticated) {
+      dispatch(addToCart({
+        id: product.id, title: product.title, price: product.price, description: product.description,
+        category: product.category, images: product.images, thumbnail: product.thumbnail, brand: product.brand,
+        quantity: 1, discountPercentage: product.discountPercentage, rating: product.rating, stock: product.stock,
+      }));
+    } else {
+      await saveToFirebase(product);
+    }
   };
 
   return (
-    <div className="mx-auto mb-12 mt-2 max-w-[1400px] px-4 sm:px-6">
-      <div className="rounded-3xl bg-[#151c2b] p-6 ring-1 ring-white/5">
-        <div className="mb-5 flex items-end justify-between">
+    <section className="bg-[#0a0a0a] py-12">
+      <div className="mx-auto max-w-[1500px] px-6">
+        {/* Header */}
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-white md:text-3xl">
-              Today's deals
-              <span className="rounded-full bg-lime-400/15 px-2.5 py-0.5 text-xs font-bold text-lime-300">HOT</span>
-            </h2>
-            <p className="mt-1 text-sm text-gray-500">Hand-picked offers, refreshed daily</p>
+            <div className="flex items-center gap-3">
+              <h2 className="text-3xl font-black text-white">Today's Deals</h2>
+              <span className="flex items-center gap-1 rounded bg-[#FF9900] px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-black">🔥 Hot</span>
+            </div>
+            <p className="mt-3 max-w-xl text-sm text-gray-500">
+              High-performance picks and daily essentials at reduced rates.<br />Offers reset at 00:00 UTC.
+            </p>
           </div>
-          <Link to="/allProducts" className="whitespace-nowrap text-sm font-semibold text-lime-400 hover:text-lime-300">
-            Shop all deals →
-          </Link>
+          <button onClick={() => navigate('/allProducts')} className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-gray-300 transition hover:text-[#FF9900]">
+            Shop all deals
+            <span>→</span>
+          </button>
         </div>
 
-        <div className="group relative">
-          <div ref={sliderRef} className="flex gap-4 overflow-x-hidden scroll-smooth pb-2 group-hover:overflow-x-auto custom-scrollbar">
-            {productsData.map((product, index) => {
-              const hasDiscount = product.discountPercentage > 0;
-              const finalPrice = hasDiscount ? product.price * (1 - product.discountPercentage / 100) : product.price;
-              return (
-                <Link
-                  key={index}
-                  to={`/allProducts/${product.title}`}
-                  className="group/card w-44 flex-shrink-0 rounded-2xl bg-[#0e1420] p-3 ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-lime-400/40"
-                >
-                  <div className="relative h-36 w-full overflow-hidden rounded-xl bg-[#0b1120]">
-                    {hasDiscount && (
-                      <span className="absolute left-2 top-2 z-10 rounded-full bg-lime-400 px-2 py-0.5 text-[10px] font-bold text-black">
-                        {product.discountPercentage.toFixed(0)}% OFF
-                      </span>
-                    )}
-                    <img className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover/card:scale-110" src={product.thumbnail} alt={product.title} />
-                  </div>
-                  <div className="mt-3">
-                    <p className="line-clamp-2 min-h-[40px] text-sm font-semibold text-white group-hover/card:text-lime-300">{product.title}</p>
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-lg font-black text-white">${finalPrice.toFixed(0)}</span>
-                      {hasDiscount && <span className="text-xs text-gray-500 line-through">${product.price.toFixed(0)}</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+        {/* Featured partner banner */}
+        <div className="relative mt-6 overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-[#15110a] via-[#0d0d0d] to-[#0d0d0d] p-6">
+          <div className="pointer-events-none absolute inset-0 opacity-25">
+            <div className="flex h-full items-center gap-4 px-6">
+              {featuredThumbs.map((p, i) => (
+                <div key={i} className="flex h-28 w-32 flex-shrink-0 items-center justify-center rounded-lg bg-white/5">
+                  <img src={p.thumbnail} alt="" className="max-h-[80%] max-w-[80%] object-contain blur-[1px]" />
+                </div>
+              ))}
+            </div>
           </div>
+          <div className="relative">
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#FF9900]">Featured Partner</p>
+            <h3 className="mt-1 text-2xl font-black text-white">Bulk Fluid Dynamics</h3>
+            <button onClick={() => navigate('/allProducts')} className="mt-3 font-mono text-xs uppercase tracking-[0.15em] text-gray-300 hover:text-[#FF9900]">Shop all →</button>
+          </div>
+        </div>
 
-          <button onClick={() => handleScroll('left')} className="absolute -left-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-[#151c2b] text-white shadow-lg ring-1 ring-white/10 transition hover:bg-[#1c2638] group-hover:grid" aria-label="Scroll left">‹</button>
-          <button onClick={() => handleScroll('right')} className="absolute -right-3 top-1/2 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-[#151c2b] text-white shadow-lg ring-1 ring-white/10 transition hover:bg-[#1c2638] group-hover:grid" aria-label="Scroll right">›</button>
+        {/* Deal grid */}
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {deals.map((product, i) => (
+            <DealCard key={i} product={product} onAdd={handleAdd} />
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

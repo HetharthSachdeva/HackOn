@@ -118,7 +118,7 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className='py-5 flex bg-[#0b1120] justify-between'>
+    <div className='py-5 flex bg-[#0a0a0a] justify-between'>
       <ScrollRestoration />
       <div className='w-[5%] ml-1'>
         {product.images.map((item, index) => (
@@ -149,7 +149,7 @@ const ProductDetails = () => {
           <span className='text-gray-400 ml-10'>{product.stock} ratings</span>
         </div>
         <div className='border-b-[1px] border-white/10 pb-2'>
-          <div className='flex items-center mt-1 text-lime-400'>
+          <div className='flex items-center mt-1 text-[#FF9900]'>
             <p className='font-medium mb-1'>&nbsp;$&nbsp;</p>
             <span className='text-[26px] font-medium'>{product.price}</span>
             <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
@@ -204,17 +204,17 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      <div className='w-[20%] h-[380px] bg-[#151c2b] ring-1 ring-white/5 border-[0.066rem] border-white/10 rounded-lg p-5 mr-1'>
+      <div className='w-[20%] h-[380px] bg-[#0d0d0d] ring-1 ring-white/5 border-[0.066rem] border-white/10 rounded-lg p-5 mr-1'>
         <div className='flex items-center mt-1'>
-          <span className='text-[26px] font-medium text-lime-400'>$&nbsp;{product.price}</span>
+          <span className='text-[26px] font-medium text-[#FF9900]'>$&nbsp;{product.price}</span>
           <span className='text-gray-400'>&nbsp;({product.discountPercentage}% Off)</span>
         </div>
         <span className='text-gray-400'>Delivery&nbsp;</span><span className='text-gray-400'>within Two Days.</span>
-        <p className='text-lime-400 text-xl font-bold pt-4'>In stock.</p>
+        <p className='text-[#FF9900] text-xl font-bold pt-4'>In stock.</p>
         <p className='pt-3 text-gray-400'>Sold by <span className='text-gray-400 capitalize '>{product.brand}</span> and <span className='text-gray-400'>Fulfilled by Amazon.</span></p>
         <div className='pt-3 text-gray-400'>
           <span>Quantity: </span>
-          <select className='bg-[#0e1420] text-white ring-1 ring-white/10 focus:ring-lime-400/40 border-[1px] border-white/10 rounded-md ' value={selectedQuantity} onChange={handleQuantityChange}>
+          <select className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 border-[1px] border-white/10 rounded-md ' value={selectedQuantity} onChange={handleQuantityChange}>
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -224,7 +224,7 @@ const ProductDetails = () => {
         </div>
         {cartButton
           ? <Link to="/cart">
-            <button className={`pt-2 w-full text-center text-white rounded-2xl  bg-white/5 ring-1 ring-white/10 hover:bg-white/10 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
+            <button className={`pt-2 w-full text-center text-white rounded-2xl  bg-white/5 ring-1 ring-white/10 hover:bg-white/10 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-[#FF9900]`}>
               Go to Cart
             </button>
           </Link>
@@ -233,7 +233,7 @@ const ProductDetails = () => {
               handleAddToCart(product);
               setCartButton(true);
             }}
-            className={`pt-2 w-full text-center bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/10 rounded-2xl p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
+            className={`pt-2 w-full text-center bg-white/5 text-white ring-1 ring-white/10 hover:bg-white/10 rounded-2xl p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-[#FF9900]`}>
             Add to Cart
           </button>}
         {
@@ -241,13 +241,13 @@ const ProductDetails = () => {
             ? <Link to="/checkout">
               <button
                 onClick={() => handleBuyNow(product)}
-                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-lime-400 hover:bg-lime-300 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
+                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-[#FF9900] hover:bg-[#FFB145] p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-[#FF9900]`}>
                 Buy Now
               </button>
             </Link>
             : <Link to="/signIn">
               <button
-                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-lime-400 hover:bg-lime-300 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-lime-400`}>
+                className={`pt-2 w-full text-center text-black font-bold rounded-2xl bg-[#FF9900] hover:bg-[#FFB145] p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-[#FF9900]`}>
                 Buy Now
               </button>
             </Link>

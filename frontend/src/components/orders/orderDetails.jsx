@@ -9,8 +9,8 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
             <div className='ml-[8%] mdl:ml-[15%]'>
                 {
                     ordersData.map((order, index) => (
-                        <motion.div initial={{ y: 1000, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} key={index} className='w-[90%] mdl:w-[80%] bg-[#151c2b] ring-1 ring-white/5 border border-white/10 h-[50%] rounded-md my-5 flex flex-col'>
-                            <div className='w-full flex flex-row flex-wrap gap-4 mdl:gap-5 mdl:justify-between py-3 bg-[#0e1420] border-b-[1px] border-white/10'>
+                        <motion.div initial={{ y: 1000, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} key={index} className='w-[90%] mdl:w-[80%] bg-[#0d0d0d] ring-1 ring-white/5 border border-white/10 h-[50%] rounded-md my-5 flex flex-col'>
+                            <div className='w-full flex flex-row flex-wrap gap-4 mdl:gap-5 mdl:justify-between py-3 bg-[#141414] border-b-[1px] border-white/10'>
                                 <div className='flex flex-wrap h-9 gap-5 px-5'>
                                     <div className='w-auto text-xs text-gray-400'>
                                         <p>ORDER PLACED</p>
@@ -32,14 +32,14 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                     </div>
                                     <div className='w-auto text-xs h-auto text-gray-400'>
                                         <p>SHIP TO</p>
-                                        <p className='font-semibold text-lime-400'>
+                                        <p className='font-semibold text-[#FF9900]'>
                                             {order.address.name}
                                         </p>
                                     </div>
                                 </div>
                                 <div className='px-5'>
                                     <div className='w-full text-xs text-gray-400'>
-                                        <p>ORDER ID : <span className='font-semibold text-lime-400'>{order.uniqueNumber}</span></p>
+                                        <p>ORDER ID : <span className='font-semibold text-[#FF9900]'>{order.uniqueNumber}</span></p>
                                     </div>
                                 </div>
                             </div>
@@ -72,14 +72,14 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                                     Qty : {order.quantity}
                                                 </div>
                                                 <div className='flex items-center font-medium text-gray-300'>
-                                                    Payment Method : <span className='capitalize font-semibold text-lime-400'>&nbsp;{order.paymentMethod}</span>
+                                                    Payment Method : <span className='capitalize font-semibold text-[#FF9900]'>&nbsp;{order.paymentMethod}</span>
                                                 </div>
                                             </div>
                                             {
                                                 ordersData === reversedOrders &&
                                                 <div className='flex'>
-                                                    <button onClick={() => { handleCancelOrder(order) }} className='pr-3 border-r-2 border-white/10 text-lime-400 hover:text-lime-300 '>Cancel</button>
-                                                    <button onClick={() => { handleReturnOrder(order) }} className='px-3 text-lime-400 hover:text-lime-300'>Return</button>
+                                                    <button onClick={() => { handleCancelOrder(order) }} className='pr-3 border-r-2 border-white/10 text-[#FF9900] hover:text-[#FFB145] '>Cancel</button>
+                                                    <button onClick={() => { handleReturnOrder(order) }} className='px-3 text-[#FF9900] hover:text-[#FFB145]'>Return</button>
                                                 </div>
                                             }
                                         </div>

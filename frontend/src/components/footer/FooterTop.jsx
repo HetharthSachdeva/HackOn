@@ -13,13 +13,13 @@ const FooterTop = () => {
   return (
     <>
       {!userInfo &&
-        <div className='w-full bg-[#0b1120] pt-10 pb-6'>
-          <div className='mx-auto w-72 rounded-md border border-white/10 bg-[#151c2b]'>
+        <div className='w-full bg-[#0a0a0a] pt-10 pb-6'>
+          <div className='mx-auto w-72 rounded-md border border-white/10 bg-[#0d0d0d]'>
             <div className='mx-auto w-60 text-center pt-10 pb-5'>
               <p className='text-sm text-gray-300'>See personalized recommendations</p>
               <Link to="/signIn" >
                 <button
-                  className='w-full bg-lime-400 text-black rounded-md py-1.5 font-bold cursor-pointer hover:bg-lime-300 text-sm mt-2 mb-1'
+                  className='w-full bg-[#FF9900] text-black rounded-md py-1.5 font-bold cursor-pointer hover:bg-[#FFB145] text-sm mt-2 mb-1'
                 >
                   Sign in
                 </button>
@@ -27,7 +27,7 @@ const FooterTop = () => {
               <p className='text-xs text-gray-400'>
                 New customer? &nbsp;
                 <Link to="/createAccount" >
-                  <span className='text-xs text-lime-400 hover:text-lime-300 cursor-pointer'>
+                  <span className='text-xs text-[#FF9900] hover:text-[#FFB145] cursor-pointer'>
                     Start here.
                   </span>
                 </Link>

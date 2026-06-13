@@ -16,7 +16,7 @@ const PaymentMethod = () => {
         <div>
             <p className="text-lg font-semibold text-white mt-3">2 &nbsp; Select a Payment Method</p>
             <div className="w-full flex justify-end">
-                <div className="w-[96%] bg-[#151c2b] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-3">
+                <div className="w-[96%] bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-3">
                     <p className="text-lg font-semibold border-b border-white/10 text-white">Payment methods</p>
                     <div className="flex flex-col gap-4 mt-2 font-semibold px-4 text-gray-300">
                         <label className="inline-flex items-center">

@@ -7,7 +7,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
     const intents = [
         { id: 'cheaper', label: 'Cheaper', icon: '💰', color: 'from-orange-500 to-red-500' },
         { id: 'healthier', label: 'Healthier', icon: '🍎', color: 'from-green-500 to-emerald-600' },
-        { id: 'best-value', label: 'Best Value', icon: '⭐', color: 'from-yellow-500 to-amber-600' },
+        { id: 'best-value', label: 'Best Value', icon: '⭐', color: 'from-[#FF9900] to-amber-600' },
         { id: 'premium', label: 'Premium', icon: '👑', color: 'from-purple-500 to-pink-600' }
     ];
 
@@ -85,9 +85,9 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
             ></div>
 
             {/* Side Panel */}
-            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-[#0b1120] shadow-2xl z-50 animate-slide-in overflow-y-auto ring-1 ring-white/5">
+            <div className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-[#0a0a0a] shadow-2xl z-50 animate-slide-in overflow-y-auto ring-1 ring-white/5">
                 {/* Header */}
-                <div className="sticky top-0 bg-[#0e1420] text-white p-6 z-10 border-b border-white/5">
+                <div className="sticky top-0 bg-[#141414] text-white p-6 z-10 border-b border-white/5">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-2xl font-black">Find Better Alternative</h2>
                         <button
@@ -107,15 +107,15 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                             <img src={product?.image} alt="" className="w-16 h-16 object-contain bg-white/5 rounded-lg" />
                             <div>
                                 <p className="font-bold line-clamp-1 text-white">{product?.name}</p>
-                                <p className="text-2xl font-black text-lime-400">${product?.price}</p>
+                                <p className="text-2xl font-black text-[#FF9900]">${product?.price}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* AI Intent Buttons */}
-                    <div className="bg-[#151c2b] rounded-2xl p-5 ring-1 ring-white/10">
+                    <div className="bg-[#0d0d0d] rounded-2xl p-5 ring-1 ring-white/10">
                         <div className="flex items-center gap-2 mb-4">
-                            <svg className="w-5 h-5 text-lime-400" fill="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                             <span className="font-bold text-sm text-white">What do you want?</span>
@@ -131,8 +131,8 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                                         w-full flex items-center gap-3 px-4 py-3 rounded-xl
                                         font-semibold text-left transition-all duration-200
                                         ${selectedIntent === intent.id
-                                            ? 'bg-lime-400 text-black scale-105 shadow-lg shadow-lime-400/20'
-                                            : 'bg-white/5 text-gray-200 ring-1 ring-white/10 hover:bg-white/10 hover:text-lime-300'
+                                            ? 'bg-[#FF9900] text-black scale-105 shadow-lg shadow-[#FF9900]/20'
+                                            : 'bg-white/5 text-gray-200 ring-1 ring-white/10 hover:bg-white/10 hover:text-[#FFB145]'
                                         }
                                         ${isReplacing && selectedIntent !== intent.id ? 'opacity-50' : ''}
                                         disabled:cursor-not-allowed
@@ -149,7 +149,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                         
                         {isReplacing && (
                             <div className="mt-4 text-center animate-pulse">
-                                <p className="text-sm text-lime-300">
+                                <p className="text-sm text-[#FFB145]">
                                     🤖 AI is finding the perfect match...
                                 </p>
                             </div>
@@ -160,12 +160,12 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                 {/* Preview Section - Shows after selection */}
                 {selectedIntent && !isReplacing && (
                     <div className="p-6 animate-fade-in">
-                        <div className="bg-lime-400/10 rounded-2xl p-5 ring-1 ring-lime-400/40 mb-4">
+                        <div className="bg-[#FF9900]/10 rounded-2xl p-5 ring-1 ring-[#FF9900]/40 mb-4">
                             <div className="flex items-center gap-2 mb-3">
-                                <svg className="w-6 h-6 text-lime-400" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-6 h-6 text-[#FF9900]" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                <span className="font-bold text-lime-300">Replacement Complete!</span>
+                                <span className="font-bold text-[#FFB145]">Replacement Complete!</span>
                             </div>
                             <p className="text-sm text-gray-400">
                                 AI has found the best {intents.find(i => i.id === selectedIntent)?.label.toLowerCase()} option for you.
@@ -180,7 +180,7 @@ const ProductReplacePanel = ({ product, onClose, onSelect }) => {
                         <div className="text-center mb-4">
                             <button
                                 onClick={onClose}
-                                className="px-6 py-3 bg-lime-400 text-black rounded-full font-bold hover:bg-lime-300 hover:scale-105 transition-all duration-200"
+                                className="px-6 py-3 bg-[#FF9900] text-black rounded-full font-bold hover:bg-[#FFB145] hover:scale-105 transition-all duration-200"
                             >
                                 Done
                             </button>
