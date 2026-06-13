@@ -156,7 +156,7 @@ const OrderSummary = () => {
 
         <div className='mx-[18px] border-t border-gray-400'>
           {(selectedAddress && selectedPayment) &&
-            <button className="w-full text-center text-sm rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-blue-500"
+            <button className="w-full text-center text-sm rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-blue-500"
               onClick={makePayment}
             >
               Place your order
@@ -235,3 +235,5 @@ const OrderSummary = () => {
 }
 
 export default OrderSummary;
+
+

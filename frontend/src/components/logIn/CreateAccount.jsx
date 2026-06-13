@@ -200,7 +200,7 @@ const CreateAccount = () => {
                                     <div className='text-[12px] tracking-wide mt-4 '>
                                         By enrolling your mobile phone number, you consent to receive automated security notifications via text message from Amazon. Message and data rates may apply.
                                     </div>
-                                    <button className={`text-sm w-full text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[6px] mt-5 shadow active:ring-2 active:ring-offset-1 active:ring-blue-500`}
+                                    <button className={`text-sm w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[6px] mt-5 shadow active:ring-2 active:ring-offset-1 active:ring-violet-500`}
                                     >Continue</button>
                                     {
                                         loading && <div className='flex justify-center mt-4'>
@@ -256,3 +256,4 @@ const CreateAccount = () => {
 }
 
 export default CreateAccount;
+

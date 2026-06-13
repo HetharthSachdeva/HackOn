@@ -38,7 +38,7 @@ const PaymentMethod = () => {
                                         <span> Please enter your UPI ID</span>
                                         <input type="text" value="" onChange={(e) => { }} autoComplete="true" className=' border-[1px] border-[#a6a6a6] rounded p-1 w-56' />
                                     </label>
-                                    <button className="w-[86%] text-center text-sm font-normal rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[7px] active:ring-2 active:ring-offset-1 active:ring-blue-500">
+                                    <button className="w-[86%] text-center text-sm font-normal rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[7px] active:ring-2 active:ring-offset-1 active:ring-blue-500">
                                         Continue
                                     </button>
                                 </form>
@@ -64,3 +64,5 @@ const PaymentMethod = () => {
 
 
 export default PaymentMethod;
+
+

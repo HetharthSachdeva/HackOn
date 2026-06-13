@@ -7,7 +7,9 @@ const CartProduct = ({ product, handleCategoryClick, handleDecreaseQuantity, han
                 <img className='w-48 h-48' src={product.thumbnail} alt="productImage" />
             </div>
             <div className='w-4/5 flex flex-col gap-2 -mt-2'>
-                <h2 className='text-[23px] font-medium cursor-pointer' onClick={() => handleCategoryClick(product.category, product.title)}>{product.title}</h2>
+                <h2 className='text-[23px] font-medium cursor-pointer' onClick={() => handleCategoryClick(product.category, product.title)}>
+                    {product.title || product.name || 'Product'}
+                </h2>
                 <p className=''>{product.description}</p>
                 <div className='flex items-center '>
                     <p className='font-medium text-[20px] '>₹&nbsp;</p>

@@ -98,7 +98,7 @@ function CardDetails() {
                     </label>
                     {cvvError && <p className="text-red-500">{cvvError}</p>}
                 </div>
-                <button className="w-[58%] ml-28 text-center text-sm font-normal rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[7px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-500">
+                <button className="w-[58%] ml-28 text-center text-sm font-normal rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[7px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-500">
                     Continue
                 </button>
             </form>
@@ -107,3 +107,5 @@ function CardDetails() {
 }
 
 export default CardDetails
+
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollRestoration, Link, useLoaderData, useParams } from 'react-router-dom';
+import { ScrollRestoration, Link, useRouteLoaderData, useParams } from 'react-router-dom';
 import { star, halfStar, emptyStar, offers, delivery, cod, exchange, delivered, transaction } from "../../assets/index";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, buyNow } from '../../redux/amazonSlice';
@@ -11,7 +11,7 @@ const ProductDetails = () => {
   const dispatch = useDispatch();
   const authenticated = useSelector((state) => state.amazon.isAuthenticated);
   const userInfo = useSelector((state) => state.amazon.userInfo);
-  const data = useLoaderData();
+  const data = useRouteLoaderData("root");
   const productsData = data.data.products;
   const { userCart, updateUserCart } = useCart(); // Get the userCart and updateUserCart function from the userCartContext
   const { title } = useParams(); // Get the "title" parameter from the URL
@@ -206,7 +206,7 @@ const ProductDetails = () => {
 
       <div className='w-[20%] h-[380px] border-[0.066rem] border-gray-200 rounded-lg p-5 mr-1'>
         <div className='flex items-center mt-1'>
-          <span className='text-[26px] font-medium text-red-600'>₹&nbsp;{product.price}</span>
+          <span className='text-[26px] font-medium text-violet-600'>₹&nbsp;{product.price}</span>
           <span>&nbsp;({product.discountPercentage}% Off)</span>
         </div>
         <span className='text-blue-500'>Delivery&nbsp;</span><span>within Two Days.</span>
@@ -233,7 +233,7 @@ const ProductDetails = () => {
               handleAddToCart(product);
               setCartButton(true);
             }}
-            className={`pt-2 w-full text-center rounded-2xl bg-yellow-300 hover:bg-yellow-400 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-blue-500`}>
+            className={`pt-2 w-full text-center rounded-2xl bg-amber-300 hover:bg-amber-400 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
             Add to Cart
           </button>}
         {
@@ -241,13 +241,13 @@ const ProductDetails = () => {
             ? <Link to="/checkout">
               <button
                 onClick={() => handleBuyNow(product)}
-                className={`pt-2 w-full text-center rounded-2xl bg-orange-400 hover:bg-orange-500 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-blue-500`}>
+                className={`pt-2 w-full text-center text-white rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-600`}>
                 Buy Now
               </button>
             </Link>
             : <Link to="/signIn">
               <button
-                className={`pt-2 w-full text-center rounded-2xl bg-orange-400 hover:bg-orange-500 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-blue-500`}>
+                className={`pt-2 w-full text-center text-white rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3  active:ring-2 active:ring-offset-1 active:ring-violet-600`}>
                 Buy Now
               </button>
             </Link>
@@ -260,5 +260,6 @@ const ProductDetails = () => {
 }
 
 export default ProductDetails;
+
 
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { correct } from '../../assets/index';
 import { deleteProduct, resetCart, increaseQuantity, decreaseQuantity } from '../../redux/amazonSlice';
-import { useNavigate, useLoaderData, Link, ScrollRestoration } from 'react-router-dom';
+import { useNavigate, useRouteLoaderData, Link, ScrollRestoration } from 'react-router-dom';
 import { collection, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase.config";
 import { useCart } from '../../context/userCartContext';
@@ -10,7 +10,7 @@ import CartProduct from './cartProduct';
 
 const CartItems = () => {
     const navigate = useNavigate();
-    const data = useLoaderData();
+    const data = useRouteLoaderData("root");
     const productsData = data.data.products;
     const dispatch = useDispatch();
     const localCartProducts = useSelector((state) => state.amazon.localCartProducts);
@@ -191,12 +191,12 @@ const CartItems = () => {
                     {
                         authenticated
                             ? <Link to="/checkout">
-                                <button className={`pt-2 w-full text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-500`}>
+                                <button className={`pt-2 w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
                             : <Link to="/signIn">
-                                <button className={`pt-2 w-full text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-blue-500`}>
+                                <button className={`pt-2 w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[4px] mt-3 active:ring-2 active:ring-offset-1 active:ring-violet-500`}>
                                     Proceed to Buy
                                 </button>
                             </Link>
@@ -227,5 +227,6 @@ const CartItems = () => {
 }
 
 export default CartItems;
+
 
 

@@ -41,7 +41,7 @@ const ForgotPassword = () => {
                                 Email or mobile phone number
                                 <input type="text" value={input} autoComplete="true" onChange={(e) => { setInput(e.target.value); setError('') }} className='w-full border-[1px] border-[#a6a6a6] rounded p-1' />
                             </label>
-                            <button className={`text-sm w-full text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[6px] mt-4 shadow active:ring-2 active:ring-offset-1 active:ring-blue-500`}
+                            <button className={`text-sm w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[6px] mt-4 shadow active:ring-2 active:ring-offset-1 active:ring-violet-500`}
                             >Continue</button>
                         </form>
                         {
@@ -69,3 +69,4 @@ const ForgotPassword = () => {
 }
 
 export default ForgotPassword;
+

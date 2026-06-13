@@ -289,7 +289,7 @@ const SignIn = () => {
                                                 <div className="text-xs text-[#FF0000]">{warningPassword}</div>
                                             </div>
                                         }
-                                        <button className={`${isClicked ? "clicked" : ""} text-sm my-4 w-full text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[6px]`}
+                                        <button className={`${isClicked ? "clicked" : ""} text-sm my-4 w-full text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-semibold hover:from-violet-600 hover:to-indigo-600 p-[6px]`}
                                             onClick={(e) => { handleNewClickEffect(e) }}>Continue</button>
                                         {
                                             loading && <div className='flex justify-center'>
@@ -359,3 +359,4 @@ const SignIn = () => {
 };
 
 export default SignIn;
+

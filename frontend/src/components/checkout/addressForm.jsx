@@ -250,7 +250,7 @@ const AddressForm = ({ setShowAddressForm }) => {
                                 }
                             </select>
                         </label>
-                        <button className="text-sm w-[50%] text-center rounded-lg bg-yellow-300 hover:bg-yellow-400 p-[6px] mt-5 ml-36 active:ring-2 active:ring-offset-1 active:ring-blue-500"
+                        <button className="text-sm w-[50%] text-center rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 text-white hover:from-violet-600 hover:to-indigo-600 p-[6px] mt-5 ml-36 active:ring-2 active:ring-offset-1 active:ring-blue-500"
                         >Save this address</button>
                         {loading && <div className='flex justify-center mt-2'>
                             <RotatingLines
@@ -294,3 +294,5 @@ const AddressForm = ({ setShowAddressForm }) => {
 }
 
 export default AddressForm;
+
+

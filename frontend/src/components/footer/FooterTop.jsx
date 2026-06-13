@@ -19,7 +19,7 @@ const FooterTop = () => {
               <p className='text-sm'>See personalized recommendations</p>
               <Link to="/signIn" >
                 <button
-                  className='w-full bg-[#FFCF56] rounded-md py-1 font-semibold cursor-pointer hover:bg-yellow-500 active:bg-yellow-700 text-sm mt-[2px] mb-[2px]'
+                  className='w-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-md py-1 font-semibold cursor-pointer hover:from-violet-600 hover:to-indigo-600 text-sm mt-[2px] mb-[2px]'
                 >
                   Sign in
                 </button>
@@ -47,3 +47,4 @@ const FooterTop = () => {
 };
 
 export default FooterTop;
+

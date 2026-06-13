@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
-import Header from "./components/header/header";
-import HeaderBottom from "./components/header/headerBottom";
+import QuickCommerceHeader from "./components/header/QuickCommerceHeader";
 import Footer from "./components/footer/Footer";
 import Home from "./components/home/Home";
 import ErrorPage from "./components/error/ErrorPage";
@@ -21,12 +20,22 @@ import { productsData } from "./api/api";
 
 // Layout component to combine components for main path("/") of routers which has to be rendered when website opens for the first time 
 const Layout = () => {
+  const [isAIMode, setIsAIMode] = useState(false);
+  const [aiSearchQuery, setAiSearchQuery] = useState('');
+  
+  const handleAISearch = (query) => {
+    setAiSearchQuery(query);
+  };
+
   return (
-    <div className="bg-gray-200">
-      <Header />
-      <HeaderBottom />
+    <div className="bg-gray-50 min-h-screen">
+      <QuickCommerceHeader 
+        isAIMode={isAIMode} 
+        setIsAIMode={setIsAIMode}
+        onAISearch={handleAISearch}
+      />
       <ScrollRestoration />
-      <Outlet />
+      <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery, handleAISearch }} />
       <Footer />
     </div>
   );
@@ -35,56 +44,48 @@ const Layout = () => {
 function App() {
   const router = createBrowserRouter([
     {
+      id: "root", // Add ID so children can access this loader data
       path: "/",
       element: <Layout />,
-      loader: productsData,
+      loader: productsData, // Only load once at the root level
       errorElement: <ErrorPage />,
       children: [
         {
           index: true,
-          loader: productsData,
           element: <Home />,
         },
         {
           path: "/allProducts",
-          loader: productsData,
           children: [
             {
               index: true,
-              loader: productsData,
               element: <Products />,
             },
             {
               path: ":title",
-              loader: productsData,
               element: <ProductDetails />,
             },
           ]
         },
         {
           path: ':category',
-          loader: productsData,
           children: [
             {
               index: true,
-              loader: productsData,
               element: <Products />,
             },
             {
               path: ":title",
-              loader: productsData,
               element: <ProductDetails />,
             },
           ],
         },
         {
           path: "/cart",
-          loader: productsData,
           element: <Cart />
         },
         {
           path: "/orders",
-          loader: productsData,
           element: <Orders />,
         },
       ],
@@ -116,7 +117,7 @@ function App() {
   return (
     <UserOrdersProvider>
       <UserCartProvider>
-        < UserAddressProvider>
+        <UserAddressProvider>
           <RouterProvider router={router} />
         </UserAddressProvider>
       </UserCartProvider>
