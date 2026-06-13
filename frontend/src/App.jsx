@@ -29,6 +29,8 @@ const Layout = () => {
 
   return (
     <div className="bg-[#0b1120] min-h-screen">
+    {/* <div className="bg-[#f89206] min-h-screen"> */}
+
       <QuickCommerceHeader 
         isAIMode={isAIMode} 
         setIsAIMode={setIsAIMode}
