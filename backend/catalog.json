@@ -1,0 +1,123 @@
+[
+  {
+    "id": 1,
+    "name": "Crocin Advance",
+    "category": "Pharmacy",
+    "description": "Fast relief from pain, headaches, and fever.",
+    "price": 40,
+    "stock": 15
+  },
+  {
+    "id": 2,
+    "name": "Disprin",
+    "category": "Pharmacy",
+    "description": "Effervescent soluble tablets for quick headache and period pain relief.",
+    "price": 25,
+    "stock": 10
+  },
+  {
+    "id": 3,
+    "name": "Monster Energy Drink",
+    "category": "Beverages",
+    "description": "Carbonated energy beverage with taurine and caffeine for all-nighters.",
+    "price": 110,
+    "stock": 8
+  },
+  {
+    "id": 4,
+    "name": "Amul Salted Butter",
+    "category": "Dairy",
+    "description": "Deliciously creamy pasteurized butter made from fresh milk.",
+    "price": 60,
+    "stock": 0
+  },
+  {
+    "id": 5,
+    "name": "Nescafe Classic Coffee",
+    "category": "Beverages",
+    "description": "100% pure instant coffee powder to kickstart your morning.",
+    "price": 150,
+    "stock": 20
+  },
+  {
+    "id": 6,
+    "name": "Maggi 2-Minute Noodles",
+    "category": "Snacks",
+    "description": "Instant masala noodles for a quick midnight meal.",
+    "price": 14,
+    "stock": 50
+  },
+  {
+    "id": 7,
+    "name": "USB-C to USB-C Cable (1m)",
+    "category": "Electronics",
+    "description": "100W fast charging braided cable for laptops and phones.",
+    "price": 299,
+    "stock": 12
+  },
+  {
+    "id": 8,
+    "name": "Mechanical Keyboard Switch Puller",
+    "category": "Electronics",
+    "description": "Stainless steel tool for removing hot-swappable keyboard switches safely.",
+    "price": 150,
+    "stock": 5
+  },
+  {
+    "id": 9,
+    "name": "Doritos Nacho Cheese",
+    "category": "Snacks",
+    "description": "Crunchy tortilla chips with bold nacho cheese flavor.",
+    "price": 50,
+    "stock": 30
+  },
+  {
+    "id": 10,
+    "name": "Dettol Liquid Hand Wash",
+    "category": "Personal Care",
+    "description": "Antibacterial hand wash for daily hygiene.",
+    "price": 99,
+    "stock": 18
+  },
+  {
+    "id": 11,
+    "name": "Paracetamol 500mg",
+    "category": "Pharmacy",
+    "description": "Generic medicine for reducing fever and mild body ache.",
+    "price": 15,
+    "stock": 100
+  },
+  {
+    "id": 12,
+    "name": "Dark Fantasy Choco Fills",
+    "category": "Snacks",
+    "description": "Premium cookies with a molten chocolate center.",
+    "price": 40,
+    "stock": 25
+  },
+  {
+    "id": 13,
+    "name": "Britannia Good Day Butter Cookies",
+    "category": "Snacks",
+    "description": "Classic, rich butter cookies perfect for team sharing and tea time.",
+    "price": 20,
+    "stock": 40
+  },
+  {
+    "id": 14,
+    "name": "Gatorade Blue Bolt",
+    "category": "Beverages",
+    "description": "Electrolyte sports drink for instant hydration and energy recovery.",
+    "price": 50,
+    "stock": 15
+  },
+  {
+    "id": 15,
+    "name": "Gillette Mach3 Razor",
+    "category": "Personal Care",
+    "description": "Men's manual shaving razor with 3 blades.",
+    "price": 250,
+    "stock": 0
+  }
+]
+
