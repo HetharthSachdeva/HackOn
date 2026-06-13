@@ -3,6 +3,7 @@ import { useRef } from "react";
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useNavigate,useLoaderData } from "react-router-dom";
+import { supabase } from "../../api/supabaseClient";
 
 
 
@@ -23,14 +24,22 @@ const Search = () => {
 
     const handleSearch = useCallback(() => {
         if (searchInput.length > 2) {
-            fetch(`https://dummyjson.com/products/search?q=${searchInput}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setSearchResults(data.products);
+            supabase
+                .from('qcommerce_products')
+                .select('*')
+                .ilike('title', `%${searchInput}%`)
+                .limit(10)
+                .then(({ data, error }) => {
+                    if (error) throw error;
+                    // Map results to format expected by search autocomplete
+                    const mapped = (data || []).map(p => ({
+                        title: p.title
+                    }));
+                    setSearchResults(mapped);
                     setShowSearch(true);
                 })
                 .catch((error) => {
-                    console.error("Error fetching search results:", error);
+                    console.error("Error fetching search results from Supabase:", error);
                 });
         };
     }, [searchInput]);
