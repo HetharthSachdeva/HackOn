@@ -13,7 +13,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Annotated, Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
@@ -69,9 +69,17 @@ class Settings(BaseSettings):
     db_max_overflow: int = 10
 
     # --- AI / LLM (Phase 3) ---------------------------------------------
-    llm_provider: Literal["stub", "openai", "azure", "anthropic", "gemini"] = "stub"
+    llm_provider: Literal["stub", "openai", "azure", "anthropic", "gemini", "gemma"] = "stub"
     llm_api_key: str = ""
     llm_model: str = ""
+    llm_base_url: str = Field(
+        "",
+        description=(
+            "Optional override for the LLM HTTP base URL. Used to point Gemma "
+            "at a self-hosted Ollama (e.g. http://localhost:11434/v1) or any "
+            "OpenAI-compatible proxy. Leave empty to use the provider default."
+        ),
+    )
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
     # --- Optional infra --------------------------------------------------
@@ -94,6 +102,30 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool = False
     rate_limit_per_minute: int = 120
 
+    # --- Dev-only auth bypass --------------------------------------------
+    # When ``DEV_BYPASS_AUTH=true`` the server skips Supabase JWT validation
+    # and authenticates every request as ``DEV_USER_ID`` (or whatever the
+    # ``X-Dev-User-Id`` header says, per-request). This is a flat-out lie and
+    # must NEVER be enabled outside local development — the cross-field
+    # validator below refuses to construct Settings if the flag is true while
+    # APP_ENV is anything other than "dev".
+    dev_bypass_auth: bool = Field(
+        False,
+        description=(
+            "DEV ONLY. Skip JWT verification and authenticate every request "
+            "as DEV_USER_ID. Refuses to load unless APP_ENV='dev'. Never "
+            "enable in staging or prod."
+        ),
+    )
+    dev_user_id: str = Field(
+        "00000000-0000-0000-0000-000000000001",
+        description="Fixed user UUID returned when DEV_BYPASS_AUTH=true.",
+    )
+    dev_user_email: str = Field(
+        "dev@local.test",
+        description="Email returned for the synthetic dev user.",
+    )
+
     # --- Derived helpers -------------------------------------------------
     @property
     def is_dev(self) -> bool:
@@ -113,6 +145,21 @@ class Settings(BaseSettings):
                 return []
             return [origin.strip() for origin in value.split(",") if origin.strip()]
         return value
+
+    @model_validator(mode="after")
+    def _guard_dev_bypass(self) -> "Settings":
+        """Refuse to construct Settings if dev bypass is on outside APP_ENV=dev.
+
+        This is a hard fail-closed safeguard: a misconfigured staging/prod
+        deploy will crash at startup rather than silently expose every route.
+        """
+        if self.dev_bypass_auth and self.app_env != "dev":
+            raise ValueError(
+                f"DEV_BYPASS_AUTH=true is only permitted when APP_ENV='dev' "
+                f"(got APP_ENV={self.app_env!r}). Refusing to start: this "
+                f"would disable authentication for every request."
+            )
+        return self
 
 
 @lru_cache(maxsize=1)
