@@ -135,7 +135,7 @@ async def cart_from_intent(
     session: AsyncSession,
     *,
     prompt: str,
-    user_id,
+    user_id,  # uuid.UUID | None — None for unauthenticated guests
     budget: Decimal | None,
     max_items: int,
     apply_to_cart: bool,

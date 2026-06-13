@@ -61,15 +61,18 @@ async def post_semantic_search(
 async def post_cart_from_intent(
     payload: IntentToCartRequest,
     db: DBSession,
-    user: CurrentUserDep,
+    user: OptionalUserDep,
 ) -> IntentToCartResponse:
+    user_id = uuid.UUID(user.id) if user else None
+    # Guests can generate a bundle but cannot apply it to a cart
+    apply = payload.apply_to_cart and user is not None
     return await intent_to_cart.cart_from_intent(
         db,
         prompt=payload.prompt,
-        user_id=uuid.UUID(user.id),
+        user_id=user_id,
         budget=payload.budget,
         max_items=payload.max_items,
-        apply_to_cart=payload.apply_to_cart,
+        apply_to_cart=apply,
     )
 
 
