@@ -24,7 +24,7 @@ const DealCard = ({ product, onAdd }) => {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         
         {/* Image panel with WHITE background to hide harsh image borders */}
-        <Link to={`/allProducts/${product.title}`} className="relative block">
+        <Link to={`/allProducts/${encodeURIComponent(product.title)}`} className="relative block">
           <div className="relative flex h-48 items-center justify-center overflow-hidden rounded-2xl bg-[#0e0e11] ring-1 ring-white/5 p-4 transition-transform duration-500 group-hover:scale-[1.02]">
             {hasDiscount && (
               <span className="absolute right-3 top-3 z-10 rounded-full border border-[#FF9900] bg-[#FF9900] px-2.5 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-black shadow-lg">
@@ -48,7 +48,7 @@ const DealCard = ({ product, onAdd }) => {
             <span className="font-mono text-[10px] tracking-wider text-gray-500">{sku}</span>
           </div>
 
-          <Link to={`/allProducts/${product.title}`} className="mt-3 block">
+          <Link to={`/allProducts/${encodeURIComponent(product.title)}`} className="mt-3 block">
             <h3 className="line-clamp-2 text-lg font-bold leading-snug text-white transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">{product.title}</h3>
           </Link>
           <p className="mt-1 line-clamp-1 text-xs text-gray-500">{product.brand || 'Premium Quality'}</p>

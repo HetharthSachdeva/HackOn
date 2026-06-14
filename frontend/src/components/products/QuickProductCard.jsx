@@ -10,7 +10,7 @@ const QuickProductCard = ({ product }) => {
     const deliveryTime = Math.floor(Math.random() * 5) + 8; // 8-12 mins
 
     const handleProductClick = () => {
-        navigate(`/${product.category}/${product.title}`, {
+        navigate(`/${product.category}/${encodeURIComponent(product.title)}`, {
             state: { item: product }
         });
     };

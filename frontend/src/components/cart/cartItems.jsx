@@ -112,7 +112,7 @@ const CartItemsContent = ({ productsData }) => {
                             <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
                                 {suggestions.map((product, i) => (
                                     <div key={i} className="overflow-hidden rounded-xl border border-white/10 bg-[#0d0d0d]">
-                                        <Link to={`/allProducts/${product.title}`}>
+                                        <Link to={`/allProducts/${encodeURIComponent(product.title)}`}>
                                             <div className="flex h-36 items-center justify-center bg-[#141414] p-3">
                                                 <img src={product.thumbnail} alt={product.title} className="max-h-full max-w-full object-contain" />
                                             </div>

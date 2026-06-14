@@ -34,7 +34,7 @@ const ProductCard = ({ product, onAdd }) => {
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         
         {/* Image panel */}
-        <Link to={`${product.title}`} className="relative block">
+        <Link to={`${encodeURIComponent(product.title)}`} className="relative block">
           <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-2xl bg-[#0e0e11] ring-1 ring-white/5 p-4 transition-transform duration-500 group-hover:scale-[1.02]">
             {/* Spotlight behind image */}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -76,7 +76,7 @@ const ProductCard = ({ product, onAdd }) => {
           </div>
 
           {/* Title */}
-          <Link to={`${product.title}`} className="mt-2 block">
+          <Link to={`${encodeURIComponent(product.title)}`} className="mt-2 block">
             <h3 className="line-clamp-2 text-xl font-bold leading-snug text-white transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
               {product.title}
             </h3>

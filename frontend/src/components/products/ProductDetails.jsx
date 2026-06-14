@@ -13,7 +13,42 @@ const ProductDetailsContent = ({ productsData }) => {
   const { userCart, updateUserCart } = useCart();
   const { title } = useParams();
 
-  const product = productsData.find((product) => product.title === title);
+  const initialProduct = productsData.find((p) => p.title === title);
+  const [product, setProduct] = useState(initialProduct || null);
+  const [isLoading, setIsLoading] = useState(!initialProduct);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!initialProduct) {
+      setIsLoading(true);
+      axios.get(`http://localhost:8000/api/v1/catalog/search?q=${encodeURIComponent(title)}`)
+        .then((response) => {
+          if (!isMounted) return;
+          const items = response.data.items || [];
+          const found = items.find((p) => p.title === title);
+          if (found) {
+            setProduct({
+              id: found.asin,
+              title: found.title,
+              category: found.category,
+              price: found.price,
+              thumbnail: found.img_url,
+              images: found.img_url ? [found.img_url] : [],
+              rating: found.stars || 0.0,
+              brand: found.unit_size || "Q-Commerce",
+              description: `Category: ${found.category}. Tags: ${found.tags}. Delivery in ${found.delivery_time_mins} mins.`,
+              stock: found.stock_qty || 0,
+              discountPercentage: 10,
+            });
+          }
+        })
+        .catch(err => console.error("Error fetching missing product:", err))
+        .finally(() => {
+          if (isMounted) setIsLoading(false);
+        });
+    }
+    return () => { isMounted = false; };
+  }, [title, initialProduct]);
 
   const [cartButton, setCartButton] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -24,12 +59,21 @@ const ProductDetailsContent = ({ productsData }) => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [product?.images?.length]);
+  }, [product]);
 
   const [selectedQuantity, setSelectedQuantity] = useState(1);
 
+  if (isLoading) {
+    return (
+      <div className="py-32 flex flex-col items-center justify-center text-white min-h-screen bg-[#0a0a0a]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9900] mb-4"></div>
+        <div className="text-xl font-bold tracking-widest uppercase text-gray-500">Loading Product...</div>
+      </div>
+    );
+  }
+
   if (!product) {
-    return <div className="py-32 flex items-center justify-center text-white text-3xl font-black tracking-widest uppercase">Product not found</div>;
+    return <div className="py-32 flex items-center justify-center text-white text-3xl font-black tracking-widest uppercase min-h-screen bg-[#0a0a0a]">Product not found</div>;
   }
 
   const handleImageClick = (index) => setCurrentImageIndex(index);

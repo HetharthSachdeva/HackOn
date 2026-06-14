@@ -53,7 +53,7 @@ const OrderDetails = ({ ordersData, reversedOrders, handleCancelOrder, handleRet
                                         <div className={`w-[95%] mdl:w-[70%] mx-auto flex flex-col gap-4 justify-between ${ordersData === reversedOrders ? "" : "mt-3" }`}>
                                             <div className='flex flex-col gap-5'>
                                                 <div>
-                                                    <Link to={`/${order.category}/${order.title}`}>
+                                                    <Link to={`/${order.category}/${encodeURIComponent(order.title)}`}>
                                                         <p className='text-lg font-semibold text-white'>{order.title}</p>
                                                     </Link>
                                                 </div>
