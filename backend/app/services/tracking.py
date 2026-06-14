@@ -65,4 +65,4 @@ async def track_event(
         user_pref.embedding = new_vec
 
     await session.commit()
-    log.info("tracking.vector_updated", user_id=str(user_id), event=event_type)
+    log.info("tracking.vector_updated", user_id=str(user_id), event_type=event_type)
