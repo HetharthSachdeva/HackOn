@@ -6,7 +6,7 @@ import { userSignOut, setUserAuthentication, resetOrders, resetCancelOrders, res
 import { useCart } from "../../context/userCartContext";
 import Location from "./location";
 
-export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch }) {
+export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch, aiImage, setAiImage }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -62,6 +62,29 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
         }
     };
 
+    const handleHeaderImageUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64Data = reader.result;
+            if (setAiImage) {
+                setAiImage(base64Data);
+            }
+            if (setIsAIMode) {
+                setIsAIMode(true);
+            }
+            navigate('/cart', { 
+                state: { 
+                    aiImage: base64Data, 
+                    aiPrompt: searchQuery 
+                } 
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const urlSearchQuery = params.get('search');
@@ -86,9 +109,14 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
 
     const handleSearch = (e) => {
         e.preventDefault();
-        if (!searchQuery.trim()) return;
+        if (!searchQuery.trim() && !aiImage) return;
         if (isAIMode) {
-            navigate(`/cart?aiPrompt=${encodeURIComponent(searchQuery)}`);
+            navigate('/cart', {
+                state: {
+                    aiImage: aiImage,
+                    aiPrompt: searchQuery
+                }
+            });
         } else {
             navigate(`/allProducts?search=${encodeURIComponent(searchQuery)}`);
         }
@@ -127,6 +155,21 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                                 )}
                             </div>
+                            {isAIMode && aiImage && (
+                                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-1.5 mr-2 z-10 flex-shrink-0">
+                                    <img src={aiImage} alt="Upload preview" className="h-6 w-6 object-cover rounded" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setAiImage(null)}
+                                        className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-0.5 transition animate-fade-in"
+                                        title="Remove image"
+                                    >
+                                        <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                             <input
                                 type="text"
                                 value={searchQuery}
@@ -156,6 +199,25 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                 </svg>
                             </button>
+
+                            {/* Camera (Snap to Cart) Button */}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleHeaderImageUpload}
+                                className="hidden"
+                                id="header-image-upload"
+                            />
+                            <label
+                                htmlFor="header-image-upload"
+                                className="mr-2 flex h-7 w-7 flex-shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-400 hover:bg-white/5 hover:text-white active:scale-90 transition-all duration-300"
+                                title="Snap to Cart (upload grocery list or product photo)"
+                            >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </label>
 
                             <button
                                 type="button"

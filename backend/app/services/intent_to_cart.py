@@ -43,8 +43,10 @@ _SERVINGS_RE = re.compile(r"\bfor\s+(\d{1,2})\s*(?:people|persons?|guests?|pax)\
 _TRAILING_AMOUNT_RE = re.compile(r"(?:rs\.?|₹|inr)\s*(\d{2,6})", re.IGNORECASE)
 
 
-def parse_budget(prompt: str) -> Decimal | None:
+def parse_budget(prompt: str | None) -> Decimal | None:
     """Pull a numeric budget out of free text. Returns ``None`` if absent."""
+    if not prompt:
+        return None
     if m := _BUDGET_RE.search(prompt):
         try:
             return Decimal(m.group(1))
@@ -59,8 +61,10 @@ def parse_budget(prompt: str) -> Decimal | None:
     return None
 
 
-def parse_servings(prompt: str) -> int | None:
+def parse_servings(prompt: str | None) -> int | None:
     """Pull a servings hint (``for 4 people``) out of free text."""
+    if not prompt:
+        return None
     if m := _SERVINGS_RE.search(prompt):
         try:
             return int(m.group(1))
@@ -74,18 +78,23 @@ def parse_servings(prompt: str) -> int | None:
 async def cart_from_intent(
     session: AsyncSession,
     *,
-    prompt: str,
+    prompt: str | None = None,
+    image: str | None = None,
     user_id,  # uuid.UUID | None — None for unauthenticated guests
     budget: Decimal | None,
     max_items: int,
 ) -> IntentToCartResponse:
     """Run the full pipeline and return a response payload."""
     from app.schemas.ai import BundleComponent
+    from fastapi import HTTPException
+
+    if not prompt and not image:
+        raise HTTPException(status_code=400, detail="Either prompt or image is required.")
     
     # 1. Structured query decomposition using the LLM provider
     provider = llm.get_provider()
-    log.info("intent_to_cart.start", prompt=prompt, provider=provider.name)
-    extracted = await provider.parse_query(prompt)
+    log.info("intent_to_cart.start", prompt=prompt, has_image=bool(image), provider=provider.name)
+    extracted = await provider.parse_query(prompt, image_b64=image)
     # 2. Parse budget & servings
     parsed_budget = budget
     if parsed_budget is None:
@@ -147,8 +156,9 @@ async def cart_from_intent(
 
     # 5. Call LLM to provide explanations and rationales
     log.info("intent_to_cart.suggest_cart.start", provider=provider.name, candidates_count=len(flat_candidates))
+    suggest_prompt = prompt or "Visual Snap-to-Cart"
     suggestion = await provider.suggest_cart(
-        prompt,
+        suggest_prompt,
         [
             {
                 "asin": item.asin,
@@ -173,7 +183,7 @@ async def cart_from_intent(
                 opt.quantity = suggest.quantity
                 opt.line_total = opt.unit_price * opt.quantity
             else:
-                opt.rationale = f"Matches \"{prompt}\""
+                opt.rationale = f"Matches \"{suggest_prompt}\""
 
     return IntentToCartResponse(
         prompt=prompt,

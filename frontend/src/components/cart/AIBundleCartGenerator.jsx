@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useCart } from '../../context/userCartContext';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 
 const AIBundleCartGenerator = () => {
+    const { aiImage: image, setAiImage: setImage } = useOutletContext();
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState(null);
@@ -26,18 +27,45 @@ const AIBundleCartGenerator = () => {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const urlPrompt = params.get('aiPrompt');
-        if (urlPrompt) {
-            const decoded = decodeURIComponent(urlPrompt);
-            setPrompt(decoded);
-            navigate('/cart', { replace: true });
-            handleGenerate(null, decoded);
-        }
-    }, [location.search]);
+        
+        const stateImage = location.state?.aiImage;
+        const statePrompt = location.state?.aiPrompt;
 
-    const handleGenerate = async (e, overridePrompt) => {
+        if (urlPrompt || stateImage || statePrompt) {
+            const finalPrompt = statePrompt || (urlPrompt ? decodeURIComponent(urlPrompt) : '');
+            if (finalPrompt) {
+                setPrompt(finalPrompt);
+            }
+            if (stateImage) {
+                setImage(stateImage);
+            }
+            // Clear URL and navigation state immediately
+            navigate('/cart', { replace: true, state: null });
+            
+            // Only auto-trigger search if it is a text-only query from the URL (no image upload)
+            if (urlPrompt && !stateImage) {
+                handleGenerate(null, finalPrompt, null);
+            }
+        }
+    }, [location.search, location.state]);
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImage(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleGenerate = async (e, overridePrompt, overrideImage) => {
         e?.preventDefault();
-        const finalPrompt = overridePrompt || prompt.trim();
-        if (!finalPrompt) return;
+        const finalPrompt = overridePrompt !== undefined ? overridePrompt : prompt.trim();
+        const finalImage = overrideImage !== undefined ? overrideImage : image;
+
+        if (!finalPrompt && !finalImage) return;
 
         setIsGenerating(true);
         setError(null);
@@ -47,12 +75,17 @@ const AIBundleCartGenerator = () => {
             const headers = userInfo?.token ? { Authorization: `Bearer ${userInfo.token}` } : {};
             const { data } = await axios.post(
                 'http://localhost:8000/api/v1/ai/cart-from-intent',
-                { prompt: finalPrompt, max_items: 6 },
+                { 
+                    prompt: finalPrompt || null, 
+                    image: finalImage || null,
+                    max_items: 6 
+                },
                 { headers }
             );
 
+            const mappedPrompt = finalPrompt || "Visual Snap-to-Cart";
             const mappedBundle = {
-                title: data.explanation || `${finalPrompt} — AI Bundle`,
+                title: data.explanation || `${mappedPrompt} — AI Bundle`,
                 confidence: data.used_semantic ? 96 : 82,
                 components: (data.components || []).map((comp) => ({
                     name: comp.component_name,
@@ -72,9 +105,10 @@ const AIBundleCartGenerator = () => {
             // Initialize selections
             const initSel = {};
             const initQty = {};
-            mappedBundle.components.forEach((comp, i) => {
+            mappedBundle.components.forEach((comp) => {
                 if (comp.options && comp.options.length > 0) {
-                    initSel[i] = comp.options[0].id;
+                    // Pre-select the first option by default
+                    initSel[comp.options[0].id] = true;
                     comp.options.forEach(opt => {
                         initQty[opt.id] = opt.quantity;
                     });
@@ -98,13 +132,32 @@ const AIBundleCartGenerator = () => {
         }));
     };
 
+    const getSelectedBundleTotal = () => {
+        if (!bundleData) return 0;
+        let total = 0;
+        bundleData.components.forEach((comp) => {
+            comp.options.forEach((opt) => {
+                if (selections[opt.id]) {
+                    const qty = quantities[opt.id] || 1;
+                    total += parseFloat(opt.price || 0) * qty;
+                }
+            });
+        });
+        return total;
+    };
+
     const handleAddSelectionsToCart = async () => {
         if (!bundleData) return;
         setIsAddingToCart(true);
 
-        const selectedProducts = bundleData.components.map((comp, i) => {
-            return comp.options.find(o => o.id === selections[i]);
-        }).filter(Boolean);
+        const selectedProducts = [];
+        bundleData.components.forEach((comp) => {
+            comp.options.forEach((opt) => {
+                if (selections[opt.id]) {
+                    selectedProducts.push(opt);
+                }
+            });
+        });
 
         try {
             for (const product of selectedProducts) {
@@ -114,6 +167,7 @@ const AIBundleCartGenerator = () => {
             // Clear bundle after adding
             setBundleData(null);
             setPrompt('');
+            setImage(null);
             
             // Show toast
             const toast = document.createElement('div');
@@ -142,17 +196,54 @@ const AIBundleCartGenerator = () => {
                     Tell us what you need, and our AI will curate the perfect mix-and-match bundle directly into your cart.
                 </p>
                 
-                <form onSubmit={handleGenerate} className="relative flex items-center">
+                <form onSubmit={handleGenerate} className="relative flex items-center w-full">
+                    {image && (
+                        <div className="absolute left-3 flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-lg p-1.5 z-10">
+                            <img src={image} alt="Upload preview" className="h-8 w-8 object-cover rounded-md" />
+                            <button
+                                type="button"
+                                onClick={() => setImage(null)}
+                                className="text-gray-400 hover:text-white hover:bg-white/10 rounded-full p-0.5 transition"
+                                title="Remove image"
+                            >
+                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
                     <input
                         type="text"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="e.g. Snacks and drinks for a movie night with 5 friends..."
-                        className="w-full rounded-xl bg-black/50 border border-white/10 px-5 py-4 text-white placeholder-gray-600 outline-none focus:border-[#FF9900] transition"
+                        placeholder={image ? "Add helper text (optional)..." : "e.g. Snacks and drinks for a movie night with 5 friends..."}
+                        className={`w-full rounded-xl bg-black/50 border border-white/10 py-4 pr-60 text-white placeholder-gray-600 outline-none focus:border-[#FF9900] transition ${image ? 'pl-20' : 'pl-5'}`}
                     />
+                    
+                    {/* Image Upload/Camera Trigger */}
+                    <div className="absolute right-48 flex items-center">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            id="cart-image-upload"
+                        />
+                        <label
+                            htmlFor="cart-image-upload"
+                            className="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-white/5 hover:text-[#FF9900] transition active:scale-95"
+                            title="Add image (handwritten list or product photo)"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={isGenerating || !prompt.trim()}
+                        disabled={isGenerating || (!prompt.trim() && !image)}
                         className="absolute right-2 rounded-lg bg-[#FF9900] px-6 py-2.5 font-bold text-black transition hover:bg-[#ffae33] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isGenerating ? 'Curating...' : 'Generate Bundle'}
@@ -177,12 +268,12 @@ const AIBundleCartGenerator = () => {
                                 </div>
                                 <div className="p-3 space-y-2">
                                     {comp.options?.map(opt => {
-                                        const isSelected = selections[compIdx] === opt.id;
+                                        const isSelected = !!selections[opt.id];
                                         const qty = quantities[opt.id];
                                         return (
                                             <div 
                                                 key={opt.id} 
-                                                onClick={() => setSelections(prev => ({...prev, [compIdx]: prev[compIdx] === opt.id ? null : opt.id}))}
+                                                onClick={() => setSelections(prev => ({...prev, [opt.id]: !prev[opt.id]}))}
                                                 className={`cursor-pointer flex items-center gap-3 rounded-lg p-2.5 transition border ${isSelected ? 'border-[#FF9900] bg-[#FF9900]/10' : 'border-transparent hover:bg-white/5'}`}
                                             >
                                                 <div className="h-12 w-12 flex-shrink-0 rounded bg-[#141414] p-1">
@@ -219,7 +310,7 @@ const AIBundleCartGenerator = () => {
                                                     className="flex flex-shrink-0 items-center gap-1 rounded bg-black p-1 ring-1 ring-white/10" 
                                                     onClick={e => {
                                                         e.stopPropagation();
-                                                        if (!isSelected) setSelections(prev => ({...prev, [compIdx]: opt.id}));
+                                                        if (!isSelected) setSelections(prev => ({...prev, [opt.id]: true}));
                                                     }}
                                                 >
                                                     <button onClick={() => updateQuantity(opt.id, -1)} className="h-6 w-6 rounded text-gray-400 hover:bg-white/20 hover:text-white transition">−</button>
@@ -238,13 +329,22 @@ const AIBundleCartGenerator = () => {
                         ))}
                     </div>
 
-                    <div className="mt-8 flex justify-end border-t border-white/10 pt-6">
+                    <div className="mt-8 flex flex-col sm:flex-row items-center justify-between border-t border-white/10 pt-6 gap-4">
+                        <div className="flex flex-col items-center sm:items-start">
+                            <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Bundle Summary</span>
+                            <div className="mt-1 flex items-baseline gap-3">
+                                <span className="text-2xl font-black text-white">₹{getSelectedBundleTotal().toFixed(2)}</span>
+                                <span className="text-xs text-gray-400 font-mono">
+                                    ({Object.values(selections).filter(Boolean).length} items selected)
+                                </span>
+                            </div>
+                        </div>
                         <button
                             onClick={handleAddSelectionsToCart}
-                            disabled={isAddingToCart}
-                            className="flex items-center gap-2 rounded-xl bg-[#FF9900] px-8 py-3.5 font-bold text-black transition hover:bg-[#ffae33] disabled:opacity-70 disabled:cursor-not-allowed"
+                            disabled={isAddingToCart || Object.values(selections).filter(Boolean).length === 0}
+                            className="flex items-center gap-2 rounded-xl bg-[#FF9900] px-8 py-3.5 font-bold text-black transition hover:bg-[#ffae33] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
                         >
-                            {isAddingToCart ? 'Adding to Cart...' : 'Add Selected Bundle to Cart 🛒'}
+                            {isAddingToCart ? 'Adding to Cart...' : 'Add Selected to Cart 🛒'}
                         </button>
                     </div>
                 </div>

@@ -28,6 +28,7 @@ import { supabase } from "./api/supabaseClient";
 const Layout = () => {
   const [isAIMode, setIsAIMode] = useState(false);
   const [aiSearch, setAiSearch] = useState({ query: '', nonce: 0 });
+  const [aiImage, setAiImage] = useState(null);
 
   const handleAISearch = (query) => {
     // Bump nonce every call so identical queries still re-trigger generation
@@ -42,10 +43,12 @@ const Layout = () => {
         isAIMode={isAIMode} 
         setIsAIMode={setIsAIMode}
         onAISearch={handleAISearch}
+        aiImage={aiImage}
+        setAiImage={setAiImage}
       />
       <ScrollRestoration />
       <Suspense fallback={<div className="flex h-screen items-center justify-center text-white">Loading...</div>}>
-        <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch }} />
+        <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch, aiImage, setAiImage }} />
       </Suspense>
       <Footer />
     </div>

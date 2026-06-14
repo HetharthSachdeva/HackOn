@@ -27,11 +27,14 @@ class SemanticSearchResponse(BaseModel):
 class IntentToCartRequest(BaseModel):
     """Body for ``POST /ai/cart-from-intent``."""
 
-    prompt: str = Field(
-        ...,
-        min_length=2,
+    prompt: str | None = Field(
+        None,
         max_length=500,
         examples=["dinner for 4, vegetarian, under ₹800"],
+    )
+    image: str | None = Field(
+        None,
+        description="Optional Base64 encoded image Data URL (e.g. data:image/jpeg;base64,...)"
     )
     budget: Decimal | None = Field(
         None,
@@ -59,7 +62,7 @@ class BundleComponent(BaseModel):
 
 
 class IntentToCartResponse(BaseModel):
-    prompt: str
+    prompt: str | None = None
     explanation: str
     components: list[BundleComponent]
     budget: Decimal | None = None
