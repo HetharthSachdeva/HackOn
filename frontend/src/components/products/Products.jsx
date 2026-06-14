@@ -21,19 +21,60 @@ const ProductsContent = ({ productsData }) => {
   const [sortOrder, setSortOrder] = useState('default');
   const [visibleCount, setVisibleCount] = useState(12);
 
+  // ── Semantic Search State ──
+  const [semanticResults, setSemanticResults] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+
   // Reset visible count whenever the filtered/sorted result changes
   useEffect(() => { setVisibleCount(12); }, [category, searchQuery, maxPrice, quickFilters, sortOrder]);
+
+  // Fetch semantic search from backend
+  useEffect(() => {
+    if (searchQuery) {
+      setIsSearching(true);
+      import('axios').then(axios => {
+        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { query: searchQuery, limit: 50 })
+          .then(response => {
+             const items = response.data.items || [];
+             const mapped = items.map(p => ({
+                id: p.asin,
+                title: p.title,
+                category: p.category,
+                price: p.price,
+                thumbnail: p.img_url,
+                images: p.img_url ? [p.img_url] : [],
+                rating: p.stars || 0.0,
+                brand: p.unit_size || "Q-Commerce",
+                description: `Category: ${p.category}. Tags: ${p.tags}. Delivery in ${p.delivery_time_mins} mins.`,
+                stock: p.stock_qty || 0,
+                discountPercentage: 10,
+             }));
+             setSemanticResults(mapped);
+          })
+          .catch(err => console.error("Semantic search failed:", err))
+          .finally(() => setIsSearching(false));
+      });
+    } else {
+      setSemanticResults(null);
+    }
+  }, [searchQuery]);
 
   // ── Search ──
   let filtered = productsData;
   if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    filtered = productsData.filter((p) =>
-      (p.title || '').toLowerCase().includes(q) ||
-      (p.category || '').toLowerCase().includes(q) ||
-      (p.brand || '').toLowerCase().includes(q) ||
-      (p.description || '').toLowerCase().includes(q)
-    );
+    if (semanticResults) {
+      filtered = semanticResults;
+    } else {
+      // Fallback frontend token search while loading or if failed
+      const tokens = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+      filtered = productsData.filter((p) => {
+        const title = (p.title || '').toLowerCase();
+        const cat = (p.category || '').toLowerCase();
+        const brand = (p.brand || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        return tokens.every(t => title.includes(t) || cat.includes(t) || brand.includes(t) || desc.includes(t));
+      });
+    }
   }
 
   const categoryProducts = category ? filtered.filter((p) => p.category === category) : filtered;
