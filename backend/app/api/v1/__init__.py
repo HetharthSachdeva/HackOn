@@ -18,6 +18,7 @@ from app.api.v1 import (
     recommendations,
     reorders,
     reviews,
+    tracking,
     ws,
 )
 
@@ -37,6 +38,7 @@ api_router.include_router(recommendations.router)
 api_router.include_router(reviews.router)
 api_router.include_router(notifications.router)
 api_router.include_router(ws.router)
+api_router.include_router(tracking.router)
 api_router.include_router(admin.router)
 
 __all__ = ["api_router"]

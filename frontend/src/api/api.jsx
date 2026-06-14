@@ -27,3 +27,20 @@ export function productsData() {
 
     return defer({ data: productsPromise });
 }
+
+export const trackEvent = async (eventType, asin = null, query = null, token = null) => {
+    if (!token) return; // Only track authenticated users
+    try {
+        await axios.post("http://localhost:8000/api/v1/tracking/event", {
+            event_type: eventType,
+            asin: asin,
+            query: query
+        }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    } catch (err) {
+        console.error("Failed to track event:", err);
+    }
+};

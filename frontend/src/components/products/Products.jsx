@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { ScrollRestoration, useNavigate, Link, useSearchParams, useRouteLoaderData, useParams, Await } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import Product from './Product';
 
 const ProductsContent = ({ productsData }) => {
@@ -29,8 +30,14 @@ const ProductsContent = ({ productsData }) => {
   useEffect(() => { setVisibleCount(12); }, [category, searchQuery, maxPrice, quickFilters, sortOrder]);
 
   // Fetch semantic search from backend
+  const { userInfo, isAuthenticated } = useSelector((state) => state.amazon);
   useEffect(() => {
     if (searchQuery) {
+      if (isAuthenticated) {
+        import('../../api/api').then(({ trackEvent }) => {
+          trackEvent('search', null, searchQuery, userInfo.token);
+        });
+      }
       setIsSearching(true);
       import('axios').then(axios => {
         axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 })

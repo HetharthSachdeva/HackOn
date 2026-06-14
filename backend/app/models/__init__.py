@@ -15,3 +15,4 @@ from app.models.payment import Payment, PaymentProvider, PaymentStatus  # noqa: 
 from app.models.product import Product  # noqa: F401
 from app.models.reorder import ReorderStatus, ReorderSubscription  # noqa: F401
 from app.models.review import Review  # noqa: F401
+from app.models.user_preference import UserPreference  # noqa: F401

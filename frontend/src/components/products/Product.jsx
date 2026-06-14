@@ -177,6 +177,9 @@ const Product = (props) => {
       }));
     } else {
       await saveProductToBackend(product);
+      import('../../api/api').then(({ trackEvent }) => {
+        trackEvent('cart_add', product.id, null, userInfo.token);
+      });
     }
   };
 
