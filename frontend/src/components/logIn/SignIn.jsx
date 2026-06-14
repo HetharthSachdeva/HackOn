@@ -135,137 +135,129 @@ const SignIn = () => {
     }
 
     return (
-        <div className='bg-[#0a0a0a] w-full h-full'>
-            <div className='flex flex-col justify-center items-center'>
+        <div className='min-h-screen bg-[#0a0a0a] w-full flex flex-col relative overflow-hidden'>
+            {/* Background ambient glow */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] blur-[120px]">
+                <div className="h-[600px] w-[600px] rounded-full bg-[#FF9900]" />
+            </div>
 
+            <div className='flex flex-col justify-center items-center flex-1 relative z-10'>
                 <Link to="/">
-                    <div className="headerHover">
-                        <h1 className="text-2xl font-black tracking-tight mt-2"><span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span></h1>
+                    <div className="headerHover transition-transform hover:scale-105">
+                        <h1 className="text-3xl font-black tracking-tight mt-6 mb-2">
+                            <span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span>
+                        </h1>
                     </div>
                 </Link>
 
-                <div className='w-80 mt-4 bg-[#0d0d0d] ring-1 ring-white/10 border-white/10 rounded-lg'>
-                    <div className='my-4 mx-7 '>
-                        <span className='text-[28px] font-semibold text-white'>
-                            Sign in
-                        </span>
-                        {
-                            successMsg
-                                ? <div className=''>
-                                    <motion.p
-                                        initial={{ y: 10, opacity: 0 }}
-                                        animate={{ y: 10, opacity: 1 }}
-                                        transition={{ duration: 0.5 }}
-                                        className='text-base font-semibold text-green-600 border-[1px] my-8 text-center'
-                                    >
-                                        {successMsg}
-                                    </motion.p>
+                <div className='w-full max-w-[400px] mt-4 bg-[#0f0f0f] ring-1 ring-white/10 rounded-2xl shadow-2xl p-8'>
+                    <span className='text-[28px] font-black tracking-tight text-white mb-6 block'>
+                        Welcome Back
+                    </span>
+                    {
+                        successMsg
+                            ? <div className='my-4'>
+                                <motion.p
+                                    initial={{ y: 10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className='text-base font-bold text-green-400 bg-green-400/10 p-4 rounded-xl text-center'
+                                >
+                                    {successMsg}
+                                </motion.p>
+                            </div>
+                            : <div className="flex flex-col gap-4">
+                                <div onClick={handleGoogle} className="cursor-pointer flex items-center justify-center gap-3 w-full border border-white/10 bg-white/[0.02] p-3 rounded-xl hover:bg-white/5 transition-all">
+                                    <img src={google} alt="google" className="w-5 h-5" />
+                                    <p className="text-sm font-semibold text-white">Continue with Google</p>
                                 </div>
-                                : <div>
-                                    <div onClick={handleGoogle} className=" cursor-pointer flex flex-row items-center my-3 border-[1px] p-[6px] border-white/10 rounded-md hover:bg-white/5 active:ring-2 active:ring-offset-1 active:ring-blue-600 active:border-transparent">
-                                        <img src={google} alt="google" className="w-5 h-5 mx-5" />
-                                        <p className="text-sm font-semibold text-white">Continue with Google</p>
-                                    </div>
-                                    <div onClick={handleFacebook} className="cursor-pointer flex flex-row items-center  my-3 border-[1px] p-[6px] border-white/10 rounded-md hover:bg-white/5 active:ring-2 active:ring-offset-1 active:ring-blue-600 active:border-transparent">
-                                        <img src={facebook} alt="facebook" className="w-5 mx-5 h-5" />
-                                        <p className="text-sm font-semibold text-white">Continue with Facebook</p>
-                                    </div>
-                                    <div className="flex items-center justify-between ">
-                                        <div className="w-[45%]"><hr className="border-white/10" /></div>
-                                        <p className="text-sm font-semibold text-gray-400">Or</p>
-                                        <div className="w-[45%]"><hr className="border-white/10" /></div>
-                                    </div>
-                                    <form className='mt-2 mb-3' onSubmit={handleSubmit}>
-                                        <label className='text-sm font-semibold text-gray-300'>
-                                            Email address
-                                            <input type="text" autoComplete="true" value={inputValue} onChange={(e) => {
+                                <div onClick={handleFacebook} className="cursor-pointer flex items-center justify-center gap-3 w-full border border-white/10 bg-white/[0.02] p-3 rounded-xl hover:bg-white/5 transition-all">
+                                    <img src={facebook} alt="facebook" className="w-5 h-5" />
+                                    <p className="text-sm font-semibold text-white">Continue with Facebook</p>
+                                </div>
+
+                                <div className="flex items-center justify-between my-2 opacity-50">
+                                    <div className="flex-1 h-px bg-white/20"></div>
+                                    <p className="text-xs font-mono uppercase tracking-widest text-white px-4">Or</p>
+                                    <div className="flex-1 h-px bg-white/20"></div>
+                                </div>
+
+                                <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+                                    <label className='flex flex-col gap-1.5'>
+                                        <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Email Address</span>
+                                        <input 
+                                            type="text" 
+                                            value={inputValue} 
+                                            onChange={(e) => {
                                                 setInputValue(e.target.value.toString().toLowerCase());
                                                 setUserEmailError("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
-                                        </label>
-                                        {
-                                            userEmailError && <div className="flex  items-center  pt-1 pb-2">
-                                                <img src={required} className="w-4 h-4 mr-1" alt="warning" />
-                                                <div className="text-xs text-red-400">{userEmailError}</div>
-                                            </div>
-                                        }
-                                        <label className='text-sm font-semibold text-gray-300'>
-                                            Password
-                                            <input type="password" autoComplete="true" value={passwordValue} onChange={(e) => {
+                                            }} 
+                                            className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                            placeholder="Enter email or mobile"
+                                        />
+                                        {userEmailError && <div className="text-xs text-red-500 mt-1 flex items-center gap-1"><img src={required} className="w-3 h-3" alt="warning" />{userEmailError}</div>}
+                                    </label>
+                                    
+                                    <label className='flex flex-col gap-1.5'>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Password</span>
+                                            <Link to="forgotPassword" className="text-xs text-[#FF9900] hover:text-[#FFB145] hover:underline transition-colors">
+                                                Forgot password?
+                                            </Link>
+                                        </div>
+                                        <input 
+                                            type="password" 
+                                            value={passwordValue} 
+                                            onChange={(e) => {
                                                 setPasswordValue(e.target.value);
                                                 setWarningPassword("");
-                                            }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
-                                        </label>
-                                        {
-                                            warningPassword && <div className="flex  items-center pt-1 pb-2">
-                                                <img src={required} className="w-4 h-4 mr-1" alt="warning" />
-                                                <div className="text-xs text-red-400">{warningPassword}</div>
-                                            </div>
-                                        }
-                                        <button className={`${isClicked ? "clicked" : ""} text-sm my-4 w-full text-center rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[6px]`}
-                                            onClick={(e) => { handleNewClickEffect(e) }}>Continue</button>
-                                        {
-                                            loading && <div className='flex justify-center'>
-                                                <RotatingLines
-                                                    strokeColor="#febd69"
-                                                    strokeWidth="5"
-                                                    animationDuration="0.75"
-                                                    width="50"
-                                                    visible={true}
-                                                />
-                                            </div>
-                                        }
-                                    </form>
-                                </div>
-                        }
-                        <div className='text-xs tracking-wide text-gray-500 '>
-                            <span className=''>
-                                By continuing, you agree to Amazon's
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Conditions of Use </a>
-                                and
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Privacy Notice</a>.
-                            </span>
-                        </div>
-                        <div className='flex items-center gap-2 mt-7 cursor-pointer group ' onClick={handleNeedHelp}>
-                            <div className='w-2 h-2 text-gray-200'>
-                                {
-                                    needHelp ?
-                                        <img src={down} alt='down' /> :
-                                        <img src={right} alt='right' />
-                                }
+                                            }} 
+                                            className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                            placeholder="••••••••"
+                                        />
+                                        {warningPassword && <div className="text-xs text-red-500 mt-1 flex items-center gap-1"><img src={required} className="w-3 h-3" alt="warning" />{warningPassword}</div>}
+                                    </label>
 
+                                    <button 
+                                        className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-[#FF9900] px-8 py-3.5 font-mono text-sm font-black uppercase tracking-[0.1em] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] transition-all hover:bg-[#ffb145] hover:shadow-[0_0_35px_rgba(255,153,0,0.5)] hover:scale-[1.02] active:scale-[0.98] mt-2`}
+                                        onClick={(e) => { handleNewClickEffect(e) }}
+                                    >
+                                        Sign In
+                                    </button>
+                                    
+                                    {loading && <div className='flex justify-center mt-2'>
+                                        <RotatingLines strokeColor="#febd69" strokeWidth="4" animationDuration="0.75" width="30" visible={true} />
+                                    </div>}
+                                </form>
                             </div>
-                            <div className=' text-xs  text-[#FF9900] group-hover:underline group-hover:text-[#FFB145]'>Need help?</div>
-                        </div>
-                        {
-                            needHelp ?
-                                (<div className=' text-xs  text-[#FF9900] cursor-pointer hover:underline hover:text-[#FFB145] ml-4 mt-2 mb-5'>
-                                    <Link to="forgotPassword">
-                                        Forgot password
-                                    </Link>
-                                </div>)
-                                : null
-                        }
+                    }
+                    
+                    <div className='text-xs text-gray-500 mt-6 pt-6 border-t border-white/5 text-center leading-relaxed'>
+                        By continuing, you agree to ZipDash's <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Conditions of Use</a> and <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Privacy Notice</a>.
                     </div>
                 </div>
 
-                <div className='text-sm text-gray-400 my-4'>
-                    New to Amazon?
+                <div className='mt-8 flex items-center justify-center gap-4 w-full max-w-[400px]'>
+                    <div className="flex-1 h-px bg-white/10"></div>
+                    <span className="text-xs text-gray-400 font-mono tracking-wider uppercase">New to ZipDash?</span>
+                    <div className="flex-1 h-px bg-white/10"></div>
                 </div>
-                <div className='w-80 text-[12px] font-bold tracking-wide text-center bg-[#FF9900] text-black rounded-lg p-[5px] hover:bg-[#FFB145] mb-7 shadow active:ring-2 active:ring-offset-1 active:ring-blue-500'>
-                    <Link to="/createAccount">
-                        <div>Create your Amazon account</div>
-                    </Link>
+                
+                <Link to="/createAccount" className="w-full max-w-[400px]">
+                    <div className='mt-6 w-full text-center border border-white/10 bg-white/[0.02] hover:bg-white/5 text-white rounded-xl py-3.5 text-sm font-bold tracking-wide transition-all hover:border-[#FF9900]/50'>
+                        Create your ZipDash account
+                    </div>
+                </Link>
+            </div>
+            
+            <div className="relative z-10 w-full mt-auto py-8">
+                <div className="flex flex-row text-xs gap-6 justify-center tracking-wide">
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Conditions of Use</a>
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Privacy Notice</a>
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Help</a>
                 </div>
-            </div>
-            <hr className="w-11/12 mx-auto border-white/10" />
-            <div className="flex flex-row text-[11px] gap-4 mx-auto text-white justify-center tracking-wide pt-5 my-4">
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Conditions of Use</a>
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Privacy Notice</a>
-                <p className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Interest-Based Ads</p>
-            </div>
-            <div className='text-xs tracking-wider text-gray-500 flex justify-center mt-[4px] pb-16'>
-                © 1996-2023, Amazon.com, Inc. or its affiliates
+                <div className='text-xs text-gray-600 flex justify-center mt-3'>
+                    © 2026, ZipDash (HackOn), Inc.
+                </div>
             </div>
         </div>
     )

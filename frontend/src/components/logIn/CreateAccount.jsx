@@ -101,136 +101,150 @@ const CreateAccount = () => {
     };
 
     return (
-        <div className='bg-[#0a0a0a]'>
-            <div className='flex flex-col w-full h-full justify-center mb-10 items-center'>
+        <div className='min-h-screen bg-[#0a0a0a] w-full flex flex-col relative overflow-hidden'>
+            {/* Background ambient glow */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] blur-[120px]">
+                <div className="h-[600px] w-[600px] rounded-full bg-[#FF9900]" />
+            </div>
 
+            <div className='flex flex-col justify-center items-center flex-1 relative z-10 py-10'>
                 <Link to="/">
-                    <div className="headerHover">
-                        <h1 className="text-2xl font-black tracking-tight mt-2"><span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span></h1>
+                    <div className="headerHover transition-transform hover:scale-105">
+                        <h1 className="text-3xl font-black tracking-tight mt-2 mb-2">
+                            <span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span>
+                        </h1>
                     </div>
                 </Link>
 
-                <div className='w-80 mt-4 bg-[#0d0d0d] ring-1 ring-white/10 border-white/10 rounded-lg'>
-                    <div className='my-4 mx-5 '>
-                        <span className='text-[28px] font-semibold text-white'>
-                            Create Account
-                        </span>
-                        {
-                            successMsg
-                                ? <div className=' my-2 flex flex-col gap-2'>
-                                    <p className='font-semibold text-green-600'>
-                                        Your account has been successfully created!
-                                    </p>
-                                    <p className='font-semibold text-white'>
-                                        Please check your email for a verification link to confirm your email address.
-                                    </p>
-                                    <p className='font-semibold text-red-400'>
-                                        Remember, if you don't verify your email, your data may be lost.
-                                    </p>
-                                </div>
-                                : <form className='my-3' onSubmit={handleSubmit}>
-                                    <label className='text-sm font-semibold text-gray-300'>
-                                        Your name
-                                        <input type="text" placeholder="First and last name" autoComplete="true" value={nameInput} onChange={(e) => {
+                <div className='w-full max-w-[450px] mt-4 bg-[#0f0f0f] ring-1 ring-white/10 rounded-2xl shadow-2xl p-8'>
+                    <span className='text-[28px] font-black tracking-tight text-white mb-6 block'>
+                        Create Account
+                    </span>
+                    {
+                        successMsg
+                            ? <div className='my-4 p-5 rounded-xl bg-green-400/10 border border-green-400/20 flex flex-col gap-3'>
+                                <p className='font-bold text-green-400 text-lg'>
+                                    Account successfully created!
+                                </p>
+                                <p className='text-sm text-gray-300'>
+                                    Please check your email for a verification link to confirm your email address.
+                                </p>
+                                <p className='text-xs text-red-400 font-mono'>
+                                    * Remember, if you don't verify your email, your data may be lost.
+                                </p>
+                            </div>
+                            : <form className='flex flex-col gap-4' onSubmit={handleSubmit}>
+                                <label className='flex flex-col gap-1.5'>
+                                    <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Full Name</span>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Jane Doe" 
+                                        autoComplete="true" 
+                                        value={nameInput} 
+                                        onChange={(e) => {
                                             setNameInput(e.target.value);
                                             setNameError("");
-                                        }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1 ' />
-                                    </label>
-                                    {
-                                        nameError && <div className='text-sm text-red-400'>{nameError}</div>
-                                    }
-                                    <label className='text-sm font-semibold mt-3 text-gray-300'>
-                                        Email
-                                        <input type="text" value={emailInput} autoComplete="true" onChange={(e) => {
+                                        }} 
+                                        className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                    />
+                                    {nameError && <div className='text-xs text-red-500 mt-1'>{nameError}</div>}
+                                </label>
+                                
+                                <label className='flex flex-col gap-1.5'>
+                                    <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Email Address</span>
+                                    <input 
+                                        type="text" 
+                                        value={emailInput} 
+                                        autoComplete="true" 
+                                        placeholder="jane@example.com"
+                                        onChange={(e) => {
                                             setEmailInput(e.target.value.toString().toLowerCase());
                                             setEmailError("");
                                             setFirebaseError("");
-                                        }} className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
-
-                                    </label>
-                                    {
-                                        (emailError || firebaseError) && <div className='text-sm text-red-400'>{emailError || firebaseError}</div>
-                                    }
-                                    <label className='text-sm font-semibold my-3 text-gray-300'>
-                                        Mobile number (Optional)
-                                        <div className='flex items-center justify-between mt-1'>
-                                            <div className='w-[22%] border-[1px] rounded-md border-white/10 bg-[#141414] text-white p-1'>IN +91</div>
-                                            <input type="tel" autoComplete="true" maxLength="10" placeholder="Mobile number" value={mobileInput} onChange={(e) => {
+                                        }} 
+                                        className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                    />
+                                    {(emailError || firebaseError) && <div className='text-xs text-red-500 mt-1'>{emailError || firebaseError}</div>}
+                                </label>
+                                
+                                <label className='flex flex-col gap-1.5'>
+                                    <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Mobile Number (Optional)</span>
+                                    <div className='flex items-center gap-2'>
+                                        <div className='bg-[#141414] ring-1 ring-white/10 text-gray-400 rounded-lg px-4 py-3 font-mono text-sm'>
+                                            +91
+                                        </div>
+                                        <input 
+                                            type="tel" 
+                                            autoComplete="true" 
+                                            maxLength="10" 
+                                            placeholder="10-digit number" 
+                                            value={mobileInput} 
+                                            onChange={(e) => {
                                                 setMobileInput(e.target.value);
                                                 setMobileError("");
-                                            }} className='w-[74%] border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
-                                        </div>
-                                    </label>
-                                    {
-                                        mobileError && <div className='text-sm text-red-400  pl-20'>{mobileError}</div>
-                                    }
-                                    <label className='text-sm font-semibold mt-3 text-gray-300'>
-                                        Password
-                                        <input type="password" autoComplete="true" value={passwordInput} onChange={(e) => {
+                                            }} 
+                                            className='flex-1 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                        />
+                                    </div>
+                                    {mobileError && <div className='text-xs text-red-500 mt-1'>{mobileError}</div>}
+                                </label>
+                                
+                                <label className='flex flex-col gap-1.5'>
+                                    <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Password</span>
+                                    <input 
+                                        type="password" 
+                                        autoComplete="true" 
+                                        value={passwordInput} 
+                                        onChange={(e) => {
                                             setPasswordInput(e.target.value);
                                             setPasswordError("");
-                                        }} placeholder="At least 6 characters" className='w-full border-[1px] border-white/10 bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 rounded p-1' />
-                                    </label>
-                                    {
-                                        passwordError && <div className='text-sm text-red-400'>{passwordError}</div>
-                                    }
-                                    {!passwordError && <div className='flex items-center justify-start mt-1' >
-                                        <img src={i} alt='i' className='w-4 h-4' />
-                                        <span className='text-xs text-gray-400'>Passwords must be at least 6 characters.</span>
-                                    </div>}
-                                    <div className='text-[12px] tracking-wide mt-4 text-gray-500 '>
-                                        By enrolling your mobile phone number, you consent to receive automated security notifications via text message from Amazon. Message and data rates may apply.
-                                    </div>
-                                    <button className={`text-sm w-full text-center rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[6px] mt-5 shadow active:ring-2 active:ring-offset-1 active:ring-violet-500`}
-                                    >Continue</button>
-                                    {
-                                        loading && <div className='flex justify-center mt-4'>
-                                            <RotatingLines
-                                                strokeColor="#febd69"
-                                                strokeWidth="5"
-                                                animationDuration="0.75"
-                                                width="50"
-                                                visible={true}
-                                            />
+                                        }} 
+                                        placeholder="At least 6 characters" 
+                                        className='bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all'
+                                    />
+                                    {passwordError 
+                                        ? <div className='text-xs text-red-500 mt-1'>{passwordError}</div>
+                                        : <div className='flex items-center gap-1.5 mt-1 opacity-70'>
+                                            <img src={i} alt='info' className='w-3.5 h-3.5 opacity-50' />
+                                            <span className='text-xs font-mono text-gray-400'>Must be at least 6 characters.</span>
                                         </div>
                                     }
-                                </form>
-                        }
-                        <div className='flex items-center gap-2 mt-7 '>
-                            <div className=' text-xs text-gray-400'>
-                                {
-                                    successMsg
-                                        ? "You can now sign-in "
-                                        : "Already have an account? "}
-                                <Link to="/signIn" >
-                                    <span className='text-[#FF9900] hover:underline hover:text-[#FFB145] cursor-pointer'>
-                                        Sign in
-                                    </span>
-                                </Link>
-                            </div>
-                            <div className='w-[6px] h-[6px] mt-1'>
-                                <img src={right} alt='right' />
-                            </div>
-                        </div>
-                        <div className='text-xs tracking-wide mt-5 text-gray-500 '>
-                            <span className=''>
-                                By creating an account or logging in, you agree to Amazon’s
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Conditions of Use </a>
-                                and
-                                <a href='https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380' className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> Privacy Notice</a>.
+                                </label>
+
+                                <button 
+                                    className={`relative flex items-center justify-center overflow-hidden rounded-xl bg-[#FF9900] px-8 py-3.5 font-mono text-sm font-black uppercase tracking-[0.1em] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] transition-all hover:bg-[#ffb145] hover:shadow-[0_0_35px_rgba(255,153,0,0.5)] hover:scale-[1.02] active:scale-[0.98] mt-4`}
+                                >
+                                    Create Account
+                                </button>
+                                
+                                {loading && <div className='flex justify-center mt-2'>
+                                    <RotatingLines strokeColor="#febd69" strokeWidth="4" animationDuration="0.75" width="30" visible={true} />
+                                </div>}
+                            </form>
+                    }
+                    
+                    <div className='flex items-center justify-center gap-2 mt-8 pt-6 border-t border-white/5'>
+                        <span className='text-sm text-gray-400'>
+                            {successMsg ? "Ready to shop?" : "Already have an account?"}
+                        </span>
+                        <Link to="/signIn">
+                            <span className='text-sm font-bold text-[#FF9900] hover:text-[#FFB145] hover:underline transition-colors'>
+                                Sign in →
                             </span>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </div>
-            <hr className="w-11/12 mx-auto border-white/10" />
-            <div className="flex flex-row text-[11px] gap-4 mx-auto mt-10 text-white justify-center tracking-wide  pt-5">
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_condition_of_use?ie=UTF8&nodeId=200545940" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Conditions of Use</a>
-                <a href="https://www.amazon.in/gp/help/customer/display.html/ref=ap_signin_notification_privacy_notice?ie=UTF8&nodeId=200534380" className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Privacy Notice</a>
-                <p className='text-gray-400 hover:text-[#FFB145] cursor-pointer'>Interest-Based Ads</p>
-            </div>
-            <div className='text-xs tracking-wider text-gray-500 flex justify-center mt-[4px] pb-16'>
-                © 1996-2023, Amazon.com, Inc. or its affiliates
+            
+            <div className="relative z-10 w-full mt-auto py-8">
+                <div className="flex flex-row text-xs gap-6 justify-center tracking-wide">
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Conditions of Use</a>
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Privacy Notice</a>
+                    <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Help</a>
+                </div>
+                <div className='text-xs text-gray-600 flex justify-center mt-3'>
+                    © 2026, ZipDash (HackOn), Inc.
+                </div>
             </div>
         </div>
     )
