@@ -66,8 +66,8 @@ class LLMProvider(Protocol):
         """
         ...
 
-    async def parse_query(self, prompt: str) -> ExtractedQuery:
-        """Decompose a natural language query into structured items, budget, preferences, and occasion."""
+    async def parse_query(self, prompt: str | None, image_b64: str | None = None) -> ExtractedQuery:
+        """Decompose a natural language query or visual input into structured items, budget, preferences, and occasion."""
         ...
 
 
@@ -97,7 +97,16 @@ class StubLLMProvider:
         log.info("stub.suggest_cart.output", prompt=prompt, explanation=res.explanation)
         return res
 
-    async def parse_query(self, prompt: str) -> ExtractedQuery:
+    async def parse_query(self, prompt: str | None, image_b64: str | None = None) -> ExtractedQuery:
+        if not prompt:
+            return ExtractedQuery(
+                items=["snacks"],
+                budget=None,
+                occasion="snacks",
+                preferences=[],
+                categories=["Groceries & Kitchen"],
+                tags=["snacks"]
+            )
         # Local regex patterns for budget and servings
         budget_re = re.compile(
             r"""
@@ -306,7 +315,8 @@ class GemmaProvider:
         self,
         *,
         system: str | None,
-        user: str,
+        user: str | None = None,
+        parts: list[dict[str, Any]] | None = None,
         json_mode: bool = False,
         response_schema: dict[str, Any] | None = None,
         temperature: float = 0.4,
@@ -318,8 +328,9 @@ class GemmaProvider:
         if response_schema is not None:
             gen_config["responseSchema"] = response_schema
 
+        user_parts = parts if parts is not None else [{"text": user or ""}]
         body: dict[str, Any] = {
-            "contents": [{"role": "user", "parts": [{"text": user}]}],
+            "contents": [{"role": "user", "parts": user_parts}],
             "generationConfig": gen_config,
         }
         if system:
@@ -479,30 +490,8 @@ class GemmaProvider:
             suggestion_by_asin=suggestion_by_asin,
         )
 
-    async def parse_query(self, prompt: str) -> ExtractedQuery:
-        system = (
-            "You are a query parsing assistant for a grocery and quick-commerce delivery app.\n"
-            "Your job is to take a natural language request (describing an event, a recipe, a list of items, or a theme) "
-            "and decompose it into a JSON object.\n\n"
-            "The 8 known categories in our catalog are:\n"
-            "- Groceries & Kitchen\n"
-            "- Party Supplies\n"
-            "- Electronics & Accessories\n"
-            "- Household Essentials\n"
-            "- Beauty & Personal Care\n"
-            "- Health & Wellness\n"
-            "- Baby & Child Care\n"
-            "- Pet Care\n\n"
-            "Decompose the query into a JSON object containing:\n"
-            "- items: a list of specific, clean product search terms (e.g. ['snacks', 'chips', 'popcorn', 'cola']). "
-            "CRITICAL: Do NOT include event, theme, or temporal words like 'movie', 'night', 'party', 'dinner', 'breakfast', 'lunch' as items. Instead, extract the actual food/drink/products requested or implied (e.g., if 'movie night' is mentioned, items should be snacks/drinks like 'popcorn', 'chips', 'soda', 'candy').\n"
-            "- budget: a float number indicating the parsed budget limit, if any is mentioned in the prompt (otherwise null)\n"
-            "- occasion: a string indicating the meal or event (e.g. 'breakfast', 'lunch', 'dinner', 'snacks', 'party', 'movie night', or null)\n"
-            "- preferences: a list of string flags from: ['healthy', 'vegan', 'vegetarian', 'high-protein'] if mentioned or implied.\n"
-            "- categories: a list of category names from the 8 known categories listed above that are highly relevant to the query\n"
-            "- tags: a list of lowercase keyword tags relevant to the query (e.g. ['popcorn', 'chips', 'beverages', 'salty', 'sweet', 'party'])\n\n"
-            "Return ONLY a JSON object matching the requested schema."
-        )
+    async def parse_query(self, prompt: str | None, image_b64: str | None = None) -> ExtractedQuery:
+        # Standard schema for query decomposition (shared by text and vision paths)
         schema = {
             "type": "OBJECT",
             "properties": {
@@ -532,15 +521,93 @@ class GemmaProvider:
             "required": ["items", "preferences", "categories", "tags"]
         }
 
-        try:
-            raw = await self._generate(
-                system=system,
-                user=f"Decompose the following user query: {prompt}",
-                response_schema=schema,
+        raw = None
+        if image_b64:
+            # --- Visual Search Path (Snap-to-Cart) ---
+            system = (
+                "You are a visual query parsing assistant for a grocery and quick-commerce delivery app.\n"
+                "Your job is to look at the uploaded image (which could be a handwritten shopping list, a notes screenshot, or a photo of a physical product) "
+                "and any optional user text prompt, and decompose it into a JSON object.\n\n"
+                "The 8 known categories in our catalog are:\n"
+                "- Groceries & Kitchen\n"
+                "- Party Supplies\n"
+                "- Electronics & Accessories\n"
+                "- Household Essentials\n"
+                "- Beauty & Personal Care\n"
+                "- Health & Wellness\n"
+                "- Baby & Child Care\n"
+                "- Pet Care\n\n"
+                "Analyze the image and return a JSON object with:\n"
+                "- items: a list of specific, clean product search terms.\n"
+                "  * If the image contains a list, extract the written items (e.g. ['milk', 'bread', 'eggs']).\n"
+                "  * If the image contains a photo of a physical product (like a bag of chips or laundry detergent), identify the product in detail (brand, name, size/flavor) and output a descriptive search term (e.g. ['Surf Excel Liquid Detergent 1L']).\n"
+                "  * Integrate any additional user text input (if provided) to refine the query.\n"
+                "- budget: a float number indicating the parsed budget limit, if any is mentioned in the list or text prompt (otherwise null)\n"
+                "- occasion: a string indicating the meal or event (e.g. 'breakfast', 'lunch', 'dinner', 'snacks', 'party', 'movie night', or null)\n"
+                "- preferences: a list of string flags from: ['healthy', 'vegan', 'vegetarian', 'high-protein'] if mentioned or implied.\n"
+                "- categories: a list of category names from the 8 known categories listed above that are highly relevant to the query\n"
+                "- tags: a list of lowercase keyword tags relevant to the query (e.g. ['popcorn', 'chips', 'beverages', 'salty', 'sweet', 'party'])\n\n"
+                "Return ONLY a JSON object matching the requested schema."
             )
+            try:
+                mime_type, raw_data = _parse_base64_image(image_b64)
+                parts = [
+                    {"inlineData": {"mimeType": mime_type, "data": raw_data}},
+                ]
+                user_text = f"Decompose the image. User helper prompt: {prompt}" if prompt else "Decompose this image."
+                parts.append({"text": user_text})
+                
+                raw = await self._generate(
+                    system=system,
+                    parts=parts,
+                    response_schema=schema,
+                )
+            except Exception as exc:
+                log.warning("gemma.parse_query_vision_failed_falling_back", error=str(exc))
+                # Fallback to stub parser
+                stub = StubLLMProvider()
+                return await stub.parse_query(prompt)
+        else:
+            # --- Stable Text-Only Search Path ---
+            system = (
+                "You are a query parsing assistant for a grocery and quick-commerce delivery app.\n"
+                "Your job is to take a natural language request (describing an event, a recipe, a list of items, or a theme) "
+                "and decompose it into a JSON object.\n\n"
+                "The 8 known categories in our catalog are:\n"
+                "- Groceries & Kitchen\n"
+                "- Party Supplies\n"
+                "- Electronics & Accessories\n"
+                "- Household Essentials\n"
+                "- Beauty & Personal Care\n"
+                "- Health & Wellness\n"
+                "- Baby & Child Care\n"
+                "- Pet Care\n\n"
+                "Decompose the query into a JSON object containing:\n"
+                "- items: a list of specific, clean product search terms (e.g. ['snacks', 'chips', 'popcorn', 'cola']). "
+                "CRITICAL: Do NOT include event, theme, or temporal words like 'movie', 'night', 'party', 'dinner', 'breakfast', 'lunch' as items. Instead, extract the actual food/drink/products requested or implied (e.g., if 'movie night' is mentioned, items should be snacks/drinks like 'popcorn', 'chips', 'soda', 'candy').\n"
+                "- budget: a float number indicating the parsed budget limit, if any is mentioned in the prompt (otherwise null)\n"
+                "- occasion: a string indicating the meal or event (e.g. 'breakfast', 'lunch', 'dinner', 'snacks', 'party', 'movie night', or null)\n"
+                "- preferences: a list of string flags from: ['healthy', 'vegan', 'vegetarian', 'high-protein'] if mentioned or implied.\n"
+                "- categories: a list of category names from the 8 known categories listed above that are highly relevant to the query\n"
+                "- tags: a list of lowercase keyword tags relevant to the query (e.g. ['popcorn', 'chips', 'beverages', 'salty', 'sweet', 'party'])\n\n"
+                "Return ONLY a JSON object matching the requested schema."
+            )
+            try:
+                raw = await self._generate(
+                    system=system,
+                    user=f"Decompose the following user query: {prompt}",
+                    response_schema=schema,
+                )
+            except Exception as exc:
+                log.warning("gemma.parse_query_text_failed", prompt=prompt, error=str(exc))
+                # Fallback to stub parser
+                stub = StubLLMProvider()
+                return await stub.parse_query(prompt)
+
+        # --- Parse response (identical for both paths) ---
+        try:
             payload = _extract_json_object(raw)
             if payload is not None:
-                # Handle cases where budget is returned but is float or int
                 budget_val = payload.get("budget")
                 budget_float = float(budget_val) if budget_val is not None else None
                 res = ExtractedQuery(
@@ -556,11 +623,20 @@ class GemmaProvider:
             else:
                 log.warning("gemma.parse_query.unparseable", prompt=prompt, raw=raw)
         except Exception as exc:
-            log.warning("gemma.parse_query_failed", prompt=prompt, error=str(exc))
+            log.warning("gemma.parse_query_extract_failed", prompt=prompt, error=str(exc))
 
         # Fallback to stub parser
         stub = StubLLMProvider()
         return await stub.parse_query(prompt)
+
+
+def _parse_base64_image(b64_string: str) -> tuple[str, str]:
+    """Extract mime type and raw base64 data from a data URL or raw base64."""
+    if b64_string.startswith("data:"):
+        header, data = b64_string.split(";base64,")
+        mime = header.replace("data:", "")
+        return mime, data
+    return "image/jpeg", b64_string
 
 
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)

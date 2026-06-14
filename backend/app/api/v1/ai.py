@@ -66,6 +66,7 @@ async def post_cart_from_intent(
     return await intent_to_cart.cart_from_intent(
         db,
         prompt=payload.prompt,
+        image=payload.image,
         user_id=user_id,
         budget=payload.budget,
         max_items=payload.max_items,
