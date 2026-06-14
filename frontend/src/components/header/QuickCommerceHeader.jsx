@@ -15,6 +15,52 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
 
     const [totalQty, setTotalQty] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isListening, setIsListening] = useState(false);
+    const [recognition, setRecognition] = useState(null);
+
+    useEffect(() => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recog = new SpeechRecognition();
+            recog.continuous = false;
+            recog.interimResults = false;
+            recog.lang = 'en-IN'; // Optimized for standard spoken English and Indian accents
+
+            recog.onstart = () => {
+                setIsListening(true);
+            };
+
+            recog.onend = () => {
+                setIsListening(false);
+            };
+
+            recog.onerror = (event) => {
+                console.error("Speech recognition error:", event.error);
+                setIsListening(false);
+            };
+
+            recog.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setSearchQuery(transcript);
+            };
+
+            setRecognition(recog);
+        }
+    }, []);
+
+    const toggleVoiceSearch = () => {
+        if (!recognition) {
+            alert("🎤 Voice search is not supported in this browser. Please try Google Chrome or Microsoft Edge.");
+            return;
+        }
+
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    };
+
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -65,6 +111,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                 {/* Search */}
                 <div className={`hidden flex-1 max-w-md transition-all duration-500 md:block ${isAIMode ? 'ai-search-wrap scale-[1.02]' : ''}`}>
                     <form onSubmit={handleSearch} className="relative flex items-center rounded-full bg-[#161616] ring-1 ring-white/10 focus-within:ring-white/25">
+                        {/* Static Prefix Icon */}
                         <svg className="ml-4 h-4 w-4 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                         <input
                             type="text"
@@ -73,6 +120,27 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                             placeholder={isAIMode ? "Ask AI: 'snacks for movie night under ₹1500'" : "Search snacks, drinks, produce..."}
                             className="w-full bg-transparent px-3 py-2 text-sm text-white placeholder-gray-500 outline-none"
                         />
+                        <button
+                            type="button"
+                            onClick={toggleVoiceSearch}
+                            className={`mr-1.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
+                                isListening 
+                                    ? 'bg-red-500/20 text-red-500 ring-2 ring-red-500 animate-pulse' 
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white active:scale-90'
+                            }`}
+                            title={isListening ? "Listening... Click to stop" : "Search with your voice"}
+                        >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                        </button>
+                        <button
+                            type="submit"
+                            className="mr-1.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-gray-400 hover:bg-white/5 hover:text-white transition active:scale-95"
+                            title="Submit Search"
+                        >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </button>
                         <button
                             type="button"
                             onClick={() => setIsAIMode && setIsAIMode(!isAIMode)}
