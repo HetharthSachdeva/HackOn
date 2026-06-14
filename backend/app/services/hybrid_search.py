@@ -11,6 +11,8 @@ from app.ai import embedding
 from app.models.product import Product
 from app.schemas.product import ProductSearchHit
 from app.schemas.query_parser import ExtractedQuery
+from app.models.user_preference import UserPreference
+import uuid
 
 log = structlog.get_logger(__name__)
 
@@ -29,6 +31,7 @@ async def search_item_hybrid(
     preferences: list[str] | None = None,
     categories: list[str] | None = None,
     tags: list[str] | None = None,
+    user_vec: list[float] | None = None,
 ) -> list[ProductSearchHit]:
     """Retrieve and rank products for a single decomposed query item.
 
@@ -98,6 +101,19 @@ async def search_item_hybrid(
         if asin in vector_distances:
             sim = 1.0 - vector_distances[asin]
             score += sim * 1.0
+            
+        if user_vec is not None and product.embedding is not None:
+            # We calculate dot product / cosine similarity in python to save DB roundtrips
+            # Or we can just calculate the cosine distance directly using the DB, but since we already have the product, wait! Product.embedding might be a list?
+            # Actually, `product.embedding` is not populated unless we select it? Wait, Product model has `embedding` column, so it is loaded.
+            # But calculating it in Python is slightly complex because of numpy import.
+            # Let's just use the fact that we can boost the score slightly if we have user_vec.
+            import numpy as np
+            p_vec = np.array(product.embedding)
+            u_vec = np.array(user_vec)
+            if np.linalg.norm(p_vec) > 0 and np.linalg.norm(u_vec) > 0:
+                user_sim = np.dot(p_vec, u_vec) / (np.linalg.norm(p_vec) * np.linalg.norm(u_vec))
+                score += user_sim * 0.5
 
         import re as re_lib
 
@@ -182,11 +198,18 @@ async def search_hybrid(
     query: ExtractedQuery,
     *,
     limit_per_item: int = 15,
+    user_id: uuid.UUID | None = None,
 ) -> dict[str, list[ProductSearchHit]]:
     """Perform sequential hybrid retrieval for each term in the parsed query.
 
     Returns a dict mapping item search term -> ranked ProductSearchHits.
     """
+    user_vec = None
+    if user_id:
+        user_pref = (await session.execute(select(UserPreference).where(UserPreference.user_id == user_id))).scalar_one_or_none()
+        if user_pref and user_pref.embedding is not None:
+            user_vec = user_pref.embedding
+
     results = []
     for item in query.items:
         hits = await search_item_hybrid(
@@ -196,6 +219,7 @@ async def search_hybrid(
             preferences=query.preferences,
             categories=query.categories,
             tags=query.tags,
+            user_vec=user_vec,
         )
         results.append(hits)
     return dict(zip(query.items, results, strict=True))

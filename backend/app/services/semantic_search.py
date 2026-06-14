@@ -24,6 +24,16 @@ from app.schemas.product import ProductSearchHit
 log = structlog.get_logger(__name__)
 
 
+def _has_vector(vec: Any) -> bool:
+    """Return True when a pgvector value is present without bool-evaluating arrays."""
+    if vec is None:
+        return False
+    try:
+        return len(vec) > 0
+    except TypeError:
+        return True
+
+
 async def search(
     session: AsyncSession,
     query: str,
@@ -47,7 +57,7 @@ async def search(
     user_vec = None
     if user_id:
         user_pref = (await session.execute(select(UserPreference).where(UserPreference.user_id == user_id))).scalar_one_or_none()
-        if user_pref and user_pref.embedding:
+        if user_pref and _has_vector(user_pref.embedding):
             user_vec = user_pref.embedding
 
     return await _semantic(session, vec, limit=limit, in_stock_only=in_stock_only, user_vec=user_vec), True
@@ -62,7 +72,7 @@ async def _semantic(
     user_vec: list[float] | None = None,
 ) -> list[ProductSearchHit]:
     query_distance = Product.embedding.cosine_distance(vec)
-    if user_vec:
+    if _has_vector(user_vec):
         user_distance = Product.embedding.cosine_distance(user_vec)
         distance = (query_distance * 0.85 + user_distance * 0.15).label("distance")
     else:

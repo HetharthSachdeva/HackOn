@@ -28,49 +28,7 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   const buildCartFromAI = async (query) => {
-    setError(null);
-    setIsGenerating(true);
-
-    try {
-      const headers = userInfo?.token
-        ? { Authorization: `Bearer ${userInfo.token}` }
-        : {};
-
-      const { data } = await axios.post(
-        'http://localhost:8000/api/v1/ai/cart-from-intent',
-        { prompt: query, max_items: 6, apply_to_cart: authenticated },
-        { headers }
-      );
-
-      if (authenticated) {
-        await fetchCart();
-      } else {
-        (data.items || []).forEach((item) => {
-          dispatch(addToCart({
-            id: item.asin,
-            asin: item.asin,
-            title: item.title,
-            price: parseFloat(item.unit_price || 0),
-            thumbnail: item.img_url || `https://placehold.co/200x200/141414/FF9900?text=${encodeURIComponent((item.title || 'Item').slice(0, 8))}`,
-            images: item.img_url ? [item.img_url] : [],
-            brand: 'AI Bundle',
-            quantity: item.quantity || 1,
-            category: 'allProducts',
-            description: item.rationale || `Added from AI search: ${query}`,
-            rating: 0,
-            stock: 1,
-            discountPercentage: 10,
-          }));
-        });
-      }
-
-      navigate('/cart');
-    } catch (err) {
-      console.error('AI bundle error:', err);
-      setError(err.response?.data?.detail || 'Could not build your cart. Try again.');
-    } finally {
-      setIsGenerating(false);
-    }
+    navigate(`/cart?aiPrompt=${encodeURIComponent(query)}`);
   };
 
   useEffect(() => {
