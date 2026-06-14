@@ -305,6 +305,51 @@ def test_get_provider_falls_back_to_stub_when_gemma_key_missing(monkeypatch) -> 
     assert isinstance(get_provider(), StubLLMProvider)
 
 
+@pytest.mark.anyio
+async def test_gemma_parse_query_happy_path(monkeypatch) -> None:
+    model_reply = (
+        '{"items": ["oats", "fruit"], "budget": 500, "occasion": "breakfast", "preferences": ["healthy"]}'
+    )
+    transport = _mock_transport(response_text=model_reply)
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(
+        httpx,
+        "AsyncClient",
+        lambda *a, **kw: real_client(*a, **{**kw, "transport": transport}),
+    )
+
+    provider = GemmaProvider(api_key="k")
+    result = await provider.parse_query("healthy breakfast with oats and fruit under ₹500")
+    assert result.items == ["oats", "fruit"]
+    assert result.budget == 500.0
+    assert result.occasion == "breakfast"
+    assert result.preferences == ["healthy"]
+
+
+@pytest.mark.anyio
+async def test_gemma_parse_query_with_categories_and_tags(monkeypatch) -> None:
+    model_reply = (
+        '{"items": ["popcorn", "soda"], "budget": 300, "occasion": "movie night", '
+        '"preferences": [], "categories": ["Party Supplies", "Groceries & Kitchen"], '
+        '"tags": ["snacks", "party"]}'
+    )
+    transport = _mock_transport(response_text=model_reply)
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(
+        httpx,
+        "AsyncClient",
+        lambda *a, **kw: real_client(*a, **{**kw, "transport": transport}),
+    )
+
+    provider = GemmaProvider(api_key="k")
+    result = await provider.parse_query("snacks for movie night")
+    assert result.items == ["popcorn", "soda"]
+    assert result.budget == 300.0
+    assert result.occasion == "movie night"
+    assert result.categories == ["Party Supplies", "Groceries & Kitchen"]
+    assert result.tags == ["snacks", "party"]
+
+
 def teardown_module() -> None:
     """Restore the global settings cache for downstream tests."""
     get_settings.cache_clear()

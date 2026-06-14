@@ -7,12 +7,14 @@ from decimal import Decimal
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.ai import llm
 from app.core.errors import NotFoundError
 from app.models.mission import Mission
 from app.repositories import ai as ai_repo
 from app.schemas.mission import MissionBundle, MissionBundleItem, MissionRead
 from app.schemas.product import ProductRead
 from app.services import semantic_search
+from app.services import hybrid_search
 
 log = structlog.get_logger(__name__)
 
@@ -27,8 +29,14 @@ async def resolve_bundle(session: AsyncSession, slug: str) -> MissionBundle:
     if mission is None:
         raise NotFoundError(f"Mission {slug!r} not found")
 
-    hits, used_semantic = await semantic_search.search(
-        session, mission.query, limit=mission.max_items * 3, in_stock_only=True
+    # 1. Decompose the mission query into sub-queries
+    provider = llm.get_provider()
+    log.info("resolve_bundle.start", slug=slug, query=mission.query, provider=provider.name)
+    extracted = await provider.parse_query(mission.query)
+
+    # 2. Perform hybrid search for each decomposed item
+    results_by_item = await hybrid_search.search_hybrid(
+        session, extracted, limit_per_item=max(15, mission.max_items * 2)
     )
 
     allowed_cats = (
@@ -37,15 +45,30 @@ async def resolve_bundle(session: AsyncSession, slug: str) -> MissionBundle:
         else None
     )
 
+    # 3. Round-robin merge candidates list to construct final pool and filter by category/price
     filtered = []
-    for hit in hits:
-        if allowed_cats and not any(
-            allowed in (hit.category or "").lower() for allowed in allowed_cats
-        ):
-            continue
-        if mission.max_unit_price is not None and Decimal(str(hit.price)) > mission.max_unit_price:
-            continue
-        filtered.append(hit)
+    seen_asins = set()
+    max_len = max(len(hits) for hits in results_by_item.values()) if results_by_item else 0
+
+    for i in range(max_len):
+        for item_query, hits_list in results_by_item.items():
+            if i < len(hits_list):
+                hit = hits_list[i]
+                if hit.asin not in seen_asins:
+                    seen_asins.add(hit.asin)
+
+                    # Filter by category constraint
+                    if allowed_cats and not any(
+                        allowed in (hit.category or "").lower() for allowed in allowed_cats
+                    ):
+                        continue
+                    # Filter by price constraint
+                    if mission.max_unit_price is not None and Decimal(str(hit.price)) > mission.max_unit_price:
+                        continue
+
+                    filtered.append(hit)
+                    if len(filtered) >= mission.max_items:
+                        break
         if len(filtered) >= mission.max_items:
             break
 
@@ -62,7 +85,7 @@ async def resolve_bundle(session: AsyncSession, slug: str) -> MissionBundle:
         mission=MissionRead.model_validate(mission),
         items=items,
         estimated_total=estimated_total.quantize(Decimal("0.01")),
-        used_semantic=used_semantic,
+        used_semantic=True,
     )
 
 
