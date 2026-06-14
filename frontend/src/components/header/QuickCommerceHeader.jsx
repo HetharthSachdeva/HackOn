@@ -70,7 +70,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                     <span className="grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-[#FF9900] to-[#ff7a00] text-black">
                         <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                     </span>
-                    <span className="font-mono text-lg font-black uppercase tracking-wider text-white">ZipDash</span>
+                    <span className="font-mono text-lg font-black uppercase tracking-wider text-white">Amazon Now</span>
                 </Link>
 
                 {/* Search */}
