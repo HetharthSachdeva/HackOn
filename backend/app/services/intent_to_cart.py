@@ -112,17 +112,21 @@ async def cart_from_intent(
     # 4. Group candidates horizontally into components
     components: list[BundleComponent] = []
     flat_candidates: list[ProductSearchHit] = []
+    seen_asins = set()
     
     for item_query, hits_list in results_by_item.items():
         if not hits_list:
             continue
         
-        # Take the top N hits for this component (e.g., top 3)
-        options_hits = hits_list[:3]
         options: list[IntentCartItem] = []
         
-        for hit in options_hits:
+        for hit in hits_list:
+            if hit.asin in seen_asins:
+                continue
+            
+            seen_asins.add(hit.asin)
             flat_candidates.append(hit)
+            
             unit_price = Decimal(str(hit.price))
             qty = servings if servings else 1
             line_total = unit_price * qty
@@ -137,6 +141,10 @@ async def cart_from_intent(
                     img_url=hit.img_url,
                 )
             )
+            
+            # Stop if we found enough options for this component
+            if len(options) >= 3:
+                break
             
         if options:
             components.append(
