@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteProduct, resetCart, increaseQuantity, decreaseQuantity, addToCart } from '../../redux/amazonSlice';
-import { useNavigate, useRouteLoaderData, Link, ScrollRestoration } from 'react-router-dom';
+import { useNavigate, useRouteLoaderData, Link, ScrollRestoration, Await } from 'react-router-dom';
 import { useCart } from '../../context/userCartContext';
 import CartProduct from './cartProduct';
+
+import AIBundleCartGenerator from './AIBundleCartGenerator';
 
 const FREE_DELIVERY_THRESHOLD = 29;
 const DELIVERY_FEE = 4.99;
 const TAX_RATE = 0.06;
 
-const CartItems = () => {
+const CartItemsContent = ({ productsData }) => {
     const navigate = useNavigate();
-    const data = useRouteLoaderData("root");
-    const productsData = data.data.products;
     const dispatch = useDispatch();
     const localCartProducts = useSelector((state) => state.amazon.localCartProducts);
     const userInfo = useSelector((state) => state.amazon.userInfo);
@@ -76,7 +76,7 @@ const CartItems = () => {
         await addToCartBackend(product.id || product.asin, 1);
     };
 
-    const suggestions = productsData.slice(0, 4);
+    const suggestions = (productsData || []).slice(0, 4);
 
     return (
         <div className="min-h-screen w-full bg-[#0a0a0a]">
@@ -99,6 +99,11 @@ const CartItems = () => {
                                 />
                             ))}
                         </div>
+
+                        {/* AI Bundle Generator in Cart */}
+                        {authenticated && (
+                            <AIBundleCartGenerator />
+                        )}
 
                         {/* You might also like */}
                         <div className="mt-12">
@@ -192,6 +197,18 @@ const CartItems = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const CartItems = () => {
+    const data = useRouteLoaderData("root");
+
+    return (
+        <Suspense fallback={<div className="flex min-h-[50vh] w-full items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9900]"></div></div>}>
+            <Await resolve={data?.data}>
+                {(resolvedData) => <CartItemsContent productsData={resolvedData?.products || []} />}
+            </Await>
+        </Suspense>
     );
 };
 

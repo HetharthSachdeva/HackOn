@@ -42,12 +42,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
         e.preventDefault();
         if (!searchQuery.trim()) return;
         if (isAIMode) {
-            if (location.pathname !== '/') {
-                navigate('/');
-                setTimeout(() => onAISearch && onAISearch(searchQuery), 100);
-            } else {
-                onAISearch && onAISearch(searchQuery);
-            }
+            navigate(`/cart?aiPrompt=${encodeURIComponent(searchQuery)}`);
         } else {
             navigate(`/allProducts?search=${encodeURIComponent(searchQuery)}`);
         }
