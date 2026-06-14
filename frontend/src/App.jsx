@@ -138,6 +138,10 @@ function App() {
           path: "/orders",
           element: <Orders />,
         },
+        {
+          path: "/checkout",
+          element: <Checkout />,
+        },
       ],
     },
     {
@@ -157,10 +161,6 @@ function App() {
     {
       path: "/createAccount",
       element: <Suspense fallback={<div className="flex h-screen items-center justify-center text-black">Loading...</div>}><CreateAccount /></Suspense>,
-    },
-    {
-      path: "/checkout",
-      element: <Suspense fallback={<div className="flex h-screen items-center justify-center text-black">Loading...</div>}><Checkout /></Suspense>,
     },
   ]);
 

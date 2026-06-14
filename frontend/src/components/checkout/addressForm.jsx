@@ -9,7 +9,7 @@ import { useAddress } from '../../context/userAddressContext';
 
 const AddressForm = ({ setShowAddressForm }) => {
     const userInfo = useSelector((state) => state.amazon.userInfo);
-    const { updateUserAddress } = useAddress();
+    const { userAddress, updateUserAddress } = useAddress();
 
     //  States to hold user addresses
     const [nameInput, setNameInput] = useState("");
@@ -318,6 +318,16 @@ const AddressForm = ({ setShowAddressForm }) => {
                         >
                             {loading ? "Saving..." : "Save Address"}
                         </button>
+                        
+                        {userAddress && userAddress.length > 0 && (
+                            <button 
+                                type="button"
+                                onClick={() => setShowAddressForm(false)}
+                                className="relative flex w-full md:w-auto items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-transparent px-8 py-4 font-mono text-sm font-black uppercase tracking-[0.1em] text-gray-400 transition-all hover:bg-white/5 hover:text-white"
+                            >
+                                Cancel
+                            </button>
+                        )}
                         
                         {loading && (
                             <RotatingLines strokeColor="#febd69" strokeWidth="5" animationDuration="0.75" width="30" visible={true} />
