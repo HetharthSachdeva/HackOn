@@ -73,30 +73,49 @@ const Orders = () => {
   };
 
   return (
-    <div className='w-full relative py-6 flex flex-col gap-5 bg-[#0a0a0a] '>
-      <div className='w-full h-10 flex gap-7 pl-[8%] mdl:pl-[15%] text-base mdl:text-2xl'>
-        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
-          setShowOrders(true);
-          setShowCancelOrders(false);
-          setShowReturnOrders(false);
-        }}>Your Orders</p>
-        <p className={`font-semibold cursor-pointer border-r-2 border-white/10 pr-3 mdl:pr-6 ${showCancelOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
-          setShowOrders(false);
-          setShowCancelOrders(true);
-          setShowReturnOrders(false);
-        }}>Cancelled Orders</p>
-        <p className={`font-semibold cursor-pointer ${showReturnOrders ? "text-[#FF9900]" : "text-gray-400"}`} onClick={() => {
-          setShowOrders(false);
-          setShowCancelOrders(false);
-          setShowReturnOrders(true);
-        }}>Returned Orders</p>
+    <div className='min-h-screen relative font-sans bg-[#0a0a0a] text-white overflow-hidden py-12 px-4 sm:px-8 lg:px-16'>
+      {/* Background ambient glow */}
+      <div className="pointer-events-none absolute right-0 top-0 -translate-y-1/3 translate-x-1/3 opacity-[0.05] blur-[150px]">
+        <div className="h-[800px] w-[800px] rounded-full bg-[#FF9900]" />
       </div>
 
-      {showOrders && <OrderDetails ordersData={reversedOrders} reversedOrders={reversedOrders} handleCancelOrder={handleCancelOrder} handleReturnOrder={handleReturnOrder} />}
-      {showCancelOrders && <OrderDetails ordersData={reversedCancelOrders} />}
-      {showReturnOrders && <OrderDetails ordersData={reversedReturnOrders} />}
+      <div className='mx-auto max-w-7xl relative z-10'>
+        <div className="mb-12">
+          <h1 className="text-4xl sm:text-5xl font-black text-white mb-6">Your Orders</h1>
+          
+          {/* Tabs */}
+          <div className="flex gap-4 border-b border-white/10 pb-4 overflow-x-auto no-scrollbar">
+            {[
+              { id: 'orders', label: 'Active Orders', state: showOrders, onClick: () => { setShowOrders(true); setShowCancelOrders(false); setShowReturnOrders(false); } },
+              { id: 'cancelled', label: 'Cancelled', state: showCancelOrders, onClick: () => { setShowOrders(false); setShowCancelOrders(true); setShowReturnOrders(false); } },
+              { id: 'returned', label: 'Returned', state: showReturnOrders, onClick: () => { setShowOrders(false); setShowCancelOrders(false); setShowReturnOrders(true); } }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={tab.onClick}
+                className={`relative px-6 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest font-bold transition-all whitespace-nowrap ${
+                  tab.state 
+                    ? 'bg-[#FF9900] text-black shadow-[0_0_15px_rgba(255,153,0,0.3)]' 
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-    </div >
+        <div className="min-h-[50vh]">
+          {showOrders && <OrderDetails ordersData={reversedOrders} reversedOrders={reversedOrders} handleCancelOrder={handleCancelOrder} handleReturnOrder={handleReturnOrder} />}
+          {showCancelOrders && <OrderDetails ordersData={reversedCancelOrders} />}
+          {showReturnOrders && <OrderDetails ordersData={reversedReturnOrders} />}
+        </div>
+      </div>
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </div>
   )
 };
 export default Orders;
