@@ -1,11 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { ScrollRestoration, useNavigate, Link, useSearchParams, useRouteLoaderData, useParams } from 'react-router-dom';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { ScrollRestoration, useNavigate, Link, useSearchParams, useRouteLoaderData, useParams, Await } from 'react-router-dom';
 import Product from './Product';
 
-const Products = () => {
+const ProductsContent = ({ productsData }) => {
   const navigate = useNavigate();
-  const data = useRouteLoaderData("root");
-  const productsData = data.data.products;
   const uniqueCategories = Array.from(new Set(productsData.map((p) => p.category)));
   const { category } = useParams();
   const [searchParams] = useSearchParams();
@@ -13,6 +11,7 @@ const Products = () => {
 
   const priceBounds = useMemo(() => {
     const prices = productsData.map((p) => p.price);
+    if (prices.length === 0) return { min: 0, max: 1000 };
     return { min: Math.floor(Math.min(...prices)), max: Math.ceil(Math.max(...prices)) };
   }, [productsData]);
 
@@ -53,7 +52,7 @@ const Products = () => {
   else if (sortOrder === 'avgReview') sortedProducts.sort((a, b) => b.rating - a.rating);
 
   const toggleFilter = (key) => setQuickFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-  const pricePct = ((maxPrice - priceBounds.min) / (priceBounds.max - priceBounds.min)) * 100;
+  const pricePct = priceBounds.max === priceBounds.min ? 100 : ((maxPrice - priceBounds.min) / (priceBounds.max - priceBounds.min)) * 100;
 
   // Bar chart heights (decorative)
   const bars = [30, 45, 35, 60, 80, 95, 70, 50, 40, 28, 20, 15];
@@ -302,6 +301,18 @@ const Products = () => {
         }
       `}</style>
     </div>
+  );
+};
+
+const Products = () => {
+  const data = useRouteLoaderData("root");
+
+  return (
+    <Suspense fallback={<div className="flex justify-center py-32"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9900]"></div></div>}>
+      <Await resolve={data.data}>
+        {(resolvedData) => <ProductsContent productsData={resolvedData.products} />}
+      </Await>
+    </Suspense>
   );
 };
 

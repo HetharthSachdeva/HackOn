@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { ScrollRestoration, Link, useRouteLoaderData, useParams } from 'react-router-dom';
+import React, { useState, useEffect, Suspense } from 'react';
+import { ScrollRestoration, Link, useRouteLoaderData, useParams, Await } from 'react-router-dom';
 import { star, halfStar, emptyStar, offers, delivery, cod, exchange, delivered, transaction } from "../../assets/index";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, buyNow } from '../../redux/amazonSlice';
 import axios from 'axios';
 import { useCart } from '../../context/userCartContext';
 
-const ProductDetails = () => {
+const ProductDetailsContent = ({ productsData }) => {
   const dispatch = useDispatch();
   const authenticated = useSelector((state) => state.amazon.isAuthenticated);
   const userInfo = useSelector((state) => state.amazon.userInfo);
-  const data = useRouteLoaderData("root");
-  const productsData = data.data.products;
   const { userCart, updateUserCart } = useCart(); // Get the userCart and updateUserCart function from the userCartContext
   const { title } = useParams(); // Get the "title" parameter from the URL
 
@@ -25,11 +23,16 @@ const ProductDetails = () => {
 
   // Automatically change images every 3 seconds
   useEffect(() => {
+    if (!product || !product.images) return;
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.images.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [product.images.length]);
+  }, [product?.images?.length]);
+
+  if (!product) {
+    return <div className="py-20 text-center text-white text-2xl font-bold">Product not found</div>;
+  }
 
   const handleImageClick = (index) => {
     setCurrentImageIndex(index);
@@ -263,6 +266,18 @@ const ProductDetails = () => {
     </div>
   )
 }
+
+const ProductDetails = () => {
+  const data = useRouteLoaderData("root");
+
+  return (
+    <Suspense fallback={<div className="flex justify-center py-32"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF9900]"></div></div>}>
+      <Await resolve={data.data}>
+        {(resolvedData) => <ProductDetailsContent productsData={resolvedData.products} />}
+      </Await>
+    </Suspense>
+  );
+};
 
 export default ProductDetails;
 
