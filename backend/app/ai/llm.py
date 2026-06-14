@@ -389,12 +389,12 @@ class GemmaProvider:
         system = (
             "You are a shopping concierge for a quick-commerce app. "
             "Given a user's intent and a list of candidate products grouped into options, "
-            "write a short customer-facing explanation (1-2 sentences) summarizing the curated choices. "
-            "Then, provide a one-sentence rationale AND an ideal quantity for each candidate (keyed by ASIN). "
-            "CRITICAL: You are the final curator. The search engine might return irrelevant items (like appliances/hardware when the user wants food, or random unrelated products). "
-            "Select ONLY the best 1-3 items per category that practically and accurately match the user's intent. "
-            "OMIT ANY irrelevant or nonsensical items entirely from your rationales array. "
-            "If none of the candidates are relevant to the user's request, leave the rationales array empty."
+            "write a short customer-facing explanation (1-2 sentences) summarizing the choices. "
+            "CRITICAL: Your job is to curate the options list of alternative candidates for each query category (e.g. chips, soda, headphones). "
+            "You are NOT building a single final checkout cart. Instead, you are building a menu of alternatives for the customer to choose from. "
+            "Therefore, you MUST write a one-sentence rationale and an ideal quantity for EVERY relevant and accurate candidate product in the list—including different brands, companies, sizes, or flavors for the same product type (e.g. you should keep Coke 2L, Pepsi 2L, Diet Coke, and Sprite in your list, or keep both Sony and JBL headphones so the customer has choices). "
+            "Only omit items that are genuinely irrelevant, nonsensical, or off-topic (like deep fryers when the user wants potato chips; or juicer machines when the user wants orange juice). "
+            "Recommend up to 5-6 valid candidates per category. If none of the candidates are relevant to the user's request, leave the rationales array empty."
         )
         budget_line = f"₹{budget:g}" if budget else "no explicit budget"
         candidate_lines = "\n".join(
