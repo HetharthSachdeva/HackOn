@@ -391,8 +391,10 @@ class GemmaProvider:
             "Given a user's intent and a list of candidate products grouped into options, "
             "write a short customer-facing explanation (1-2 sentences) summarizing the curated choices. "
             "Then, provide a one-sentence rationale AND an ideal quantity for each candidate (keyed by ASIN). "
-            "Your rationales should help the user decide between the alternatives (e.g. 'A premium option' or 'A budget-friendly choice'). "
-            "Ensure the quantity correctly accounts for the number of people/servings in the intent and the product size (e.g. you might only need 1 family-size bag of chips for 5 people, but 5 individual drinks)."
+            "CRITICAL: You are the final curator. The search engine might return irrelevant items (like appliances/hardware when the user wants food, or random unrelated products). "
+            "Select ONLY the best 1-3 items per category that practically and accurately match the user's intent. "
+            "OMIT ANY irrelevant or nonsensical items entirely from your rationales array. "
+            "If none of the candidates are relevant to the user's request, leave the rationales array empty."
         )
         budget_line = f"₹{budget:g}" if budget else "no explicit budget"
         candidate_lines = "\n".join(
@@ -462,20 +464,9 @@ class GemmaProvider:
                 if asin and reason:
                     suggestion_by_asin[asin] = ItemSuggestion(rationale=reason, quantity=quantity)
 
-        # Guarantee every candidate has a rationale, even if the model dropped one.
-        for c in candidates:
-            asin = str(c["asin"])
-            suggestion_by_asin.setdefault(
-                asin,
-                ItemSuggestion(
-                    rationale=f"Matches \"{prompt}\" (category {c.get('category', 'n/a')}).",
-                    quantity=1
-                )
-            )
-
         if not explanation:
             explanation = (
-                f"Based on \"{prompt}\", I picked {len(candidates)} item(s) "
+                f"Based on \"{prompt}\", I picked {len(suggestion_by_asin)} item(s) "
                 "matching your needs."
             )
 

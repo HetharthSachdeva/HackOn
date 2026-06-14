@@ -151,10 +151,10 @@ async def search_item_hybrid(
             for cat in categories:
                 cat_clean = cat.lower().strip()
                 if cat_clean == category_lower:
-                    score += 10.0
+                    score += 1.0
                     category_matched = True
                 elif cat_clean in category_lower:
-                    score += 5.0
+                    score += 0.5
                     category_matched = True
             
             # If the user's intent clearly specifies categories (like Groceries),
@@ -186,7 +186,8 @@ async def search_item_hybrid(
                 elif pref_clean == "high-protein" and any(x in tags_lower or x in title_lower for x in ["protein", "keto", "eggs", "chicken", "paneer"]):
                     score += 0.3
 
-        if score >= 0:
+        # Only keep candidates with a reasonably high score to prevent weak padding
+        if score >= 0.5:
             hits.append(_to_hit(product, score=score))
 
     # Sort candidates by composite score descending
