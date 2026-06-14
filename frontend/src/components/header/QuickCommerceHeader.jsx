@@ -50,12 +50,6 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
 
     const cartCount = cartTotalQty > 0 ? cartTotalQty : totalQty;
 
-    const navLinks = [
-        { label: 'Groceries', path: '/groceries' },
-        { label: 'Snacks', path: '/groceries' },
-        { label: 'Pharmacy', path: '/beauty' },
-        { label: 'Drinks', path: '/groceries' },
-    ];
 
     return (
         <div className={`sticky top-0 z-50 w-full border-b transition-colors duration-500 ${isAIMode ? 'border-violet-500/20 bg-[#0a0a0a]/95' : 'border-white/5 bg-[#0a0a0a]/95'} backdrop-blur-md`}>
@@ -91,18 +85,7 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                     </form>
                 </div>
 
-                {/* Nav links */}
-                <nav className="ml-auto hidden items-center gap-6 lg:flex">
-                    {navLinks.map((l) => (
-                        <Link key={l.label} to={l.path} className="text-sm text-gray-300 transition hover:text-white">
-                            {l.label}
-                        </Link>
-                    ))}
-                </nav>
-
-                {/* Orders / Cart */}
-                <Link to="/orders" className="hidden text-sm text-gray-300 transition hover:text-white md:inline">Orders</Link>
-                <Link to="/cart" className="relative flex items-center gap-1.5 text-sm text-gray-300 transition hover:text-white">
+                <Link to="/cart" className="ml-auto relative flex items-center gap-1.5 text-sm text-gray-300 transition hover:text-white">
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     {cartCount > 0 && <span className="absolute -right-2 -top-2 grid h-4 w-4 place-items-center rounded-full bg-[#FF9900] text-[10px] font-black text-black">{cartCount}</span>}
                 </Link>
@@ -110,10 +93,19 @@ export default function QuickCommerceHeader({ isAIMode, setIsAIMode, onAISearch 
                 {/* Auth */}
                 {userInfo ? (
                     <div className="group relative">
-                        <button className="rounded-md border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition hover:border-white/40">
-                            {userInfo.name?.split(' ')[0]}
+                        <button className="flex items-center gap-1.5 rounded-md border border-white/15 px-4 py-1.5 text-sm font-semibold text-white transition hover:border-white/40">
+                            <svg className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            Profile
                         </button>
-                        <div className="invisible absolute right-0 top-10 z-50 w-36 rounded-lg bg-[#161616] p-2 opacity-0 ring-1 ring-white/10 transition-all group-hover:visible group-hover:opacity-100">
+                        <div className="invisible absolute right-0 top-10 z-50 w-56 rounded-lg bg-[#161616] p-2 opacity-0 ring-1 ring-white/10 transition-all group-hover:visible group-hover:opacity-100 flex flex-col gap-0.5">
+                            {/* User Profile Info Header */}
+                            <div className="px-3 py-2 border-b border-white/5 mb-1 text-left min-w-0">
+                                <p className="text-sm font-bold text-white truncate">{userInfo.name || 'User'}</p>
+                                <p className="text-[11px] text-gray-500 truncate mt-0.5">{userInfo.email}</p>
+                            </div>
+                            <Link to="/orders" className="w-full rounded px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/5 hover:text-[#FF9900]">My Orders</Link>
                             <button onClick={handleLogout} className="w-full rounded px-3 py-2 text-left text-sm text-gray-200 hover:bg-white/5 hover:text-[#FF9900]">Sign out</button>
                         </div>
                     </div>

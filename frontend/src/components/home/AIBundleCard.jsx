@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductReplacePanel from './ProductReplacePanel';
 import { useCart } from '../../context/userCartContext';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
+
 
 const AIBundleCard = ({ bundle, onOptimize }) => {
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -10,6 +12,8 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
     const [bundleCost, setBundleCost] = useState(bundle.totalCost);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [activeOptimize, setActiveOptimize] = useState('cheapest');
+    const [detailModalProduct, setDetailModalProduct] = useState(null);
+
 
     const { userCart, updateUserCart, addToCartBackend } = useCart();
     const userInfo = useSelector((state) => state.amazon.userInfo);
@@ -169,7 +173,18 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                         <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <h4 className="truncate font-bold text-white">{product.name}</h4>
+                                        <div className="flex items-center gap-1.5">
+                                            <h4 className="truncate font-bold text-white">{product.name}</h4>
+                                            <button
+                                                onClick={() => setDetailModalProduct({ asin: product.id, rationale: product.rationale })}
+                                                className="text-gray-400 hover:text-[#FF9900] transition active:scale-90 flex-shrink-0"
+                                                title="View Product Insights"
+                                            >
+                                                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2.0} viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                         <div className="mt-1.5 flex items-baseline gap-2">
                                             {product.originalPrice && product.originalPrice !== product.price && (
                                                 <span className="text-sm text-gray-600 line-through">
@@ -309,6 +324,15 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                 />
             )}
 
+            {/* Product Detail Modal */}
+            {detailModalProduct && (
+                <ProductDetailModal
+                    asin={detailModalProduct.asin}
+                    rationale={detailModalProduct.rationale}
+                    onClose={() => setDetailModalProduct(null)}
+                />
+            )}
+
             <style>{`
                 @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                 @keyframes slide-down { from { opacity: 0; transform: translateY(-100px); } to { opacity: 1; transform: translateY(0); } }
@@ -316,6 +340,126 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                 .animate-slide-down { animation: slide-down 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
             `}</style>
         </>
+    );
+};
+
+// --- Product Detail Modal Component ---
+const ProductDetailModal = ({ asin, rationale, onClose }) => {
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let isMounted = true;
+        const fetchDetail = async () => {
+            try {
+                const { data } = await axios.get(`http://localhost:8000/api/v1/catalog/products/${asin}`);
+                if (isMounted) {
+                    setProduct(data);
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error("Error fetching product detail:", err);
+                if (isMounted) {
+                    setError("Could not load product details.");
+                    setLoading(false);
+                }
+            }
+        };
+        fetchDetail();
+        return () => { isMounted = false; };
+    }, [asin]);
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+            <div 
+                className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] p-6 shadow-2xl transition-all duration-300 ring-1 ring-white/5"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="absolute right-4 top-4 text-gray-500 hover:text-white transition text-2xl font-light"
+                    aria-label="Close dialog"
+                >
+                    &times;
+                </button>
+
+                {/* AI Rationale Banner */}
+                <div className="mb-6 rounded-xl border border-[#FF9900]/30 bg-[#FF9900]/5 p-4 shadow-[inset_0_0_12px_rgba(255,153,0,0.02)]">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-[#FF9900] mb-1.5 flex items-center gap-1.5 font-bold">
+                        <span>✨</span> AI Rationale
+                    </p>
+                    <p className="text-sm text-gray-200 leading-relaxed italic">
+                        "{rationale || 'Selected based on your preferences.'}"
+                    </p>
+                </div>
+
+                {loading ? (
+                    <div className="flex h-48 flex-col items-center justify-center gap-3">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#FF9900] border-t-transparent" />
+                        <p className="font-mono text-xs text-gray-500 uppercase tracking-widest">Loading details...</p>
+                    </div>
+                ) : error ? (
+                    <p className="text-center text-sm text-red-400 py-8 font-mono">{error}</p>
+                ) : (
+                    <div className="flex flex-col sm:flex-row gap-6">
+                        {/* Left: Product Image */}
+                        <div className="h-32 w-32 mx-auto sm:mx-0 flex-shrink-0 overflow-hidden rounded-xl bg-[#141414] p-3 border border-white/5 flex items-center justify-center">
+                            <img src={product.img_url || `https://placehold.co/200x200/141414/FF9900?text=${encodeURIComponent(product.title.slice(0, 8))}`} alt={product.title} className="h-full w-full object-contain" />
+                        </div>
+
+                        {/* Right: Info */}
+                        <div className="flex-1 text-center sm:text-left min-w-0">
+                            <h3 
+                                className="text-lg font-bold text-white leading-snug"
+                                style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                                title={product.title}
+                            >
+                                {product.title}
+                            </h3>
+                            <p className="mt-1 font-mono text-xs text-gray-500">{product.category}</p>
+                            
+                            <div className="mt-3 flex items-center justify-center sm:justify-start gap-3">
+                                <span className="text-2xl font-black text-[#FF9900]">₹{Number(product.price).toFixed(2)}</span>
+                                {product.unit_size && (
+                                    <span className="rounded bg-white/5 border border-white/10 px-2.5 py-0.5 font-mono text-[10px] text-gray-400">
+                                        {product.unit_size}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="mt-4 flex flex-col gap-2 font-mono text-xs text-gray-400">
+                                <div className="flex items-center justify-center sm:justify-start gap-1">
+                                    <span className="text-[#FF9900] text-sm">★</span>
+                                    <span className="text-white font-bold">{product.stars?.toFixed(1) || 'N/A'}</span>
+                                    <span className="text-gray-600">({product.reviews || 0} reviews)</span>
+                                </div>
+                                <div className="flex items-center justify-center sm:justify-start gap-2">
+                                    <span>⏱️ Delivery:</span>
+                                    <span className="text-green-400 font-bold">{product.delivery_time_mins || 10} mins</span>
+                                </div>
+                                <div className="flex items-center justify-center sm:justify-start gap-2">
+                                    <span>📦 Stock:</span>
+                                    <span className={product.in_stock ? 'text-green-400 font-semibold' : 'text-red-400 font-semibold'}>
+                                        {product.in_stock ? `${product.stock_qty || 10} in stock` : 'Out of stock'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="mt-6 flex justify-end border-t border-white/5 pt-4">
+                    <button
+                        onClick={onClose}
+                        className="rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 px-6 py-2.5 text-xs font-mono uppercase text-gray-300 transition hover:text-white active:scale-95"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 };
 
