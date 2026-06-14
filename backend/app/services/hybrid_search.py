@@ -186,7 +186,8 @@ async def search_item_hybrid(
                 elif pref_clean == "high-protein" and any(x in tags_lower or x in title_lower for x in ["protein", "keto", "eggs", "chicken", "paneer"]):
                     score += 0.3
 
-        hits.append(_to_hit(product, score=score))
+        if score >= 0:
+            hits.append(_to_hit(product, score=score))
 
     # Sort candidates by composite score descending
     hits.sort(key=lambda x: x.score or 0.0, reverse=True)
