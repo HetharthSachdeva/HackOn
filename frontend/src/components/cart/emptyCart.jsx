@@ -15,8 +15,8 @@ const EmptyCart = () => {
                     Add your favourite snacks, drinks and essentials and get them dashed to your door in minutes.
                 </p>
                 <Link to="/allProducts">
-                    <button className='rounded-full bg-[#FF9900] px-8 py-3 font-bold text-black transition hover:bg-[#FFB145]'>
-                        Start shopping
+                    <button className='relative flex items-center justify-center gap-3 overflow-hidden rounded-full bg-[#FF9900] px-10 py-4 font-mono text-sm font-black uppercase tracking-[0.15em] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] transition-all hover:bg-[#ffb145] hover:shadow-[0_0_35px_rgba(255,153,0,0.5)] hover:scale-[1.02] active:scale-[0.98]'>
+                        Start Shopping
                     </button>
                 </Link>
             </div>
