@@ -140,15 +140,19 @@ const Location = () => {
 
     return (
         <div>
-            <div className="headerHover" onClick={() => setSelectedLocation(!selectedLocation)}>
-                <img className="w-6 h-5 mt-1" src={location} alt="locationIcon" />
-                <div className="text-xs text-lightText font-medium flex flex-col items-start">
+            <button
+                type="button"
+                className="flex h-10 max-w-[190px] items-center gap-2 rounded-full bg-white/5 px-3 text-left text-gray-400 transition-all hover:bg-white/10 hover:text-white"
+                onClick={() => setSelectedLocation(!selectedLocation)}
+            >
+                <img className="h-4 w-4 opacity-80" src={location} alt="locationIcon" />
+                <div className="flex min-w-0 flex-col items-start text-[11px] font-medium leading-tight">
                     {locationName ? 'Deliver to' : 'Hello'}
-                    <span className="text-sm font-bold -mt-1 text-whiteText">
-                        {locationName ? <p>{locationName} {userZipCode}</p> : 'Select your address'}
+                    <span className="max-w-[130px] truncate text-xs font-bold text-white">
+                        {locationName ? `${locationName} ${userZipCode}` : 'Select address'}
                     </span>
                 </div>
-            </div>
+            </button>
             {selectedLocation &&
                 <div className='w-screen h-screen text-black fixed z-50 top-0 left-0  bg-amazon_black bg-opacity-50 flex items-center justify-center' >
                     <div ref={locationRef} className=" w-[320px] bg-white rounded-lg">

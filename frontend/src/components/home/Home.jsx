@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useOutletContext, ScrollRestoration, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useNavigate, useOutletContext, ScrollRestoration } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import AIBundleCard from './AIBundleCard';
 import QuickCommerceHero from './QuickCommerceHero';
 import ProductsSlider from "./ProductsSlider";
+import { addToCart } from '../../redux/amazonSlice';
+import { useCart } from '../../context/userCartContext';
 
 // Pixel grid spelling "AI" — 1 = dim square (backdrop), 2 = glowing orange (letter)
 const GRID_PATTERN = [
@@ -16,16 +17,17 @@ const GRID_PATTERN = [
 ];
 
 const Home = () => {
-  const { isAIMode, aiSearchQuery, aiSearchNonce, handleAISearch } = useOutletContext();
+  const { isAIMode, aiSearchQuery, aiSearchNonce } = useOutletContext();
   const userInfo = useSelector((state) => state.amazon.userInfo);
+  const authenticated = useSelector((state) => state.amazon.isAuthenticated);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { fetchCart } = useCart();
 
-  const [showBundle, setShowBundle] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [bundleData, setBundleData] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchBundle = async (query) => {
-    setShowBundle(false);
+  const buildCartFromAI = async (query) => {
     setError(null);
     setIsGenerating(true);
 
@@ -36,34 +38,36 @@ const Home = () => {
 
       const { data } = await axios.post(
         'http://localhost:8000/api/v1/ai/cart-from-intent',
-        { prompt: query, max_items: 6, apply_to_cart: false },
+        { prompt: query, max_items: 6, apply_to_cart: authenticated },
         { headers }
       );
 
-      // Map IntentToCartResponse → AIBundleCard bundle shape
-      const subtotal = parseFloat(data.subtotal || 0);
-      const savings = data.budget ? Math.max(0, parseFloat(data.budget) - subtotal) : (subtotal * 0.1);
+      if (authenticated) {
+        await fetchCart();
+      } else {
+        (data.items || []).forEach((item) => {
+          dispatch(addToCart({
+            id: item.asin,
+            asin: item.asin,
+            title: item.title,
+            price: parseFloat(item.unit_price || 0),
+            thumbnail: item.img_url || `https://placehold.co/200x200/141414/FF9900?text=${encodeURIComponent((item.title || 'Item').slice(0, 8))}`,
+            images: item.img_url ? [item.img_url] : [],
+            brand: 'AI Bundle',
+            quantity: item.quantity || 1,
+            category: 'allProducts',
+            description: item.rationale || `Added from AI search: ${query}`,
+            rating: 0,
+            stock: 1,
+            discountPercentage: 10,
+          }));
+        });
+      }
 
-      setBundleData({
-        title: data.explanation || `${query} — AI Bundle`,
-        totalCost: subtotal,
-        savings: savings.toFixed(2),
-        deliveryETA: '10 min',
-        confidence: data.used_semantic ? 96 : 82,
-        products: (data.items || []).map((item) => ({
-          id: item.asin,
-          name: item.title,
-          price: parseFloat(item.unit_price || 0).toFixed(2),
-          originalPrice: (parseFloat(item.unit_price || 0) * 1.1).toFixed(2),
-          quantity: item.quantity,
-          image: item.img_url || `https://placehold.co/200x200/141414/FF9900?text=${encodeURIComponent(item.title.slice(0,8))}`,
-          rationale: item.rationale,
-        })),
-      });
-      setShowBundle(true);
+      navigate('/cart');
     } catch (err) {
       console.error('AI bundle error:', err);
-      setError(err.response?.data?.detail || 'Could not generate bundle. Try again.');
+      setError(err.response?.data?.detail || 'Could not build your cart. Try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -71,18 +75,12 @@ const Home = () => {
 
   useEffect(() => {
     if (isAIMode && aiSearchNonce > 0 && aiSearchQuery) {
-      fetchBundle(aiSearchQuery.trim());
+      buildCartFromAI(aiSearchQuery.trim());
     } else {
-      setShowBundle(false);
       setIsGenerating(false);
       setError(null);
     }
   }, [isAIMode, aiSearchNonce, aiSearchQuery]);
-
-  const handleOptimize = (type) => {
-    if (!aiSearchQuery) return;
-    fetchBundle(`${aiSearchQuery.trim()}, optimized for ${type}`);
-  };
 
   // ── Normal mode ──
   if (!isAIMode) {
@@ -112,24 +110,20 @@ const Home = () => {
             <div className="absolute inset-0 animate-ping rounded-full bg-[#FF9900]/30" />
             <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#FF9900] border-r-[#ff7a00]" />
           </div>
-          <p className="mt-6 animate-pulse font-mono text-sm uppercase tracking-[0.2em] text-[#FFB145]">Curating your bundle…</p>
-          <p className="mt-2 font-mono text-xs text-gray-600">Searching catalog · Ranking matches · Asking AI</p>
+          <p className="mt-6 animate-pulse font-mono text-sm uppercase tracking-[0.2em] text-[#FFB145]">Building your cart…</p>
+          <p className="mt-2 font-mono text-xs text-gray-600">Searching catalog · Ranking matches · Adding items</p>
         </div>
       ) : error ? (
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-6 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 text-2xl">⚠️</div>
-          <p className="font-mono text-sm uppercase tracking-widest text-red-400">Bundle generation failed</p>
+          <p className="font-mono text-sm uppercase tracking-widest text-red-400">Cart generation failed</p>
           <p className="max-w-sm text-sm text-gray-500">{error}</p>
           <button
-            onClick={() => aiSearchQuery && fetchBundle(aiSearchQuery.trim())}
+            onClick={() => aiSearchQuery && buildCartFromAI(aiSearchQuery.trim())}
             className="mt-2 rounded-full border border-white/15 px-6 py-2 font-mono text-xs uppercase tracking-wider text-gray-300 transition hover:border-[#FF9900] hover:text-[#FF9900]"
           >
             Try Again
           </button>
-        </div>
-      ) : showBundle ? (
-        <div className="ai-enter px-4 py-8">
-          <AIBundleCard bundle={bundleData} onOptimize={handleOptimize} />
         </div>
       ) : (
         <>
@@ -203,9 +197,8 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Thin footer bar */}
           <div className="flex flex-col items-center justify-between gap-2 border-t border-white/5 px-6 py-5 font-mono text-[11px] text-gray-500 md:flex-row">
-            <p>© {new Date().getFullYear()} ZipDash Logistics AI. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Amazon Now Logistics AI. All rights reserved.</p>
             <div className="flex items-center gap-6">
               <a href="#" className="hover:text-[#FF9900]">Privacy Policy</a>
               <a href="#" className="hover:text-[#FF9900]">Terms of Service</a>
