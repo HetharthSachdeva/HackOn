@@ -34,7 +34,7 @@ export const UserCartProvider = ({ children }) => {
     const fetchCart = async () => {
         if (authenticated && userInfo && userInfo.token) {
             try {
-                const response = await axios.get("http://localhost:8000/api/v1/cart", {
+                const response = await axios.get("/api/v1/cart", {
                     headers: {
                         Authorization: `Bearer ${userInfo.token}`
                     }
@@ -55,7 +55,7 @@ export const UserCartProvider = ({ children }) => {
     const addToCartBackend = async (asin, quantity) => {
         if (!authenticated || !userInfo?.token) return;
         try {
-            const response = await axios.post("http://localhost:8000/api/v1/cart/items", {
+            const response = await axios.post("/api/v1/cart/items", {
                 asin,
                 quantity
             }, {
@@ -72,7 +72,7 @@ export const UserCartProvider = ({ children }) => {
     const updateCartItemQtyBackend = async (asin, quantity) => {
         if (!authenticated || !userInfo?.token) return;
         try {
-            const response = await axios.put(`http://localhost:8000/api/v1/cart/items/${asin}`, {
+            const response = await axios.put(`/api/v1/cart/items/${asin}`, {
                 quantity
             }, {
                 headers: {
@@ -88,7 +88,7 @@ export const UserCartProvider = ({ children }) => {
     const deleteCartItemBackend = async (asin) => {
         if (!authenticated || !userInfo?.token) return;
         try {
-            const response = await axios.delete(`http://localhost:8000/api/v1/cart/items/${asin}`, {
+            const response = await axios.delete(`/api/v1/cart/items/${asin}`, {
                 headers: {
                     Authorization: `Bearer ${userInfo.token}`
                 }
@@ -102,7 +102,7 @@ export const UserCartProvider = ({ children }) => {
     const clearCartBackend = async () => {
         if (!authenticated || !userInfo?.token) return;
         try {
-            const response = await axios.delete("http://localhost:8000/api/v1/cart", {
+            const response = await axios.delete("/api/v1/cart", {
                 headers: {
                     Authorization: `Bearer ${userInfo.token}`
                 }

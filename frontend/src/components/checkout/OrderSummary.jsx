@@ -63,7 +63,7 @@ const OrderSummary = () => {
       try {
           // If it's a "Buy Now" product, add it to the backend cart first
           if (product) {
-              await axios.post("http://localhost:8000/api/v1/cart/items", {
+              await axios.post("/api/v1/cart/items", {
                   asin: product.id,
                   quantity: product.quantity
               }, {
@@ -72,7 +72,7 @@ const OrderSummary = () => {
           }
 
           // Place the order
-          await axios.post("http://localhost:8000/api/v1/orders", {
+          await axios.post("/api/v1/orders", {
               address_id: selectedAddress.id,
               payment_provider: selectedPayment === "card" ? "mock_card" : "cod",
               slot_type: "express"
@@ -81,7 +81,7 @@ const OrderSummary = () => {
           });
 
           // Fetch updated orders to sync context state
-          const ordersRes = await axios.get("http://localhost:8000/api/v1/orders", {
+          const ordersRes = await axios.get("/api/v1/orders", {
               headers: { Authorization: `Bearer ${userInfo.token}` }
           });
           const mappedOrders = [];

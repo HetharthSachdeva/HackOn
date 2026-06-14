@@ -29,7 +29,7 @@ export const UserAddressProvider = ({ children }) => {
         if (authenticated && userInfo && userInfo.token) {
             const getUserAddressesFromBackend = async () => {
                 try {
-                    const response = await axios.get("http://localhost:8000/api/v1/addresses", {
+                    const response = await axios.get("/api/v1/addresses", {
                         headers: {
                             Authorization: `Bearer ${userInfo.token}`
                         }

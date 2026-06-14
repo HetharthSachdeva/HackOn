@@ -45,7 +45,7 @@ const ProductsContent = ({ productsData }) => {
       setIsSearching(true);
       import('axios').then(axios => {
         const headers = (isAuthenticated && userInfo?.token) ? { Authorization: `Bearer ${userInfo.token}` } : {};
-        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 }, { headers })
+        axios.default.post('/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 }, { headers })
           .then(response => {
              const hits = response.data.items || [];
              const isSemantic = response.data.used_semantic;
@@ -91,8 +91,8 @@ const ProductsContent = ({ productsData }) => {
     if (!searchQuery && !category) {
       import('axios').then(axios => {
         const fetchUrl = (isAuthenticated && userInfo?.token) 
-          ? 'http://localhost:8000/api/v1/recommendations/for-you?limit=50'
-          : 'http://localhost:8000/api/v1/recommendations/trending?limit=50';
+          ? '/api/v1/recommendations/for-you?limit=50'
+          : '/api/v1/recommendations/trending?limit=50';
           
         const headers = (isAuthenticated && userInfo?.token) 
           ? { Authorization: `Bearer ${userInfo.token}` } 

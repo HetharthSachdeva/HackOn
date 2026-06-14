@@ -16,7 +16,7 @@ export const UserOrdersProvider = ({ children }) => {
     const fetchOrders = async () => {
         if (authenticated && userInfo && userInfo.token) {
             try {
-                const response = await axios.get("http://localhost:8000/api/v1/orders", {
+                const response = await axios.get("/api/v1/orders", {
                     headers: {
                         Authorization: `Bearer ${userInfo.token}`
                     }

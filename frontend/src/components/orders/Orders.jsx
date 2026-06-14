@@ -43,7 +43,7 @@ const Orders = () => {
 
   const handleCancelOrder = async (item) => {
     try {
-      await axios.post(`http://localhost:8000/api/v1/orders/${item.uniqueNumber}/cancel`, {
+      await axios.post(`/api/v1/orders/${item.uniqueNumber}/cancel`, {
         reason: "User cancelled"
       }, {
         headers: {

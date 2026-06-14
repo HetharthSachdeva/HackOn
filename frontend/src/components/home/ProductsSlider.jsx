@@ -95,7 +95,7 @@ const ProductsSliderContent = ({ productsData }) => {
 
   React.useEffect(() => {
     if (authenticated && userInfo?.token) {
-      axios.get('http://localhost:8000/api/v1/recommendations/for-you?limit=8', {
+      axios.get('/api/v1/recommendations/for-you?limit=8', {
         headers: { Authorization: `Bearer ${userInfo.token}` }
       }).then(res => {
          const mapped = (res.data || []).map(p => ({

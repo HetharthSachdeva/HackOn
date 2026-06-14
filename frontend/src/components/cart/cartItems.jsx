@@ -87,7 +87,7 @@ const CartItemsContent = ({ productsData }) => {
             const contextItem = items[items.length - 1];
             const asin = contextItem.asin || contextItem.id;
             
-            axios.get(`http://localhost:8000/api/v1/ai/similar/${asin}?limit=6`)
+            axios.get(`/api/v1/ai/similar/${asin}?limit=6`)
                 .then(res => {
                     if (isMounted) {
                         const cartIds = items.map(i => i.id || i.asin);

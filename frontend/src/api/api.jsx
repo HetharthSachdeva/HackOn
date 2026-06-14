@@ -2,7 +2,7 @@ import axios from "axios";
 import { defer } from "react-router-dom";
 
 export function productsData() {
-    const productsPromise = axios.get("http://localhost:8000/api/v1/catalog/products?limit=1000")
+    const productsPromise = axios.get("/api/v1/catalog/products?limit=1000")
         .then(response => {
             const qcommerceProducts = response.data.items || [];
             const products = qcommerceProducts.map((p) => ({
@@ -31,7 +31,7 @@ export function productsData() {
 export const trackEvent = async (eventType, asin = null, query = null, token = null) => {
     if (!token) return; // Only track authenticated users
     try {
-        await axios.post("http://localhost:8000/api/v1/tracking/event", {
+        await axios.post("/api/v1/tracking/event", {
             event_type: eventType,
             asin: asin,
             query: query

@@ -353,7 +353,7 @@ const ProductDetailModal = ({ asin, rationale, onClose }) => {
         let isMounted = true;
         const fetchDetail = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:8000/api/v1/catalog/products/${asin}`);
+                const { data } = await axios.get(`/api/v1/catalog/products/${asin}`);
                 if (isMounted) {
                     setProduct(data);
                     setLoading(false);

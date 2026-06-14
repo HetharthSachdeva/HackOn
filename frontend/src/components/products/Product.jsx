@@ -146,7 +146,7 @@ const Product = (props) => {
   // Save a product to Backend cart
   const saveProductToBackend = async (product) => {
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/cart/items", {
+      const response = await axios.post("/api/v1/cart/items", {
         asin: product.id,
         quantity: 1
       }, {

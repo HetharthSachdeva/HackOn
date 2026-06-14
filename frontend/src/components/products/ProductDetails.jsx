@@ -21,7 +21,7 @@ const ProductDetailsContent = ({ productsData }) => {
     let isMounted = true;
     if (!initialProduct) {
       setIsLoading(true);
-      axios.get(`http://localhost:8000/api/v1/catalog/search?q=${encodeURIComponent(title)}`)
+      axios.get(`/api/v1/catalog/search?q=${encodeURIComponent(title)}`)
         .then((response) => {
           if (!isMounted) return;
           const items = response.data.items || [];
@@ -81,7 +81,7 @@ const ProductDetailsContent = ({ productsData }) => {
 
   const saveProductToBackend = async (product) => {
     try {
-      const response = await axios.post("http://localhost:8000/api/v1/cart/items", {
+      const response = await axios.post("/api/v1/cart/items", {
         asin: product.id,
         quantity: selectedQuantity
       }, {

@@ -76,7 +76,7 @@ const AIBundleCartGenerator = () => {
         try {
             const headers = userInfo?.token ? { Authorization: `Bearer ${userInfo.token}` } : {};
             const { data } = await axios.post(
-                'http://localhost:8000/api/v1/ai/cart-from-intent',
+                '/api/v1/ai/cart-from-intent',
                 { 
                     prompt: finalPrompt || null, 
                     image: finalImage || null,
@@ -374,7 +374,7 @@ const ProductDetailModal = ({ asin, rationale, onClose }) => {
         let isMounted = true;
         const fetchDetail = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:8000/api/v1/catalog/products/${asin}`);
+                const { data } = await axios.get(`/api/v1/catalog/products/${asin}`);
                 if (isMounted) {
                     setProduct(data);
                     setLoading(false);

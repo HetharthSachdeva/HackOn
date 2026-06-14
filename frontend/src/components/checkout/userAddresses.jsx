@@ -19,7 +19,7 @@ const UserAddresses = ({ setShowAddressForm }) => {
         const address = userAddress[addressIndex];
         if (!address || !address.id) return;
         try {
-            await axios.delete(`http://localhost:8000/api/v1/addresses/${address.id}`, {
+            await axios.delete(`/api/v1/addresses/${address.id}`, {
                 headers: {
                     Authorization: `Bearer ${userInfo.token}`
                 }

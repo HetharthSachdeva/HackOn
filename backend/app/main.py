@@ -113,14 +113,40 @@ def create_app() -> FastAPI:
 
     app.include_router(health_module.router)
 
-    @app.get("/", include_in_schema=False)
-    async def root() -> dict[str, str]:
-        return {
-            "name": settings.app_name,
-            "version": __version__,
-            "docs": "/docs",
-            "openapi": "/openapi.json",
-        }
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+    import os
+
+    # Look for the compiled frontend directory to serve it in production
+    backend_root = os.path.dirname(os.path.dirname(__file__))
+    frontend_dist = os.path.join(backend_root, "frontend_dist")
+    
+    if os.path.isdir(frontend_dist):
+        log.info("app.frontend_serving", path=frontend_dist)
+        
+        # Mount the assets directory (contains JS/CSS/Images built by Vite)
+        assets_dir = os.path.join(frontend_dist, "assets")
+        if os.path.isdir(assets_dir):
+            app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+        
+        # Catch-all route to serve the React SPA and other static files
+        @app.get("/{full_path:path}", include_in_schema=False)
+        async def serve_frontend(full_path: str):
+            path = os.path.join(frontend_dist, full_path)
+            if os.path.isfile(path):
+                return FileResponse(path)
+            # Fallback to index.html for client-side routing
+            return FileResponse(os.path.join(frontend_dist, "index.html"))
+    else:
+        # Fallback root for API-only mode
+        @app.get("/", include_in_schema=False)
+        async def root() -> dict[str, str]:
+            return {
+                "name": settings.app_name,
+                "version": __version__,
+                "docs": "/docs",
+                "openapi": "/openapi.json",
+            }
 
     return app
 

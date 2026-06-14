@@ -122,14 +122,14 @@ const AddressForm = ({ setShowAddressForm }) => {
                 is_default: false
             };
 
-            await axios.post("http://localhost:8000/api/v1/addresses", payload, {
+            await axios.post("/api/v1/addresses", payload, {
                 headers: {
                     Authorization: `Bearer ${userInfo.token}`
                 }
             });
 
             // Re-fetch all addresses to sync frontend context
-            const response = await axios.get("http://localhost:8000/api/v1/addresses", {
+            const response = await axios.get("/api/v1/addresses", {
                 headers: {
                     Authorization: `Bearer ${userInfo.token}`
                 }
