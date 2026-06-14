@@ -131,12 +131,21 @@ async def search_item_hybrid(
 
         # Extracted Category Alignment Boosts
         if categories:
+            category_matched = False
             for cat in categories:
                 cat_clean = cat.lower().strip()
                 if cat_clean == category_lower:
-                    score += 2.0
+                    score += 10.0
+                    category_matched = True
                 elif cat_clean in category_lower:
-                    score += 0.5
+                    score += 5.0
+                    category_matched = True
+            
+            # If the user's intent clearly specifies categories (like Groceries),
+            # aggressively penalize products that fall outside of them (like Electronics)
+            # to prevent hardware/appliances from showing up in food searches.
+            if not category_matched:
+                score -= 10.0
 
         # Extracted Tag Alignment Boosts
         if tags:

@@ -58,8 +58,6 @@ async def get_db() -> AsyncIterator[AsyncSession]:
 def _maybe_warn_dev_bypass(user_id: str) -> None:
     """Emit a single, very loud warning the first time the bypass fires."""
     global _dev_bypass_warned
-    if _dev_bypass_warned:
-        return
     log.warning(
         "auth.dev_bypass_active",
         user_id=user_id,
@@ -106,11 +104,19 @@ def get_current_user(
     """
     settings = get_settings()
     if settings.dev_bypass_auth:
+        log.info("auth.bypassed", path=request.url.path, method=request.method)
         return _dev_bypass_user(settings, request)
 
     if credentials is None or credentials.scheme.lower() != "bearer":
+        log.warning("auth.missing_token", path=request.url.path, method=request.method)
         raise UnauthorizedError("Missing or invalid Authorization header")
-    return decode_supabase_jwt(credentials.credentials)
+    try:
+        user = decode_supabase_jwt(credentials.credentials)
+        log.info("auth.success", user_id=user.id, path=request.url.path, method=request.method)
+        return user
+    except Exception as exc:
+        log.warning("auth.failed", error=str(exc), path=request.url.path, method=request.method)
+        raise
 
 
 def get_optional_user(
@@ -124,13 +130,18 @@ def get_optional_user(
     """
     settings = get_settings()
     if settings.dev_bypass_auth:
+        log.info("auth.bypassed.optional", path=request.url.path, method=request.method)
         return _dev_bypass_user(settings, request)
 
     if credentials is None or credentials.scheme.lower() != "bearer":
+        log.info("auth.no_token_optional", path=request.url.path, method=request.method)
         return None
     try:
-        return decode_supabase_jwt(credentials.credentials)
-    except Exception:  # noqa: BLE001 — catch all to degrade to guest gracefully on any auth/network error
+        user = decode_supabase_jwt(credentials.credentials)
+        log.info("auth.success.optional", user_id=user.id, path=request.url.path, method=request.method)
+        return user
+    except Exception as exc:  # noqa: BLE001 — catch all to degrade to guest gracefully on any auth/network error
+        log.warning("auth.failed.optional", error=str(exc), path=request.url.path, method=request.method)
         return None
 
 

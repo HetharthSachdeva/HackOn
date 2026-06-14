@@ -53,9 +53,7 @@ async def post_semantic_search(
     description=(
         "Send a free-form prompt like `dinner for 4, vegetarian, under ₹800`. "
         "The API parses budget + servings, semantically retrieves candidates, "
-        "greedily fits them to your budget, and returns a structured cart "
-        "with per-item rationale. Set `apply_to_cart=true` to add the picks "
-        "to your real cart in the same call."
+        "and returns structured bundle components with per-item rationale."
     ),
 )
 async def post_cart_from_intent(
@@ -64,15 +62,12 @@ async def post_cart_from_intent(
     user: OptionalUserDep,
 ) -> IntentToCartResponse:
     user_id = uuid.UUID(user.id) if user else None
-    # Guests can generate a bundle but cannot apply it to a cart
-    apply = payload.apply_to_cart and user is not None
     return await intent_to_cart.cart_from_intent(
         db,
         prompt=payload.prompt,
         user_id=user_id,
         budget=payload.budget,
         max_items=payload.max_items,
-        apply_to_cart=apply,
     )
 
 

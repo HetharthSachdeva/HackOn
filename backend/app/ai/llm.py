@@ -32,11 +32,16 @@ log = structlog.get_logger(__name__)
 
 
 @dataclass(frozen=True, slots=True)
+class ItemSuggestion:
+    rationale: str
+    quantity: int
+
+@dataclass(frozen=True, slots=True)
 class CartSuggestion:
     """Structured output expected from the LLM for Intent-to-Cart."""
 
     explanation: str
-    rationale_by_asin: dict[str, str]
+    suggestion_by_asin: dict[str, ItemSuggestion]
 
 
 class LLMProvider(Protocol):
@@ -231,23 +236,26 @@ def _stub_suggestion(
     if not candidates:
         return CartSuggestion(
             explanation="I couldn't find matching items in the catalog. Try a broader query.",
-            rationale_by_asin={},
+            suggestion_by_asin={},
         )
 
     budget_str = f" within your ₹{budget:g} budget" if budget else ""
     explanation = (
         f"Based on \"{prompt}\", I picked {len(candidates)} item(s) that closely "
         f"match what you described{budget_str}, prioritizing items that are in stock "
-        "and have the best customer ratings."
+        f"and have the best customer ratings."
     )
-    rationale_by_asin = {
-        c["asin"]: f"Picked because it matches \"{prompt}\" "
-        f"(category: {c.get('category', 'n/a')}, ₹{c.get('price', 0):g})."
+    suggestion_by_asin = {
+        c["asin"]: ItemSuggestion(
+            rationale=f"Picked because it matches \"{prompt}\" "
+            f"(category: {c.get('category', 'n/a')}, ₹{c.get('price', 0):g}).",
+            quantity=1
+        )
         for c in candidates
     }
     return CartSuggestion(
         explanation=explanation,
-        rationale_by_asin=rationale_by_asin,
+        suggestion_by_asin=suggestion_by_asin,
     )
 
 
@@ -369,9 +377,11 @@ class GemmaProvider:
 
         system = (
             "You are a shopping concierge for a quick-commerce app. "
-            "Given a user's intent and a ranked list of candidate products, "
-            "write a short customer-facing explanation (1-2 sentences) and a "
-            "one-sentence rationale for each candidate (keyed by ASIN)."
+            "Given a user's intent and a list of candidate products grouped into options, "
+            "write a short customer-facing explanation (1-2 sentences) summarizing the curated choices. "
+            "Then, provide a one-sentence rationale AND an ideal quantity for each candidate (keyed by ASIN). "
+            "Your rationales should help the user decide between the alternatives (e.g. 'A premium option' or 'A budget-friendly choice'). "
+            "Ensure the quantity correctly accounts for the number of people/servings in the intent and the product size (e.g. you might only need 1 family-size bag of chips for 5 people, but 5 individual drinks)."
         )
         budget_line = f"₹{budget:g}" if budget else "no explicit budget"
         candidate_lines = "\n".join(
@@ -383,13 +393,13 @@ class GemmaProvider:
         user_msg = (
             f"User intent: {prompt}\n"
             f"Budget: {budget_line}\n\n"
-            f"Candidates (already pre-selected; rationalize and explain):\n"
+            f"Candidates (curated options; rationalize, explain, and provide quantity):\n"
             f"{candidate_lines}"
         )
 
         # We use a responseSchema (Gemini API structured output) because Gemma 4
         # otherwise narrates its reasoning instead of emitting JSON. The schema
-        # uses an *array of {asin, reason}* rather than an open-ended object map
+        # uses an *array of {asin, reason, quantity}* rather than an open-ended object map
         # so that it stays well-defined under the Gemini schema dialect (which
         # doesn't support `additionalProperties`).
         schema = {
@@ -403,8 +413,9 @@ class GemmaProvider:
                         "properties": {
                             "asin": {"type": "STRING"},
                             "reason": {"type": "STRING"},
+                            "quantity": {"type": "INTEGER"},
                         },
-                        "required": ["asin", "reason"],
+                        "required": ["asin", "reason", "quantity"],
                     },
                 },
             },
@@ -429,22 +440,26 @@ class GemmaProvider:
 
         explanation = str(payload.get("explanation", "")).strip()
         raw_rationales = payload.get("rationales") or []
-        rationale_by_asin: dict[str, str] = {}
+        suggestion_by_asin: dict[str, ItemSuggestion] = {}
         if isinstance(raw_rationales, list):
             for entry in raw_rationales:
                 if not isinstance(entry, dict):
                     continue
                 asin = str(entry.get("asin") or "").strip()
                 reason = str(entry.get("reason") or "").strip()
+                quantity = int(entry.get("quantity") or 1)
                 if asin and reason:
-                    rationale_by_asin[asin] = reason
+                    suggestion_by_asin[asin] = ItemSuggestion(rationale=reason, quantity=quantity)
 
         # Guarantee every candidate has a rationale, even if the model dropped one.
         for c in candidates:
             asin = str(c["asin"])
-            rationale_by_asin.setdefault(
+            suggestion_by_asin.setdefault(
                 asin,
-                f"Matches \"{prompt}\" (category {c.get('category', 'n/a')}).",
+                ItemSuggestion(
+                    rationale=f"Matches \"{prompt}\" (category {c.get('category', 'n/a')}).",
+                    quantity=1
+                )
             )
 
         if not explanation:
@@ -457,11 +472,11 @@ class GemmaProvider:
             "gemma.suggest_cart.parsed",
             prompt=prompt,
             explanation=explanation,
-            rationale_by_asin=rationale_by_asin,
+            suggestion_by_asin=suggestion_by_asin,
         )
         return CartSuggestion(
             explanation=explanation,
-            rationale_by_asin=rationale_by_asin,
+            suggestion_by_asin=suggestion_by_asin,
         )
 
     async def parse_query(self, prompt: str) -> ExtractedQuery:
@@ -514,7 +529,7 @@ class GemmaProvider:
                     "items": {"type": "STRING"}
                 }
             },
-            "required": ["items", "budget", "occasion", "preferences", "categories", "tags"]
+            "required": ["items", "preferences", "categories", "tags"]
         }
 
         try:

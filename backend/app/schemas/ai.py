@@ -39,10 +39,6 @@ class IntentToCartRequest(BaseModel):
         description="Optional hard budget cap; parsed from the prompt if omitted.",
     )
     max_items: int = Field(8, ge=1, le=20)
-    apply_to_cart: bool = Field(
-        False,
-        description="If true, add the resulting items to the user's actual cart.",
-    )
 
 
 class IntentCartItem(BaseModel):
@@ -57,14 +53,16 @@ class IntentCartItem(BaseModel):
     rationale: str | None = None
 
 
+class BundleComponent(BaseModel):
+    component_name: str
+    options: list[IntentCartItem]
+
+
 class IntentToCartResponse(BaseModel):
     prompt: str
     explanation: str
-    items: list[IntentCartItem]
-    subtotal: Decimal
+    components: list[BundleComponent]
     budget: Decimal | None = None
-    over_budget: bool = False
-    applied_to_cart: bool = False
     used_semantic: bool = True
 
 
