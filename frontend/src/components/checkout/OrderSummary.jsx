@@ -128,123 +128,128 @@ const OrderSummary = () => {
   };
 
   return (
-    <div>
-      <div className=" mx-auto bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-3">
-        <div className=" mt-2 px-[18px]">
-          <h3 className=" text-xl font-semibold pt-2 mb-3 text-white">Order Summary</h3>
-          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
-            <p>Total Items:</p>
-            <p>{product ? productQty : cartTotalQty}</p>
-          </div>
-          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
-            <p>Total Price:</p>
-            <p>₹{product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</p>
-          </div>
-          <div className="flex justify-between mb-[2px] text-sm text-gray-400">
-            <p>Delivery:</p>
-            <p>₹{deliveryCharges}.00</p>
-          </div>
-          <div className="text-xl font-semibold flex justify-between py-2 border-t border-white/10 text-[#FF9900]">
-            <p>Order Total:</p>
-            <p>₹{product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}</p>
+    <div className="flex flex-col gap-6">
+      <div className="bg-[#0f0f0f] ring-1 ring-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="p-6 md:p-8">
+          <h3 className="text-2xl font-black text-white mb-6">Order Summary</h3>
+          
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between text-gray-300">
+              <span>Items ({product ? productQty : cartTotalQty}):</span>
+              <span className="font-semibold text-white">₹{product ? productTotalPrice.toFixed(2) : cartTotalPrice.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-gray-300">
+              <span>Delivery Fee:</span>
+              {deliveryCharges === 0 ? (
+                <span className="font-bold text-[#FF9900]">FREE</span>
+              ) : (
+                <span className="font-semibold text-white">₹{deliveryCharges.toFixed(2)}</span>
+              )}
+            </div>
           </div>
 
-          {selectedAddress &&
-            <div >
-              <h3 className="border-t border-white/10 text-lg font-semibold py-2 text-white">Selected Address</h3>
-              <div className="mb-2 text-sm text-gray-400">
-                <p className='font-semibold text-white'>Name : {selectedAddress.name}</p>
-                <span>{selectedAddress.address}, {selectedAddress.area}, {selectedAddress.landmark}, {selectedAddress.city}, {selectedAddress.pincode}, {selectedAddress.state}, {selectedAddress.country}</span>
-              </div>
-            </div>
-          }
+          <div className="my-5 border-t border-white/10"></div>
 
-          {selectedPayment &&
-            <div >
-              <h3 className="border-t border-white/10 text-lg font-semibold py-2 text-white">Selected Payment Method</h3>
-              <div className="mb-2 text-sm text-gray-400">
-                <p className='font-semibold capitalize'> {selectedPayment}</p>
-              </div>
+          <div className="flex items-center justify-between">
+            <span className="text-lg text-gray-300">Order Total</span>
+            <span className="text-3xl font-black text-[#FF9900]">
+              ₹{product ? (productTotalPrice + deliveryCharges).toFixed(2) : (cartTotalPrice + deliveryCharges).toFixed(2)}
+            </span>
+          </div>
+
+          {selectedAddress && (
+            <div className="mt-6 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <h4 className="text-xs font-mono uppercase tracking-widest text-[#FF9900] mb-2 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Shipping To
+              </h4>
+              <p className="text-sm font-semibold text-white">{selectedAddress.name}</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                {selectedAddress.address}, {selectedAddress.area}<br/>
+                {selectedAddress.city}, {selectedAddress.state} {selectedAddress.pincode}
+              </p>
             </div>
-          }
+          )}
+
+          {selectedPayment && (
+            <div className="mt-4 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <h4 className="text-xs font-mono uppercase tracking-widest text-[#FF9900] mb-2 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Payment Method
+              </h4>
+              <p className="text-sm font-semibold text-white capitalize">{selectedPayment}</p>
+            </div>
+          )}
         </div>
 
-        <div className='mx-[18px] border-t border-white/10'>
-          {(selectedAddress && selectedPayment) &&
-            <button className="w-full text-center text-sm rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[7px] mt-2 active:ring-2 active:ring-offset-1 active:ring-[#FF9900]"
+        <div className="bg-[#141414] p-6 border-t border-white/10">
+          {(selectedAddress && selectedPayment) ? (
+            <button 
               onClick={makePayment}
+              className="relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-[#FF9900] px-6 py-4 font-mono text-sm font-black uppercase tracking-[0.1em] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] transition-all hover:bg-[#ffb145] hover:shadow-[0_0_35px_rgba(255,153,0,0.5)] hover:scale-[1.02] active:scale-[0.98]"
             >
-              Place your order
+              Place Your Order
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </button>
-          }
-          <p className="text-xs text-gray-400  my-2 text-center">
-            By placing your order, you agree to Amazon's
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200522700" className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> privacy notice </a>
-            and
-            <a href="https://www.amazon.in/gp/help/customer/display.html?nodeId=200545940" className='text-[#FF9900] hover:text-[#FFB145] cursor-pointer'> conditions of use</a>.
-          </p>
-        </div>
-
-        <div className="flex justify-between border-t border-white/10 rounded-br-lg rounded-bl-lg bg-[#141414]">
-          <p onClick={toggleDeliveryInfo} className="pl-[18px] my-4 text-xs tracking-wide text-[#FF9900] hover:underline hover:text-[#FFB145] hover:cursor-pointer">
-            How are delivery costs calculated?
+          ) : (
+            <button disabled className="w-full rounded-xl bg-gray-800 px-6 py-4 font-mono text-sm font-black uppercase tracking-[0.1em] text-gray-500 cursor-not-allowed">
+              Complete details above
+            </button>
+          )}
+          
+          <p className="mt-4 text-center text-xs text-gray-500 leading-relaxed">
+            By placing your order, you agree to Amazon's <br/>
+            <a href="#" className="text-[#FF9900] hover:underline">Privacy Notice</a> and <a href="#" className="text-[#FF9900] hover:underline">Conditions of Use</a>.
           </p>
         </div>
       </div>
 
-      {
-        deliveryInfo &&
-        <div ref={deliveryInfoRef} className="border border-white/10 bg-[#0d0d0d] ring-1 ring-white/5 mt-2 w-[400px]">
-          <table className="w-full text-center">
-            <thead>
-              <tr className="bg-[#141414] ">
-                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Shipping Speed</th>
-                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Members</th>
-                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Prime Lite Members</th>
-                <th className="px-2 py-1 border border-white/10 text-xs text-gray-300">Non-Prime Members</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="bg-[#141414]">
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Same-Day Delivery</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹175</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹175</td>
-              </tr>
-              <tr>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">One-Day Delivery</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹150</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹150</td>
-              </tr>
-              <tr className="bg-[#141414]">
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Two-Day Delivery</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹120</td>
-              </tr>
-              <tr>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">No-Rush Delivery</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">N.A</td>
-              </tr>
-              <tr className="bg-[#141414]">
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Standard Delivery**</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">Free</td>
-                <td className="px-2 py-1 border border-white/10 text-xs text-gray-300">₹40</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="text-sm text-gray-400 mt-2 p-2">
-            **Standard Delivery charges are free for non-Prime members for orders ₹499 or more.
-          </p>
-          <div className='flex justify-end relative'>
-            <button className='text-sm text-[#FF9900] hover:text-[#FFB145] absolute -top-5 right-1' onClick={toggleDeliveryInfo}>Close</button>
+      <button onClick={toggleDeliveryInfo} className="text-xs font-mono tracking-wider text-gray-400 hover:text-[#FF9900] text-center w-full transition-colors flex items-center justify-center gap-1">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        How are delivery costs calculated?
+      </button>
+
+      {deliveryInfo && (
+        <div ref={deliveryInfoRef} className="rounded-xl border border-white/10 bg-[#0d0d0d] overflow-hidden shadow-2xl animate-fade-in-up">
+          <div className="bg-[#141414] p-3 border-b border-white/10 flex justify-between items-center">
+            <h4 className="text-sm font-bold text-white">Delivery Costs</h4>
+            <button onClick={toggleDeliveryInfo} className="text-gray-500 hover:text-white">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-gray-400">
+              <thead className="bg-white/[0.02] font-mono uppercase tracking-wider text-gray-500">
+                <tr>
+                  <th className="px-4 py-3">Speed</th>
+                  <th className="px-4 py-3">Prime</th>
+                  <th className="px-4 py-3">Non-Prime</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                <tr>
+                  <td className="px-4 py-3 text-white">Same-Day</td>
+                  <td className="px-4 py-3 text-green-400 font-bold">Free</td>
+                  <td className="px-4 py-3">₹175</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-white">One-Day</td>
+                  <td className="px-4 py-3 text-green-400 font-bold">Free</td>
+                  <td className="px-4 py-3">₹150</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-3 text-white">Standard**</td>
+                  <td className="px-4 py-3 text-green-400 font-bold">Free</td>
+                  <td className="px-4 py-3">₹40</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="p-3 bg-white/[0.02] border-t border-white/5 text-[10px] text-gray-500">
+            **Standard Delivery is free for non-Prime members for orders ₹499 or more.
           </div>
         </div>
-      }
+      )}
     </div>
   )
 }

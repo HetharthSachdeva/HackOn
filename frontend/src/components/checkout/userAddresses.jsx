@@ -35,37 +35,54 @@ const UserAddresses = ({ setShowAddressForm }) => {
     };
 
     return (
-        <div >
-            <p className='text-lg font-semibold text-white'>1 &nbsp; Select a delivery address</p>
-            <div className='w-full flex justify-end'>
-                <div className='w-[96%] bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 px-4 py-2'>
-                    <div className='flex flex-row justify-between border-b border-white/10'>
-                        <p className='text-lg font-semibold text-white'>Your addresses</p>
-                        <button onClick={() => { setShowAddressForm(true) }} className='text-lg font-semibold text-[#FF9900] hover:text-[#FFB145] hover:underline'>Add new address</button>
-                    </div>
-                    {
-                        userAddress.map((address, index) => (
-                            <label key={index} className="flex items-start my-5 mx-3 text-gray-300">
+        <div className="mb-8">
+            <h2 className="text-2xl font-black tracking-tight text-white mb-6 flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FF9900] text-black text-lg">1</span>
+                Select a Delivery Address
+            </h2>
+            
+            <div className="bg-[#0f0f0f] ring-1 ring-white/10 rounded-2xl shadow-xl overflow-hidden">
+                <div className="flex flex-row justify-between items-center bg-[#141414] p-6 border-b border-white/10">
+                    <h3 className="text-lg font-semibold text-white">Your Addresses</h3>
+                    <button 
+                        onClick={() => setShowAddressForm(true)} 
+                        className="text-sm font-mono uppercase tracking-wider text-[#FF9900] hover:text-[#FFB145] transition-colors"
+                    >
+                        + Add New Address
+                    </button>
+                </div>
+                
+                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {userAddress.map((address, index) => (
+                        <label 
+                            key={index} 
+                            className="relative flex cursor-pointer rounded-xl border border-white/10 bg-white/[0.02] p-5 hover:border-[#FF9900]/50 transition-colors has-[:checked]:border-[#FF9900] has-[:checked]:bg-[#FF9900]/5"
+                        >
+                            <div className="flex items-start gap-4">
                                 <input
                                     type="radio"
                                     name="selectedAddress"
                                     value={index}
                                     onChange={() => handleAddressSelect(index)}
+                                    className="mt-1 h-4 w-4 accent-[#FF9900]"
                                 />
-                                <span className="text-sm capitalize -mt-1 ml-2">
-                                    <span className='font-semibold text-white'>{address.name}</span>
-                                    <span> {address.address}</span>
-                                    <span>, {address.area}</span>
-                                    <span>, {address.landmark}</span>
-                                    <span>, {address.city} </span>
-                                    <span>, {address.pincode}</span>
-                                    <span>, State : {address.state}</span>
-                                    <span>, Country : {address.country}</span>
-                                    <span>, Mobile Number : {address.mobile} &nbsp;</span>
-                                    <button onClick={() => deleteAddressFromBackend(index)} className='text-[#FF9900] hover:text-[#FFB145] hover:underline'>Delete this address</button>
-                                </span>
-                            </label>
-                        ))}
+                                <div className="flex flex-col gap-1 text-sm text-gray-400">
+                                    <span className="font-bold text-white text-base">{address.name}</span>
+                                    <span>{address.address}, {address.area}</span>
+                                    <span>{address.city}, {address.state} {address.pincode}</span>
+                                    <span>{address.country}</span>
+                                    <span className="mt-1 font-mono text-gray-300">📞 {address.mobile}</span>
+                                    
+                                    <button 
+                                        onClick={(e) => { e.preventDefault(); deleteAddressFromBackend(index); }} 
+                                        className="mt-3 text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-400 self-start transition-colors"
+                                    >
+                                        Delete Address
+                                    </button>
+                                </div>
+                            </div>
+                        </label>
+                    ))}
                 </div>
             </div>
         </div>

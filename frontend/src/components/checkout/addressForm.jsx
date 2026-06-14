@@ -188,131 +188,153 @@ const AddressForm = ({ setShowAddressForm }) => {
     }
 
     return (
-        <div>
-            <p className='text-lg font-semibold text-white'>1 &nbsp; Enter a new shipping address</p>
-            <div className='w-full flex justify-end'>
-                <div className='w-[96%] bg-[#0d0d0d] ring-1 ring-white/5 border-[1px] border-white/10 rounded-lg mt-1 pl-4 py-3'>
-                    <p className='text-2xl font-semibold text-white'>Add new address</p>
+        <div className="mb-6">
+            <h2 className="text-2xl font-black tracking-tight text-white mb-6 flex items-center gap-3">
+                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FF9900] text-black text-lg">1</span>
+                Add New Shipping Address
+            </h2>
+            
+            <div className="bg-[#0f0f0f] ring-1 ring-white/10 rounded-2xl p-6 md:p-8 shadow-xl">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Full Name</span>
+                            <input 
+                                onChange={(e) => { setNameInput(e.target.value); setNameError(""); }} 
+                                value={nameInput} 
+                                type="text" 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                                placeholder="Jane Doe"
+                            />
+                            {nameError && <span className="text-xs text-red-500 mt-1">{nameError}</span>}
+                        </label>
+                        
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Mobile Number</span>
+                            <input 
+                                onChange={(e) => { setMobileInput(e.target.value); setMobileError(""); }} 
+                                value={mobileInput} 
+                                type="tel" 
+                                maxLength="10" 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                                placeholder="10-digit number"
+                            />
+                            {mobileError && <span className="text-xs text-red-500 mt-1">{mobileError}</span>}
+                        </label>
+                    </div>
 
-                    <form onSubmit={handleSubmit} className='w-[73%] my-4 flex flex-col gap-3'>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Full name (First and Last name)
-                            <input onChange={(e) => { setNameInput(e.target.value); setNameError(""); }} value={nameInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                            {
-                                nameError && <div className='text-sm text-[#d14444]  pl-5'>{nameError}</div>
-                            }
-                        </label>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Mobile number
-                            <input onChange={(e) => { setMobileInput(e.target.value); setMobileError(""); }} value={mobileInput} type="tel" maxLength="10" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                            <p className='text-xs font-normal text-gray-400'>May be used to assist delivery</p>
-                            {
-                                mobileError && <div className='text-sm text-[#d14444]  pl-5'>{mobileError}</div>
-                            }
-                        </label>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Pincode
-                            <input onChange={(e) => { setPincodeInput(e.target.value); setPincodeError(""); }} value={pincodeInput} type="tel" maxLength="6" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                            {
-                                pincodeError && <div className='text-sm text-[#d14444]  pl-5'>{pincodeError}</div>
-                            }
-                        </label>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Flat, House no., Building, Company, Apartment
-                            <input onChange={(e) => { setAddressInput(e.target.value); setAddressError(""); }} value={addressInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                            {
-                                addressError && <div className='text-sm text-[#d14444]  pl-5'>{addressError}</div>
-                            }
-                        </label>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Area, Street, Sector, Village
-                            <input onChange={(e) => { setAreaInput(e.target.value) }} value={areaInput} type="text" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                        </label>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Landmark
-                            <input onChange={(e) => { setLandmarkInput(e.target.value) }} value={landmarkInput} type="text" placeholder="E.g. near apollo hospital" autoComplete="true" className=' bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 ' />
-                        </label>
-                        <div className='w-full flex flex-row gap-3'>
-                            <label className='text-sm font-semibold w-[50%] text-gray-300'>
-                                Town/City
-                                <input onChange={(e) => { setCityInput(e.target.value); setCityError(""); }} value={cityInput} type="text" autoComplete="true" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]' />
-                                {
-                                    cityError && <div className='text-sm text-[#d14444]  pl-5'>{cityError}</div>
-                                }
-                            </label>
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Address Line 1</span>
+                        <input 
+                            onChange={(e) => { setAddressInput(e.target.value); setAddressError(""); }} 
+                            value={addressInput} 
+                            type="text" 
+                            className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                            placeholder="Flat, House no., Building, Apartment"
+                        />
+                        {addressError && <span className="text-xs text-red-500 mt-1">{addressError}</span>}
+                    </label>
 
-                            <label className='text-sm font-semibold w-[50%] text-gray-300'>
-                                State
-                                <select value={stateInput} // Bind the state variable to the value of the select element
-                                    onChange={(e) => setStateInput(e.target.value)} // Update state when an option is selected
-                                    type="text" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1 mt-[2px]'>
-                                    {
-                                        states.map((item, index) => (
-                                            <option value={item} className="hover:bg-[#FF9900] pl-1 text-sm flex flex-col items-start cursor-pointer"
-                                                key={index}>{item}</option>
-                                        ))
-                                    }
-                                </select>
-                                {
-                                    stateError && <div className='text-sm text-[#d14444]  pl-5'>{stateError}</div>
-                                }
-                            </label>
-                        </div>
-                        <label className='text-sm font-semibold flex flex-col gap-[2px] text-gray-300'>
-                            Country
-                            <select defaultValue="India"
-                                type="text" className='w-full bg-[#141414] text-white ring-1 ring-white/10 focus:ring-[#FF9900]/40 placeholder-gray-500 border-[1px] border-white/10 rounded p-1'>
-                                {
-                                    countryList.map((item, index) => (
-                                        <option
-                                            value={item}
-                                            disabled={item !== "India"} // Pre-select "India" and Disable other options
-                                            className="hover:bg-[#FF9900] pl-1 text-sm flex flex-col items-start cursor-pointer"
-                                            key={index}>
-                                            {item}
-                                        </option>
-                                    ))
-                                }
+                    <label className="flex flex-col gap-1">
+                        <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Area / Street</span>
+                        <input 
+                            onChange={(e) => setAreaInput(e.target.value)} 
+                            value={areaInput} 
+                            type="text" 
+                            className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                            placeholder="Sector, Village, Street Name"
+                        />
+                    </label>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Landmark</span>
+                            <input 
+                                onChange={(e) => setLandmarkInput(e.target.value)} 
+                                value={landmarkInput} 
+                                type="text" 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                                placeholder="E.g. Near Apollo Hospital"
+                            />
+                        </label>
+                        
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Pincode</span>
+                            <input 
+                                onChange={(e) => { setPincodeInput(e.target.value); setPincodeError(""); }} 
+                                value={pincodeInput} 
+                                type="tel" 
+                                maxLength="6" 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                                placeholder="6 digits"
+                            />
+                            {pincodeError && <span className="text-xs text-red-500 mt-1">{pincodeError}</span>}
+                        </label>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Town/City</span>
+                            <input 
+                                onChange={(e) => { setCityInput(e.target.value); setCityError(""); }} 
+                                value={cityInput} 
+                                type="text" 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 placeholder-gray-600 rounded-lg px-4 py-3 outline-none transition-all"
+                            />
+                            {cityError && <span className="text-xs text-red-500 mt-1">{cityError}</span>}
+                        </label>
+
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">State</span>
+                            <select 
+                                value={stateInput} 
+                                onChange={(e) => { setStateInput(e.target.value); setStateError(""); }} 
+                                className="bg-[#141414] text-white ring-1 ring-white/10 focus:ring-2 focus:ring-[#FF9900]/50 rounded-lg px-4 py-3 outline-none transition-all cursor-pointer"
+                            >
+                                <option value="" disabled>Select State</option>
+                                {states.map((item, index) => (
+                                    <option value={item} key={index}>{item}</option>
+                                ))}
+                            </select>
+                            {stateError && <span className="text-xs text-red-500 mt-1">{stateError}</span>}
+                        </label>
+
+                        <label className="flex flex-col gap-1">
+                            <span className="text-xs font-mono uppercase tracking-wider text-gray-400">Country</span>
+                            <select 
+                                defaultValue="India"
+                                className="bg-[#141414] text-gray-400 ring-1 ring-white/10 rounded-lg px-4 py-3 outline-none opacity-80 cursor-not-allowed"
+                            >
+                                <option value="India" disabled>India</option>
                             </select>
                         </label>
-                        <button className="text-sm w-[50%] text-center rounded-lg bg-[#FF9900] text-black font-bold hover:bg-[#FFB145] p-[6px] mt-5 ml-36 active:ring-2 active:ring-offset-1 active:ring-[#FF9900]"
-                        >Save this address</button>
-                        {loading && <div className='flex justify-center mt-2'>
-                            <RotatingLines
-                                strokeColor="#febd69"
-                                strokeWidth="5"
-                                animationDuration="0.75"
-                                width="50"
-                                visible={true}
-                            />
-                        </div>
-                        }
-                        {
-                            successMsg && <div className=''>
-                                <motion.p
-                                    initial={{ y: 10, opacity: 0 }}
-                                    animate={{ y: 10, opacity: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    className='text-base font-semibold text-green-600 border-[1px] px-2 text-center'
-                                >
-                                    {successMsg}
-                                </motion.p>
-                            </div>
-                        }
-                        {
-                            errorMsg && <div className=''>
-                                <motion.p
-                                    initial={{ y: 10, opacity: 0 }}
-                                    animate={{ y: 10, opacity: 1 }}
-                                    transition={{ duration: 0.5 }}
-                                    className='text-base font-semibold text-red-700 border-[1px] px-2 text-center'
-                                >
-                                    {errorMsg}
-                                </motion.p>
-                            </div>
-                        }
-                    </form>
-                </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-col md:flex-row items-center gap-4">
+                        <button 
+                            type="submit"
+                            disabled={loading}
+                            className="relative flex w-full md:w-auto items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#FF9900] px-8 py-4 font-mono text-sm font-black uppercase tracking-[0.1em] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)] transition-all hover:bg-[#ffb145] hover:shadow-[0_0_35px_rgba(255,153,0,0.5)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait"
+                        >
+                            {loading ? "Saving..." : "Save Address"}
+                        </button>
+                        
+                        {loading && (
+                            <RotatingLines strokeColor="#febd69" strokeWidth="5" animationDuration="0.75" width="30" visible={true} />
+                        )}
+                        
+                        {successMsg && (
+                            <motion.p initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-sm font-bold text-green-400">
+                                {successMsg}
+                            </motion.p>
+                        )}
+                        {errorMsg && (
+                            <motion.p initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-sm font-bold text-red-500">
+                                {errorMsg}
+                            </motion.p>
+                        )}
+                    </div>
+                </form>
             </div>
         </div>
     )
