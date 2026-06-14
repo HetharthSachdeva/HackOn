@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from "react-router-dom";
 import QuickCommerceHeader from "./components/header/QuickCommerceHeader";
 import Footer from "./components/footer/Footer";
-import Home from "./components/home/Home";
-import ErrorPage from "./components/error/ErrorPage";
-import SignIn from "./components/logIn/SignIn";
-import CreateAccount from "./components/logIn/CreateAccount";
-import ForgotPassword from "./components/logIn/ForgotPassword";
-import Products from "./components/products/Products";
-import ProductDetails from "./components/products/ProductDetails";
-import Cart from "./components/cart/cart";
-import Orders from "./components/orders/Orders";
+
+// Lazy load route components
+const Home = lazy(() => import("./components/home/Home"));
+const ErrorPage = lazy(() => import("./components/error/ErrorPage"));
+const SignIn = lazy(() => import("./components/logIn/SignIn"));
+const CreateAccount = lazy(() => import("./components/logIn/CreateAccount"));
+const ForgotPassword = lazy(() => import("./components/logIn/ForgotPassword"));
+const Products = lazy(() => import("./components/products/Products"));
+const ProductDetails = lazy(() => import("./components/products/ProductDetails"));
+const Cart = lazy(() => import("./components/cart/cart"));
+const Orders = lazy(() => import("./components/orders/Orders"));
+const Checkout = lazy(() => import("./components/checkout/Checkout"));
+
 import { UserCartProvider } from "./context/userCartContext";
 import { UserAddressProvider } from "./context/userAddressContext";
 import { UserOrdersProvider } from "./context/userOrderContext";
-import Checkout from "./components/checkout/Checkout";
 import { productsData } from "./api/api";
 import { useDispatch } from "react-redux";
 import { setUserInfo, setUserAuthentication, userSignOut } from "./redux/amazonSlice";
@@ -41,7 +44,9 @@ const Layout = () => {
         onAISearch={handleAISearch}
       />
       <ScrollRestoration />
-      <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch }} />
+      <Suspense fallback={<div className="flex h-screen items-center justify-center text-white">Loading...</div>}>
+        <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch }} />
+      </Suspense>
       <Footer />
     </div>
   );
@@ -130,6 +135,7 @@ function App() {
     },
     {
       path: "/signIn",
+      element: <Suspense fallback={<div className="flex h-screen items-center justify-center text-black">Loading...</div>}><Outlet /></Suspense>,
       children: [
         {
           index: true,
@@ -143,11 +149,11 @@ function App() {
     },
     {
       path: "/createAccount",
-      element: <CreateAccount />,
+      element: <Suspense fallback={<div className="flex h-screen items-center justify-center text-black">Loading...</div>}><CreateAccount /></Suspense>,
     },
     {
       path: "/checkout",
-      element: <Checkout />,
+      element: <Suspense fallback={<div className="flex h-screen items-center justify-center text-black">Loading...</div>}><Checkout /></Suspense>,
     },
   ]);
 

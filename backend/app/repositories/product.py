@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import defer
 
 from app.models.product import Product
 
@@ -79,13 +80,14 @@ async def list_products(
     total = (await session.execute(count_stmt)).scalar_one()
 
     order_by = _SORT_MAP.get(sort or "", Product.reviews.desc().nullslast())
-    page_stmt = base.order_by(order_by).limit(limit).offset(offset)
+    page_stmt = base.options(defer(Product.embedding)).order_by(order_by).limit(limit).offset(offset)
     rows = (await session.execute(page_stmt)).scalars().all()
     return list(rows), int(total)
 
 
 async def get_product(session: AsyncSession, asin: str) -> Product | None:
-    return await session.get(Product, asin)
+    stmt = select(Product).options(defer(Product.embedding)).where(Product.asin == asin)
+    return (await session.execute(stmt)).scalar_one_or_none()
 
 
 async def get_products_by_asins(
@@ -94,7 +96,7 @@ async def get_products_by_asins(
     """Return a ``{asin: Product}`` dict for the given ASINs (missing ones omitted)."""
     if not asins:
         return {}
-    stmt = select(Product).where(Product.asin.in_(asins))
+    stmt = select(Product).options(defer(Product.embedding)).where(Product.asin.in_(asins))
     rows = (await session.execute(stmt)).scalars().all()
     return {row.asin: row for row in rows}
 
