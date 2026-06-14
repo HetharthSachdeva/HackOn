@@ -55,6 +55,8 @@ const DealCard = ({ product, onAdd }) => {
   );
 };
 
+import axios from 'axios';
+
 const ProductsSliderContent = ({ productsData }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -62,9 +64,29 @@ const ProductsSliderContent = ({ productsData }) => {
   const authenticated = useSelector((state) => state.amazon.isAuthenticated);
   const { addToCartBackend } = useCart();
 
-  // Prefer discounted products for "deals"
+  const [recommendedDeals, setRecommendedDeals] = React.useState([]);
+
+  React.useEffect(() => {
+    if (authenticated && userInfo?.token) {
+      axios.get('http://localhost:8000/api/v1/recommendations/for-you?limit=8', {
+        headers: { Authorization: `Bearer ${userInfo.token}` }
+      }).then(res => {
+         const mapped = (res.data || []).map(p => ({
+            id: p.asin, title: p.title, price: p.price,
+            thumbnail: p.img_url, category: p.category, brand: p.unit_size || 'Q-Commerce',
+            discountPercentage: 10, stock: p.stock_qty || 1
+         }));
+         setRecommendedDeals(mapped);
+      }).catch(err => console.error("Failed to load recommendations", err));
+    }
+  }, [authenticated, userInfo]);
+
+  // Prefer discounted products for "deals" if not authenticated
   const deals = [...productsData].sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0)).slice(0, 8);
   const featuredThumbs = productsData.slice(0, 7);
+  
+  const displayDeals = recommendedDeals.length > 0 ? recommendedDeals : deals;
+  const headingText = recommendedDeals.length > 0 ? "Recommended For You" : "Today's Deals";
 
   const handleAdd = async (product) => {
     if (!authenticated) {
@@ -84,11 +106,11 @@ const ProductsSliderContent = ({ productsData }) => {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-3xl font-black text-white">Today's Deals</h2>
+            <h2 className="text-3xl font-black text-white">{headingText}</h2>
             <span className="flex items-center gap-1 rounded bg-[#FF9900] px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-black">🔥 Hot</span>
           </div>
           <p className="mt-3 max-w-xl text-sm text-gray-500">
-            High-performance picks and daily essentials at reduced rates.<br />Offers reset at 00:00 UTC.
+            {recommendedDeals.length > 0 ? "Curated specifically for your tastes and past orders." : "High-performance picks and daily essentials at reduced rates."}
           </p>
         </div>
         <button onClick={() => navigate('/allProducts')} className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-gray-300 transition hover:text-[#FF9900]">
@@ -117,7 +139,7 @@ const ProductsSliderContent = ({ productsData }) => {
 
       {/* Deal grid */}
       <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {deals.map((product, i) => (
+        {displayDeals.map((product, i) => (
           <DealCard key={i} product={product} onAdd={handleAdd} />
         ))}
       </div>
