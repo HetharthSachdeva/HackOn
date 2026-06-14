@@ -38,12 +38,14 @@ const AIBundleCartGenerator = () => {
             }
             if (stateImage) {
                 setImage(stateImage);
+            } else {
+                setImage(null); // Clear any previous image if doing a fresh text-only search from header
             }
             // Clear URL and navigation state immediately
             navigate('/cart', { replace: true, state: null });
             
-            // Only auto-trigger search if it is a text-only query from the URL (no image upload)
-            if (urlPrompt && !stateImage) {
+            // Only auto-trigger search if it is a text-only query (no image uploaded)
+            if (!stateImage && finalPrompt) {
                 handleGenerate(null, finalPrompt, null);
             }
         }

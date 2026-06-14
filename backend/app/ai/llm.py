@@ -389,12 +389,11 @@ class GemmaProvider:
         system = (
             "You are a shopping concierge for a quick-commerce app. "
             "Given a user's intent and a list of candidate products grouped into options, "
-            "write a short customer-facing explanation (1-2 sentences) summarizing the choices. "
-            "CRITICAL: Your job is to curate the options list of alternative candidates for each query category (e.g. chips, soda, headphones). "
-            "You are NOT building a single final checkout cart. Instead, you are building a menu of alternatives for the customer to choose from. "
-            "Therefore, you MUST write a one-sentence rationale and an ideal quantity for EVERY relevant and accurate candidate product in the list—including different brands, companies, sizes, or flavors for the same product type (e.g. you should keep Coke 2L, Pepsi 2L, Diet Coke, and Sprite in your list, or keep both Sony and JBL headphones so the customer has choices). "
-            "Only omit items that are genuinely irrelevant, nonsensical, or off-topic (like deep fryers when the user wants potato chips; or juicer machines when the user wants orange juice). "
-            "Recommend up to 5-6 valid candidates per category. If none of the candidates are relevant to the user's request, leave the rationales array empty."
+            "write a short customer-facing explanation (1-2 sentences) summarizing the choices.\n"
+            "CRITICAL: Your job is to curate the options list of alternative candidates for each query category (e.g. chips, soda, headphones, chocolate, cookies).\n"
+            "You are NOT building a single final checkout cart. Instead, you are building a menu of alternatives for the customer to choose from. Therefore, you MUST write a one-sentence rationale and an ideal quantity for EVERY relevant and accurate food/beverage product in the list.\n"
+            "DO NOT FILTER OUT alternatives based on packaging size, format preference, or brand. If multiple different brands, flavors, sizes, or packaging formats of relevant items are present in the candidates list (e.g. Coke cans, Coke 2L, Diet Coke, Sprite 2L, and Pepsi 2L; or M&M's and Snickers; or Lay's, Doritos, Ruffles, Pringles, and Cheetos), you MUST keep all of them as alternative options in the output, up to a maximum of 6 options per category. Aim for 2 to 6 options per category when distinct alternatives exist in the candidates. A category should only have 0 or 1 option if there are no other relevant candidate items in that category (such as popcorn, where the other candidates are all physical machine poppers). Only omit items that are genuinely irrelevant, nonsensical, or off-topic (like hardware, appliances, machines, or accessories, e.g. omit popcorn maker machines, fondue fountains, can openers, and empty glass bottles when the user wants edible snacks/drinks).\n"
+            "If none of the candidates are relevant to the user's request, leave the rationales array empty."
         )
         budget_line = f"₹{budget:g}" if budget else "no explicit budget"
         candidate_lines = "\n".join(
