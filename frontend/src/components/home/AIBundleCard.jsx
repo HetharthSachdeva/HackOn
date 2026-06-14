@@ -15,19 +15,40 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
     const userInfo = useSelector((state) => state.amazon.userInfo);
     const authenticated = useSelector((state) => state.amazon.isAuthenticated);
 
+    const discountFactor = Number(bundle.totalCost) > 0 ? (Number(bundle.savings) / Number(bundle.totalCost)) : 0.1;
+    const currentSavings = bundleCost * discountFactor;
+    const tax = Math.max(0, (bundleCost - currentSavings) * 0.06);
+    const finalTotal = Math.max(0, bundleCost - currentSavings + tax);
+
+    const updateQuantity = (productIdx, delta) => {
+        const updatedProducts = bundleProducts.map((p, idx) => {
+            if (idx === productIdx) {
+                const newQty = Math.max(1, (p.quantity || 1) + delta);
+                return { ...p, quantity: newQty };
+            }
+            return p;
+        });
+
+        // Calculate new total cost based on unit price * quantity
+        const newCost = updatedProducts.reduce((sum, p) => sum + (parseFloat(p.price) * (p.quantity || 1)), 0);
+
+        setBundleProducts(updatedProducts);
+        setBundleCost(newCost);
+    };
+
     const handleReplaceProduct = (product) => {
         setSelectedProduct(product);
         setShowReplacePanel(true);
     };
 
     const handleSelectAlternative = (alternative) => {
-        // Update bundle with new product
+        // Update bundle with new product, maintaining the existing quantity
         const updatedProducts = bundleProducts.map(p => 
-            p.name === selectedProduct.name ? alternative.product : p
+            p.name === selectedProduct.name ? { ...alternative.product, quantity: selectedProduct.quantity || 1 } : p
         );
         
         // Calculate new total cost
-        const newCost = updatedProducts.reduce((sum, p) => sum + p.price, 0);
+        const newCost = updatedProducts.reduce((sum, p) => sum + (parseFloat(p.price) * (p.quantity || 1)), 0);
         
         setBundleProducts(updatedProducts);
         setBundleCost(newCost);
@@ -37,7 +58,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         setTimeout(() => {
             const toast = document.createElement('div');
             toast.className = 'fixed top-4 right-4 bg-[#FF9900] text-black font-bold px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
-            toast.innerHTML = `✅ Replaced! New total: ₹${newCost}`;
+            toast.innerHTML = `✅ Replaced! New total: ₹${newCost.toFixed(2)}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }, 300);
@@ -52,9 +73,9 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
         setIsAddingToCart(true);
 
         try {
-            // Add each bundle product to cart sequentially
+            // Add each bundle product to cart sequentially with its selected quantity
             for (const product of bundleProducts) {
-                await addToCartBackend(product.id, product.quantity);
+                await addToCartBackend(product.id, product.quantity || 1);
             }
 
             // Show success message
@@ -62,11 +83,11 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
             toast.className = 'fixed top-4 right-4 bg-[#FF9900] text-black px-8 py-4 rounded-2xl shadow-2xl z-50 animate-slide-down flex items-center gap-3';
             toast.innerHTML = `
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                 </svg>
                 <div>
                     <div class="font-bold">Bundle Added!</div>
-                    <div class="text-sm opacity-80">${bundleProducts.length} items added to cart</div>
+                    <div class="text-sm opacity-80">${bundleProducts.reduce((sum, p) => sum + (p.quantity || 1), 0)} items added to cart</div>
                 </div>
             `;
             document.body.appendChild(toast);
@@ -122,11 +143,11 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                         <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
                             <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Total Cost</p>
-                                <p className="mt-2 text-2xl font-black text-white">₹{Number(bundleCost).toFixed(2)}</p>
+                                <p className="mt-2 text-2xl font-black text-white">₹{Number(finalTotal).toFixed(2)}</p>
                             </div>
                             <div className="rounded-xl border-2 border-[#FF9900] bg-[#FF9900]/5 p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF9900]">You Save</p>
-                                <p className="mt-2 text-2xl font-black text-[#FF9900]">₹{Number(bundle.savings).toFixed(2)}</p>
+                                <p className="mt-2 text-2xl font-black text-[#FF9900]">₹{Number(currentSavings).toFixed(2)}</p>
                             </div>
                             <div className="rounded-xl border border-white/10 bg-[#0d0d0d] p-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">Delivery Time</p>
@@ -149,14 +170,42 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <h4 className="truncate font-bold text-white">{product.name}</h4>
-                                        <p className="mt-0.5 font-mono text-xs text-gray-500">Qty: {product.quantity}</p>
-                                        <div className="mt-1 flex items-baseline gap-2">
+                                        <div className="mt-1.5 flex items-baseline gap-2">
                                             {product.originalPrice && product.originalPrice !== product.price && (
-                                                <span className="text-sm text-gray-600 line-through">₹{product.originalPrice}</span>
+                                                <span className="text-sm text-gray-600 line-through">
+                                                    ₹{(parseFloat(product.originalPrice) * (product.quantity || 1)).toFixed(2)}
+                                                </span>
                                             )}
-                                            <span className="font-bold text-[#FF9900]">₹{product.price}</span>
+                                            <span className="font-bold text-[#FF9900]">
+                                                ₹{(parseFloat(product.price) * (product.quantity || 1)).toFixed(2)}
+                                            </span>
+                                            {(product.quantity || 1) > 1 && (
+                                                <span className="text-[10px] text-gray-500 font-mono">
+                                                    (₹{parseFloat(product.price).toFixed(2)} each)
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Quantity stepper like in the cart */}
+                                    <div className="flex items-center gap-1 rounded-lg bg-white/5 p-1 ring-1 ring-white/10">
+                                        <button
+                                            onClick={() => updateQuantity(idx, -1)}
+                                            className="grid h-8 w-8 place-items-center rounded-md text-gray-300 transition hover:bg-white/10 hover:text-white"
+                                            aria-label="Decrease quantity"
+                                        >
+                                            −
+                                        </button>
+                                        <span className="w-8 text-center font-semibold text-white">{product.quantity || 1}</span>
+                                        <button
+                                            onClick={() => updateQuantity(idx, 1)}
+                                            className="grid h-8 w-8 place-items-center rounded-md text-gray-300 transition hover:bg-white/10 hover:text-white"
+                                            aria-label="Increase quantity"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+
                                     <button
                                         onClick={() => handleReplaceProduct(product)}
                                         className="flex flex-shrink-0 items-center gap-2 rounded-md border border-white/15 px-4 py-2 text-sm text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
@@ -201,16 +250,16 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
                             <div className="mt-6 space-y-3 text-sm">
                                 <div className="flex justify-between text-gray-300">
-                                    <span>Items Total ({bundleProducts.length} items)</span>
+                                    <span>Items Total ({bundleProducts.reduce((sum, p) => sum + (p.quantity || 1), 0)} items)</span>
                                     <span className="font-semibold text-white">₹{Number(bundleCost).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-300">
                                     <span>Bundle Discount</span>
-                                    <span className="font-semibold text-[#FF9900]">-${Number(bundle.savings).toFixed(2)}</span>
+                                    <span className="font-semibold text-[#FF9900]">-₹{Number(currentSavings).toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between text-gray-300">
-                                    <span>Tax</span>
-                                    <span className="font-semibold text-white">₹{(bundleCost * 0.06).toFixed(2)}</span>
+                                    <span>Tax (6%)</span>
+                                    <span className="font-semibold text-white">₹{Number(tax).toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center justify-between text-gray-300">
                                     <span className="flex items-center gap-1">Delivery Fee <span className="text-gray-600">ⓘ</span></span>
@@ -222,7 +271,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
 
                             <div className="flex items-center justify-between">
                                 <span className="text-lg text-gray-300">Total</span>
-                                <span className="text-3xl font-black text-white">₹{(bundleCost + bundleCost * 0.06).toFixed(2)}</span>
+                                <span className="text-3xl font-black text-white">₹{Number(finalTotal).toFixed(2)}</span>
                             </div>
 
                             <button
@@ -260,7 +309,7 @@ const AIBundleCard = ({ bundle, onOptimize }) => {
                 />
             )}
 
-            <style jsx>{`
+            <style>{`
                 @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
                 @keyframes slide-down { from { opacity: 0; transform: translateY(-100px); } to { opacity: 1; transform: translateY(0); } }
                 .animate-fade-in { animation: fade-in 0.5s ease-out; }

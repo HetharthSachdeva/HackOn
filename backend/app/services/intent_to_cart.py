@@ -24,6 +24,7 @@ from app.schemas.ai import IntentCartItem, IntentToCartResponse
 from app.schemas.product import ProductSearchHit
 from app.services import cart as cart_service
 from app.services import semantic_search
+from app.services import hybrid_search
 
 log = structlog.get_logger(__name__)
 
@@ -141,20 +142,46 @@ async def cart_from_intent(
     apply_to_cart: bool,
 ) -> IntentToCartResponse:
     """Run the full pipeline and return a response payload."""
-    parsed_budget = budget or parse_budget(prompt)
+    # 1. Structured query decomposition using the LLM provider
+    provider = llm.get_provider()
+    log.info("intent_to_cart.start", prompt=prompt, provider=provider.name)
+    extracted = await provider.parse_query(prompt)
+    # 2. Parse budget & servings
+    parsed_budget = budget
+    if parsed_budget is None:
+        if extracted.budget is not None and extracted.budget > 0:
+            parsed_budget = Decimal(str(extracted.budget))
+        else:
+            parsed_budget = parse_budget(prompt)
     servings = parse_servings(prompt)
 
-    candidates, used_semantic = await semantic_search.search(
-        session, prompt, limit=max(30, max_items * 4), in_stock_only=True
+    # 3. Perform hybrid search for each decomposed search term
+    results_by_item = await hybrid_search.search_hybrid(
+        session, extracted, limit_per_item=max(15, max_items * 2)
     )
+
+    # 4. Round-robin merge candidates list to construct final pool (ensures item coverage)
+    candidates: list[ProductSearchHit] = []
+    seen_asins = set()
+    max_len = max(len(hits) for hits in results_by_item.values()) if results_by_item else 0
+    
+    for i in range(max_len):
+        for item_query, hits_list in results_by_item.items():
+            if i < len(hits_list):
+                hit = hits_list[i]
+                if hit.asin not in seen_asins:
+                    seen_asins.add(hit.asin)
+                    candidates.append(hit)
+
     log.info(
         "intent_to_cart.candidates",
-        n=len(candidates),
-        used_semantic=used_semantic,
+        decomposed_items=extracted.items,
+        n_candidates=len(candidates),
         budget=str(parsed_budget) if parsed_budget else None,
         servings=servings,
     )
 
+    # 5. Greedy compilation of the cart under the budget
     chosen = _assemble(
         candidates,
         budget=parsed_budget,
@@ -162,7 +189,9 @@ async def cart_from_intent(
         servings=servings,
     )
 
-    suggestion = await llm.get_provider().suggest_cart(
+    # 6. Call LLM to provide explanations and rationales
+    log.info("intent_to_cart.suggest_cart.start", provider=provider.name, candidates_count=len(chosen))
+    suggestion = await provider.suggest_cart(
         prompt,
         [
             {
@@ -179,6 +208,7 @@ async def cart_from_intent(
         ],
         float(parsed_budget) if parsed_budget else None,
     )
+    log.info("intent_to_cart.suggest_cart.complete", explanation=suggestion.explanation)
 
     items_with_rationale = [
         item.model_copy(
@@ -204,5 +234,5 @@ async def cart_from_intent(
         budget=parsed_budget,
         over_budget=over_budget,
         applied_to_cart=applied,
-        used_semantic=used_semantic,
+        used_semantic=True,  # Hybrid search uses both vector and keyword paths
     )

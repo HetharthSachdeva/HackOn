@@ -130,7 +130,7 @@ def get_optional_user(
         return None
     try:
         return decode_supabase_jwt(credentials.credentials)
-    except UnauthorizedError:
+    except Exception:  # noqa: BLE001 — catch all to degrade to guest gracefully on any auth/network error
         return None
 
 

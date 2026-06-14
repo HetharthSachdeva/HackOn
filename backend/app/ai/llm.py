@@ -26,6 +26,7 @@ import httpx
 import structlog
 
 from app.core.config import get_settings
+from app.schemas.query_parser import ExtractedQuery
 
 log = structlog.get_logger(__name__)
 
@@ -60,6 +61,10 @@ class LLMProvider(Protocol):
         """
         ...
 
+    async def parse_query(self, prompt: str) -> ExtractedQuery:
+        """Decompose a natural language query into structured items, budget, preferences, and occasion."""
+        ...
+
 
 # ---------------------------------------------------------------------------
 # Stub
@@ -83,7 +88,137 @@ class StubLLMProvider:
         candidates: list[dict],
         budget: float | None,
     ) -> CartSuggestion:
-        return _stub_suggestion(prompt, candidates, budget)
+        res = _stub_suggestion(prompt, candidates, budget)
+        log.info("stub.suggest_cart.output", prompt=prompt, explanation=res.explanation)
+        return res
+
+    async def parse_query(self, prompt: str) -> ExtractedQuery:
+        # Local regex patterns for budget and servings
+        budget_re = re.compile(
+            r"""
+            (?:under|below|less\s+than|<\s*=?|max(?:imum)?|upto|up\s+to|budget\s*(?:of|=)?)
+            \s*
+            (?:rs\.?|₹|inr)?\s*
+            (\d{2,6})
+            """,
+            re.IGNORECASE | re.VERBOSE,
+        )
+        servings_re = re.compile(r"\bfor\s+(\d{1,2})\s*(?:people|persons?|guests?|pax)\b", re.IGNORECASE)
+        trailing_amount_re = re.compile(r"(?:rs\.?|₹|inr)\s*(\d{2,6})", re.IGNORECASE)
+
+        # Parse budget
+        budget_val = None
+        if m := budget_re.search(prompt):
+            try:
+                budget_val = float(m.group(1))
+            except ValueError:
+                pass
+        elif m := trailing_amount_re.search(prompt):
+            try:
+                budget_val = float(m.group(1))
+            except ValueError:
+                pass
+
+        # Clean prompt
+        clean = prompt
+        clean = budget_re.sub("", clean)
+        clean = servings_re.sub("", clean)
+        clean = trailing_amount_re.sub("", clean)
+
+        # Look for preferences
+        preferences = []
+        lower_prompt = prompt.lower()
+        if "healthy" in lower_prompt or "organic" in lower_prompt:
+            preferences.append("healthy")
+        if "vegan" in lower_prompt:
+            preferences.append("vegan")
+        if "vegetarian" in lower_prompt:
+            preferences.append("vegetarian")
+        if "protein" in lower_prompt:
+            preferences.append("high-protein")
+
+        # Parse occasion
+        occasion = None
+        if "breakfast" in lower_prompt:
+            occasion = "breakfast"
+        elif "lunch" in lower_prompt:
+            occasion = "lunch"
+        elif "dinner" in lower_prompt:
+            occasion = "dinner"
+        elif "movie" in lower_prompt:
+            occasion = "movie night"
+        elif "snack" in lower_prompt or "munchies" in lower_prompt:
+            occasion = "snacks"
+        elif "party" in lower_prompt or "game night" in lower_prompt:
+            occasion = "party"
+
+        # Strip common fillers (including event/occasion noise like movie, night, party, etc. to prevent extracting them as item names)
+        clean = re.sub(
+            r"\b(under|below|budget|for|people|pax|guests?|persons?|need|want|buy|get|looking|for|a|an|the|of|inr|rs|₹|movie|night|party|event)\b",
+            "",
+            clean,
+            flags=re.IGNORECASE,
+        )
+
+        # Split by comma or 'and' to get items
+        parts = re.split(r",|\band\b", clean)
+        items = []
+        for p in parts:
+            p_strip = p.strip()
+            if not p_strip:
+                continue
+            # Remove leading/trailing adjectives from specific item search queries
+            p_clean = re.sub(
+                r"\b(healthy|organic|vegan|vegetarian|high-protein|delicious|tasty|fresh|cold|hot|quick)\b",
+                "",
+                p_strip,
+                flags=re.IGNORECASE,
+            ).strip()
+            if p_clean:
+                items.append(p_clean)
+
+        # If items list is empty or is just a single long string with spaces, split by spaces
+        if len(items) == 1 and " " in items[0]:
+            words = [w.strip() for w in items[0].split() if len(w.strip()) > 2]
+            if len(words) > 1:
+                items = words
+            else:
+                items = [items[0]]
+
+        if not items:
+            items = ["snacks"]
+
+        # Derive categories and tags based on occasion and preferences
+        categories = []
+        tags = []
+        if occasion == "breakfast":
+            categories.append("Groceries & Kitchen")
+            tags.extend(["breakfast", "oats", "milk", "eggs", "fruits"])
+        elif occasion in ("lunch", "dinner"):
+            categories.append("Groceries & Kitchen")
+            tags.extend(["dinner", "lunch", "dal", "rice", "naan", "vegetables"])
+        elif occasion in ("party", "movie night", "snacks"):
+            categories.extend(["Party Supplies", "Groceries & Kitchen"])
+            tags.extend(["party", "snacks", "chips", "soda", "popcorn"])
+        
+        if "healthy" in preferences:
+            categories.append("Health & Wellness")
+            tags.append("healthy")
+
+        # Fallback category if none matched
+        if not categories:
+            categories.append("Groceries & Kitchen")
+
+        res = ExtractedQuery(
+            items=items,
+            budget=budget_val,
+            occasion=occasion,
+            preferences=preferences,
+            categories=categories,
+            tags=tags,
+        )
+        log.info("stub.parse_query.parsed", prompt=prompt, parsed=res.model_dump())
+        return res
 
 
 def _stub_suggestion(
@@ -138,7 +273,7 @@ class GemmaProvider:
     name = "gemma"
     _DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
     _DEFAULT_MODEL = "gemma-4-26b-a4b-it"
-    _TIMEOUT_SECONDS = 20.0
+    _TIMEOUT_SECONDS = 40.0
 
     def __init__(
         self,
@@ -182,21 +317,38 @@ class GemmaProvider:
         if system:
             body["systemInstruction"] = {"parts": [{"text": system}]}
 
-        async with httpx.AsyncClient(timeout=self._TIMEOUT_SECONDS) as client:
-            resp = await client.post(
-                url,
-                headers={
-                    "X-goog-api-key": self._api_key,
-                    "Content-Type": "application/json",
-                },
-                json=body,
-            )
-            resp.raise_for_status()
-            data = resp.json()
+        log.info(
+            "gemma.generate.request",
+            url=url,
+            model=self._model,
+            system=system,
+            user=user,
+            gen_config=gen_config,
+        )
 
         try:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
+            async with httpx.AsyncClient(timeout=self._TIMEOUT_SECONDS) as client:
+                resp = await client.post(
+                    url,
+                    headers={
+                        "X-goog-api-key": self._api_key,
+                        "Content-Type": "application/json",
+                    },
+                    json=body,
+                )
+                log.info("gemma.generate.http_status", status_code=resp.status_code)
+                resp.raise_for_status()
+                data = resp.json()
+        except Exception as exc:
+            log.error("gemma.generate.http_error", error=str(exc))
+            raise
+
+        try:
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            log.info("gemma.generate.response", text=text)
+            return text
         except (KeyError, IndexError, TypeError) as exc:
+            log.error("gemma.generate.invalid_response_shape", data=data)
             raise RuntimeError(f"Unexpected Gemma response shape: {data!r}") from exc
 
     async def complete(self, system: str, user: str) -> str:
@@ -270,6 +422,7 @@ class GemmaProvider:
             return _stub_suggestion(prompt, candidates, budget)
 
         payload = _extract_json_object(raw)
+        log.info("gemma.suggest_cart.raw_response", raw=raw)
         if payload is None:
             log.warning("gemma.suggest_cart_unparseable", raw=raw[:300])
             return _stub_suggestion(prompt, candidates, budget)
@@ -299,10 +452,100 @@ class GemmaProvider:
                 f"Based on \"{prompt}\", I picked {len(candidates)} item(s) "
                 "matching your needs."
             )
+
+        log.info(
+            "gemma.suggest_cart.parsed",
+            prompt=prompt,
+            explanation=explanation,
+            rationale_by_asin=rationale_by_asin,
+        )
         return CartSuggestion(
             explanation=explanation,
             rationale_by_asin=rationale_by_asin,
         )
+
+    async def parse_query(self, prompt: str) -> ExtractedQuery:
+        system = (
+            "You are a query parsing assistant for a grocery and quick-commerce delivery app.\n"
+            "Your job is to take a natural language request (describing an event, a recipe, a list of items, or a theme) "
+            "and decompose it into a JSON object.\n\n"
+            "The 8 known categories in our catalog are:\n"
+            "- Groceries & Kitchen\n"
+            "- Party Supplies\n"
+            "- Electronics & Accessories\n"
+            "- Household Essentials\n"
+            "- Beauty & Personal Care\n"
+            "- Health & Wellness\n"
+            "- Baby & Child Care\n"
+            "- Pet Care\n\n"
+            "Decompose the query into a JSON object containing:\n"
+            "- items: a list of specific, clean product search terms (e.g. ['snacks', 'chips', 'popcorn', 'cola']). "
+            "CRITICAL: Do NOT include event, theme, or temporal words like 'movie', 'night', 'party', 'dinner', 'breakfast', 'lunch' as items. Instead, extract the actual food/drink/products requested or implied (e.g., if 'movie night' is mentioned, items should be snacks/drinks like 'popcorn', 'chips', 'soda', 'candy').\n"
+            "- budget: a float number indicating the parsed budget limit, if any is mentioned in the prompt (otherwise null)\n"
+            "- occasion: a string indicating the meal or event (e.g. 'breakfast', 'lunch', 'dinner', 'snacks', 'party', 'movie night', or null)\n"
+            "- preferences: a list of string flags from: ['healthy', 'vegan', 'vegetarian', 'high-protein'] if mentioned or implied.\n"
+            "- categories: a list of category names from the 8 known categories listed above that are highly relevant to the query\n"
+            "- tags: a list of lowercase keyword tags relevant to the query (e.g. ['popcorn', 'chips', 'beverages', 'salty', 'sweet', 'party'])\n\n"
+            "Return ONLY a JSON object matching the requested schema."
+        )
+        schema = {
+            "type": "OBJECT",
+            "properties": {
+                "items": {
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"}
+                },
+                "budget": {
+                    "type": "NUMBER"
+                },
+                "occasion": {
+                    "type": "STRING"
+                },
+                "preferences": {
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"}
+                },
+                "categories": {
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"}
+                },
+                "tags": {
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"}
+                }
+            },
+            "required": ["items", "budget", "occasion", "preferences", "categories", "tags"]
+        }
+
+        try:
+            raw = await self._generate(
+                system=system,
+                user=f"Decompose the following user query: {prompt}",
+                response_schema=schema,
+            )
+            payload = _extract_json_object(raw)
+            if payload is not None:
+                # Handle cases where budget is returned but is float or int
+                budget_val = payload.get("budget")
+                budget_float = float(budget_val) if budget_val is not None else None
+                res = ExtractedQuery(
+                    items=[str(x).strip() for x in payload.get("items") or [] if str(x).strip()],
+                    budget=budget_float,
+                    occasion=str(payload.get("occasion")).strip() if payload.get("occasion") else None,
+                    preferences=[str(x).strip().lower() for x in payload.get("preferences") or []],
+                    categories=[str(x).strip() for x in payload.get("categories") or []],
+                    tags=[str(x).strip().lower() for x in payload.get("tags") or []],
+                )
+                log.info("gemma.parse_query.parsed", prompt=prompt, parsed=res.model_dump())
+                return res
+            else:
+                log.warning("gemma.parse_query.unparseable", prompt=prompt, raw=raw)
+        except Exception as exc:
+            log.warning("gemma.parse_query_failed", prompt=prompt, error=str(exc))
+
+        # Fallback to stub parser
+        stub = StubLLMProvider()
+        return await stub.parse_query(prompt)
 
 
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
