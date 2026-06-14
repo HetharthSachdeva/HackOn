@@ -57,7 +57,7 @@ async def track_event(
         session.add(user_pref)
     else:
         # Blend the new vector into the existing one using exponential moving average
-        current_vec = user_pref.embedding or [0.0] * len(vector_to_blend)
+        current_vec = user_pref.embedding if user_pref.embedding is not None else [0.0] * len(vector_to_blend)
         new_vec = [
             (1.0 - alpha) * current_vec[i] + alpha * vector_to_blend[i]
             for i in range(len(current_vec))
