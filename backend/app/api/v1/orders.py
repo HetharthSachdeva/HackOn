@@ -67,6 +67,7 @@ async def cancel_order(
     order = await order_service.cancel_order(
         db, uuid.UUID(user.id), order_id, payload.reason
     )
+    await db.refresh(order)
     return OrderRead.model_validate(order)
 
 
@@ -101,4 +102,5 @@ async def advance_order(
     if order is None:
         raise NotFoundError("Order not found")
     await order_service.transition_and_notify(db, order, target)
+    await db.refresh(order)
     return OrderRead.model_validate(order)
