@@ -36,7 +36,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen">
+    <div className="bg-[#0a0a0a] min-h-screen flex flex-col">
     {/* <div className="bg-[#f89206] min-h-screen"> */}
 
       <QuickCommerceHeader 
@@ -47,9 +47,13 @@ const Layout = () => {
         setAiImage={setAiImage}
       />
       <ScrollRestoration />
-      <Suspense fallback={<div className="flex h-screen items-center justify-center text-white">Loading...</div>}>
-        <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch, aiImage, setAiImage }} />
-      </Suspense>
+      
+      <div className="flex-1 flex flex-col">
+        <Suspense fallback={<div className="flex h-screen items-center justify-center text-white">Loading...</div>}>
+          <Outlet context={{ isAIMode, setIsAIMode, aiSearchQuery: aiSearch.query, aiSearchNonce: aiSearch.nonce, handleAISearch, aiImage, setAiImage }} />
+        </Suspense>
+      </div>
+
       <Footer />
     </div>
   );
