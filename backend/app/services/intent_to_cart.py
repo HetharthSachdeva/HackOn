@@ -187,7 +187,7 @@ async def cart_from_intent(
     )
     log.info("intent_to_cart.suggest_cart.complete", explanation=suggestion.explanation)
 
-    # 6. Apply rationales and filter out items omitted by the LLM
+    # 6. Apply rationales and filter out items omitted by the LLM (capped at 6 options)
     final_components = []
     for comp in components:
         valid_options = []
@@ -200,7 +200,7 @@ async def cart_from_intent(
                 valid_options.append(opt)
         
         if valid_options:
-            comp.options = valid_options
+            comp.options = valid_options[:6]
             final_components.append(comp)
 
     explanation = suggestion.explanation
