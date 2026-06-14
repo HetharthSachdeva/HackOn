@@ -54,6 +54,7 @@ async def _semantic(
     stmt = (
         select(Product, distance)
         .where(Product.embedding.is_not(None))
+        .where(Product.embedding.cosine_distance(vec) < 0.65)
         .order_by(distance.asc())
         .limit(limit)
     )

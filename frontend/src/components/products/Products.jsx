@@ -33,7 +33,7 @@ const ProductsContent = ({ productsData }) => {
     if (searchQuery) {
       setIsSearching(true);
       import('axios').then(axios => {
-        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { query: searchQuery, limit: 50 })
+        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 })
           .then(response => {
              const items = response.data.items || [];
              const mapped = items.map(p => ({
@@ -49,7 +49,21 @@ const ProductsContent = ({ productsData }) => {
                 stock: p.stock_qty || 0,
                 discountPercentage: 10,
              }));
-             setSemanticResults(mapped);
+
+             // HYBRID MERGE: Put exact text matches first, then pad with semantic matches
+             const tokens = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+             const tokenizedResults = productsData.filter((p) => {
+               const title = (p.title || '').toLowerCase();
+               const cat = (p.category || '').toLowerCase();
+               const brand = (p.brand || '').toLowerCase();
+               const desc = (p.description || '').toLowerCase();
+               return tokens.every(t => title.includes(t) || cat.includes(t) || brand.includes(t) || desc.includes(t));
+             });
+
+             const exactAsins = new Set(tokenizedResults.map(i => i.id || i.asin));
+             const semanticOnlyItems = mapped.filter(i => !exactAsins.has(i.id));
+
+             setSemanticResults([...tokenizedResults, ...semanticOnlyItems]);
           })
           .catch(err => console.error("Semantic search failed:", err))
           .finally(() => setIsSearching(false));
@@ -57,7 +71,7 @@ const ProductsContent = ({ productsData }) => {
     } else {
       setSemanticResults(null);
     }
-  }, [searchQuery]);
+  }, [searchQuery, productsData]);
 
   // ── Search ──
   let filtered = productsData;
