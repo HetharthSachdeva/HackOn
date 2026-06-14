@@ -1,47 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { location, required } from '../../assets';
 import axios from "axios";
 import { RotatingLines } from "react-loader-spinner";
 
 const Location = () => {
-
     const [selectedLocation, setSelectedLocation] = useState(false);
-    const [userZipCode, setUserZipCode] = useState(''); // State for the user's entered ZIP code
+    const [userZipCode, setUserZipCode] = useState('');
     const [locationName, setLocationName] = useState(null);
     const [warning, setWarning] = useState("");
-    const [autoLocationWarning, setAutoLocationWarning] = useState("")
+    const [autoLocationWarning, setAutoLocationWarning] = useState("");
     const [loading, setLoading] = useState(false);
     const [autoLocationLoading, setAutoLocationLoading] = useState(false);
 
+    // NEW — manual free-text address
+    const [manualAddress, setManualAddress] = useState('');
+    const [manualWarning, setManualWarning] = useState('');
+
     useEffect(() => {
-        // Check local storage for existing values and set them in state
         const storedLocationName = localStorage.getItem("locationName");
         const storedUserZipCode = localStorage.getItem("userZipCode");
-        if (storedLocationName && storedUserZipCode) {
+        if (storedLocationName) {
             setLocationName(storedLocationName);
-            setUserZipCode(storedUserZipCode);
+            setUserZipCode(storedUserZipCode || '');
         }
     }, []);
 
-    // Ref for the location dropdown
     const locationRef = useRef(null);
 
-    // Effect to close the location when clicking outside
     useEffect(() => {
-        document.body.addEventListener("click", (e) => {
-            if (e.target.contains(locationRef.current)) {
+        const handler = (e) => {
+            if (locationRef.current && !locationRef.current.contains(e.target)) {
                 setSelectedLocation(false);
-                setWarning(false);
-                setAutoLocationWarning(false);
-            };
-        })
-    }, [locationRef])
+                setWarning("");
+                setAutoLocationWarning("");
+                setManualWarning("");
+            }
+        };
+        document.body.addEventListener("mousedown", handler);
+        return () => document.body.removeEventListener("mousedown", handler);
+    }, []);
 
-    // Fetch location data from API based on user's ZIP code
-    async function fetchLocationData(userZipCode) {
+    async function fetchLocationData(zip) {
         try {
-            const response = await axios.get(`https://api.postalpincode.in/pincode/${userZipCode}`);
+            const response = await axios.get(`https://api.postalpincode.in/pincode/${zip}`);
             if (response.data[0].PostOffice != null) {
                 const locationCity = response.data[0].PostOffice[0].District;
                 const locationPincode = response.data[0].PostOffice[0].Pincode;
@@ -50,8 +51,6 @@ const Location = () => {
                 setWarning("");
                 setLoading(false);
                 setSelectedLocation(false);
-
-                // Store the values in local storage
                 localStorage.setItem("locationName", locationCity);
                 localStorage.setItem("userZipCode", locationPincode);
             } else {
@@ -66,38 +65,34 @@ const Location = () => {
         }
     }
 
-    // function to validate the userZipCode
     const validate = () => {
         const reqPincode = /^[0-9]{6}$/;
-        let isValid = true;
-        // Validate pincode - 1
-        if (userZipCode === "") {
-            setWarning("Please enter a ZIP or postal code.");
-            isValid = false;
-        }
-        // Validate pincode - 2
-        if (userZipCode.length > 0) {
-            if (!reqPincode.test(userZipCode)) {
-                setWarning("Please enter a valid ZIP or postal code.");
-                isValid = false;
-            }
-        }
-        return isValid
-    }
+        if (userZipCode === "") { setWarning("Please enter a ZIP or postal code."); return false; }
+        if (!reqPincode.test(userZipCode)) { setWarning("Please enter a valid 6-digit ZIP code."); return false; }
+        return true;
+    };
 
-    //   Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const isValid = validate();
-        if (!isValid) {
-            return;
-        }
+        if (!validate()) return;
         setLoading(true);
         fetchLocationData(userZipCode);
-        setUserZipCode("");
-    }
+    };
 
-    // function to auto detect your location
+    // NEW — save a manually typed address
+    const handleSaveManual = (e) => {
+        e.preventDefault();
+        const addr = manualAddress.trim();
+        if (addr.length < 4) { setManualWarning("Please enter a more complete address."); return; }
+        setLocationName(addr);
+        setUserZipCode('');
+        localStorage.setItem("locationName", addr);
+        localStorage.removeItem("userZipCode");
+        setManualAddress('');
+        setManualWarning('');
+        setSelectedLocation(false);
+    };
+
     function getLocation() {
         setWarning("");
         setAutoLocationWarning("");
@@ -118,7 +113,6 @@ const Location = () => {
                             setUserZipCode(locationPincode);
                             setAutoLocationLoading(false);
                             setSelectedLocation(false);
-                            // Store the values in local storage
                             localStorage.setItem("locationName", locationCity);
                             localStorage.setItem("userZipCode", locationPincode);
                         } else {
@@ -135,6 +129,9 @@ const Location = () => {
                     setAutoLocationWarning(error.message);
                 }
             );
+        } else {
+            setAutoLocationLoading(false);
+            setAutoLocationWarning("Geolocation is not supported by this browser.");
         }
     }
 
@@ -149,71 +146,88 @@ const Location = () => {
                 <div className="flex min-w-0 flex-col items-start text-[11px] font-medium leading-tight">
                     {locationName ? 'Deliver to' : 'Hello'}
                     <span className="max-w-[130px] truncate text-xs font-bold text-white">
-                        {locationName ? `${locationName} ${userZipCode}` : 'Select address'}
+                        {locationName ? `${locationName}${userZipCode ? ' ' + userZipCode : ''}` : 'Select location'}
                     </span>
                 </div>
             </button>
+
             {selectedLocation &&
-                <div className='w-screen h-screen text-black fixed z-50 top-0 left-0  bg-amazon_black bg-opacity-50 flex items-center justify-center' >
-                    <div ref={locationRef} className=" w-[320px] bg-white rounded-lg">
-                        <div className="rounded-tr-lg rounded-tl-lg  bg-gray-100 border-b-[0.066rem] border-gray-200 p-4 font-bold">
+                <div className="fixed left-0 top-0 z-50 flex h-screen w-screen items-center justify-center bg-black/70 backdrop-blur-sm">
+                    <div ref={locationRef} className="w-[340px] overflow-hidden rounded-2xl bg-[#0d0d0d] text-white ring-1 ring-white/10">
+                        {/* Header */}
+                        <div className="flex items-center gap-2 border-b border-white/10 bg-[#141414] p-4 font-bold">
+                            <svg className="h-5 w-5 text-[#FF9900]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" /></svg>
                             Choose your location
                         </div>
-                        <form className=" p-4 flex flex-col gap-5" onSubmit={handleSubmit}>
-                            <p className="text-xs text-gray-400">Enter an Indian pincode to see product availability and delivery options for your location.</p>
-                            <div className="flex justify-center" >
-                                <input type="text" maxLength={6} placeholder="Enter 6-digit ZIP code" className="w-[65%] border-[1px] border-[#a6a6a6] rounded p-1 font-medium"
-                                    onChange={(e) => { setUserZipCode(e.target.value); setWarning("");setAutoLocationWarning("") }} />
-                                <button className="w-[33%] p-2 ml-2 text-center font-medium rounded-md bg-gray-200 border-[0.066rem] border-gray-300 hover:bg-gray-300 active:ring-2 active:ring-offset-1 active:ring-blue-500"> Apply</button>
-                            </div>
-                            {
-                                loading && <div className='flex justify-center mt-2'>
-                                    <RotatingLines
-                                        strokeColor="#febd69"
-                                        strokeWidth="5"
-                                        animationDuration="0.75"
-                                        width="50"
-                                        visible={true}
-                                    />
-                                </div>
-                            }
-                        </form>
-                        {
-                            warning && <div className="flex flex-row gap-1 items-center pl-4 -mt-3 pb-2">
-                                <img src={required} className="w-4 h-4" alt="warning" />
-                                <div className="text-zsm text-red-700 ">{warning}</div>
-                            </div>
-                        }
-                        <div className=" flex flex-row justify-between items-center px-4 ">
-                            <hr className="w-[45%]" />
-                            <p className="text-sm font-semibold">or</p>
-                            <hr className="w-[45%]" />
-                        </div>
-                        <div onClick={getLocation} className="p-2 m-4 text-center font-medium rounded-md bg-gray-200 border-[0.066rem] border-gray-300 cursor-pointer hover:bg-gray-300 active:ring-2 active:ring-offset-1 active:ring-blue-500">
-                            <p>Auto detect your location</p>
-                        </div>
-                        {
-                            autoLocationLoading && <div className='flex justify-center mt-2 pb-3'>
-                                <RotatingLines
-                                    strokeColor="#febd69"
-                                    strokeWidth="5"
-                                    animationDuration="0.75"
-                                    width="50"
-                                    visible={true}
+
+                        <div className="p-4">
+                            {/* 1) Manual address (NEW) */}
+                            <form onSubmit={handleSaveManual} className="flex flex-col gap-2">
+                                <label className="font-mono text-[11px] uppercase tracking-[0.15em] text-gray-400">Enter your address</label>
+                                <textarea
+                                    rows={2}
+                                    value={manualAddress}
+                                    placeholder="Flat / House no, street, area, city…"
+                                    onChange={(e) => { setManualAddress(e.target.value); setManualWarning(''); }}
+                                    className="w-full resize-none rounded-lg border border-white/10 bg-[#141414] p-2.5 text-sm text-white placeholder-gray-600 outline-none focus:border-[#FF9900]/50"
                                 />
+                                {manualWarning && (
+                                    <div className="flex items-center gap-1 text-xs text-red-400">
+                                        <img src={required} className="h-3.5 w-3.5" alt="warning" /> {manualWarning}
+                                    </div>
+                                )}
+                                <button className="rounded-lg bg-[#FF9900] py-2 text-sm font-bold text-black transition hover:bg-[#ffae33]">
+                                    Save address
+                                </button>
+                            </form>
+
+                            {/* divider */}
+                            <div className="my-4 flex items-center gap-3">
+                                <hr className="flex-1 border-white/10" />
+                                <span className="font-mono text-xs text-gray-500">or by pincode</span>
+                                <hr className="flex-1 border-white/10" />
                             </div>
-                        }
-                        {
-                            autoLocationWarning && <div className="flex flex-row gap-1 items-center pl-4 -mt-3 pb-2">
-                                <img src={required} className="w-4 h-4" alt="warning" />
-                                <div className="text-zsm text-red-700 ">{autoLocationWarning}</div>
-                            </div>
-                        }
+
+                            {/* 2) Pincode lookup */}
+                            <form onSubmit={handleSubmit} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    maxLength={6}
+                                    value={userZipCode}
+                                    placeholder="6-digit ZIP code"
+                                    className="w-[65%] rounded-lg border border-white/10 bg-[#141414] p-2 text-sm font-medium text-white placeholder-gray-600 outline-none focus:border-[#FF9900]/50"
+                                    onChange={(e) => { setUserZipCode(e.target.value); setWarning(""); setAutoLocationWarning(""); }}
+                                />
+                                <button className="w-[35%] rounded-lg border border-white/10 bg-white/5 p-2 text-sm font-semibold text-gray-200 transition hover:bg-white/10">Apply</button>
+                            </form>
+                            {loading && <div className="mt-2 flex justify-center"><RotatingLines strokeColor="#FF9900" strokeWidth="5" animationDuration="0.75" width="40" visible /></div>}
+                            {warning && (
+                                <div className="mt-2 flex items-center gap-1 text-xs text-red-400">
+                                    <img src={required} className="h-3.5 w-3.5" alt="warning" /> {warning}
+                                </div>
+                            )}
+
+                            {/* 3) Auto-detect */}
+                            <button
+                                type="button"
+                                onClick={getLocation}
+                                className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-gray-200 transition hover:bg-white/10"
+                            >
+                                <svg className="h-4 w-4 text-[#FF9900]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                Auto-detect my location
+                            </button>
+                            {autoLocationLoading && <div className="mt-2 flex justify-center"><RotatingLines strokeColor="#FF9900" strokeWidth="5" animationDuration="0.75" width="40" visible /></div>}
+                            {autoLocationWarning && (
+                                <div className="mt-2 flex items-center gap-1 text-xs text-red-400">
+                                    <img src={required} className="h-3.5 w-3.5" alt="warning" /> {autoLocationWarning}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             }
         </div>
-    )
-}
+    );
+};
 
-export default Location
+export default Location;
