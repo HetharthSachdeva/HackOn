@@ -14,10 +14,6 @@ const ProductCard = ({ product, onAdd }) => {
     ? price * (1 - discountPercentage / 100)
     : price;
   const inStock = (product.stock ?? 0) > 0;
-  const sku = (product.brand || product.category || 'SKU')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .slice(0, 6)
-    .toUpperCase() + (product.id ?? '');
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -27,91 +23,113 @@ const ProductCard = ({ product, onAdd }) => {
   };
 
   return (
-    <div className="group flex flex-col rounded-2xl bg-[#0d0d0f] p-3 ring-1 ring-white/10 transition-all duration-300 hover:ring-white/25 hover:shadow-[0_20px_50px_-20px_rgba(255,153,0,0.25)]">
-      {/* Image panel */}
-      <Link to={`${product.title}`} className="block">
-        <div className="relative flex h-60 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-[#161618] to-[#0c0c0e] ring-1 ring-white/5">
-          <img
-            className="max-h-[78%] max-w-[78%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.6)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-1"
-            src={product.thumbnail}
-            alt={product.title}
-          />
-        </div>
-      </Link>
-
-      {/* Info */}
-      <div className="flex flex-1 flex-col px-2 pt-5">
-        {/* Brand + status dot */}
-        <div className="flex items-start justify-between">
-          <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-gray-500">
-            {product.brand || product.category}
-          </p>
-          <span
-            className={`mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full ${inStock ? 'bg-[#3b82f6] shadow-[0_0_8px_rgba(59,130,246,0.9)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]'}`}
-          />
-        </div>
-
-        {/* SKU code */}
-        <p className="mt-2 font-mono text-sm font-bold uppercase tracking-wider text-[#FF9900]">{sku}</p>
-
-        {/* Title */}
-        <Link to={`${product.title}`}>
-          <h3 className="mt-1 line-clamp-1 text-2xl font-black leading-tight text-white transition-colors group-hover:text-gray-200">
-            {product.title}
-          </h3>
+    <div className="group relative flex flex-col rounded-3xl bg-gradient-to-b from-white/[0.05] to-transparent p-1 ring-1 ring-white/10 transition-all duration-500 hover:ring-white/30 hover:shadow-[0_0_40px_-10px_rgba(255,153,0,0.3)]">
+      {/* Background glow effect on hover */}
+      <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-[#FF9900]/0 via-[#FF9900]/0 to-[#FF9900]/0 opacity-0 transition-opacity duration-500 group-hover:from-[#FF9900]/15 group-hover:via-transparent group-hover:opacity-100 blur-xl" />
+      
+      {/* Inner card container */}
+      <div className="flex h-full flex-col rounded-[22px] bg-[#09090b]/90 p-4 backdrop-blur-xl relative overflow-hidden transition-colors duration-500 group-hover:bg-[#09090b]/80">
+        
+        {/* Subtle top reflection */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        
+        {/* Image panel */}
+        <Link to={`${product.title}`} className="relative block">
+          <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-2xl bg-[#0e0e11] ring-1 ring-white/5 p-4 transition-transform duration-500 group-hover:scale-[1.02]">
+            {/* Spotlight behind image */}
+            <div className="absolute inset-0 flex items-center justify-center">
+               <div className="h-32 w-32 rounded-full bg-[#FF9900]/10 blur-3xl transition-all duration-500 group-hover:scale-150 group-hover:bg-[#FF9900]/20" />
+            </div>
+            
+            {hasDiscount && (
+              <span className="absolute left-3 top-3 z-10 rounded-full border border-[#FF9900]/30 bg-[#FF9900]/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-[#FF9900] backdrop-blur-md">
+                -{discountPercentage.toFixed(0)}%
+              </span>
+            )}
+            
+            <img
+              className="relative z-10 max-h-[85%] max-w-[85%] object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] transition-all duration-500 ease-out group-hover:scale-110 group-hover:-translate-y-2 group-hover:rotate-2"
+              src={product.thumbnail}
+              alt={product.title}
+            />
+          </div>
         </Link>
 
-        {/* Subtitle (category) */}
-        <p className="mt-0.5 text-sm capitalize text-gray-500">{product.category}</p>
-
-        {/* Divider */}
-        <div className="my-4 border-t border-white/10" />
-
-        {/* Availability + price */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-gray-500">
-              {inStock ? 'Available' : 'Out of stock'}
+        {/* Info */}
+        <div className="flex flex-1 flex-col pt-5">
+          {/* Brand + status dot */}
+          <div className="flex items-start justify-between">
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gray-500 transition-colors duration-300 group-hover:text-[#FF9900]/70">
+              {product.brand || product.category}
             </p>
-            <p className="mt-1 font-mono text-sm text-gray-300">
-              <span className="text-white">₹{finalPrice.toFixed(2)}</span>
-              {hasDiscount && <span className="ml-2 text-xs text-gray-600 line-through">₹{price.toFixed(2)}</span>}
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-gray-500">
+                {inStock ? 'In Stock' : 'Sold Out'}
+              </span>
+              <span
+                className={`relative flex h-2 w-2 ${inStock ? 'text-green-500' : 'text-red-500'}`}
+              >
+                {inStock && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>}
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-red-500'}`}></span>
+              </span>
+            </div>
           </div>
-          <p className="font-mono text-sm uppercase tracking-[0.2em] text-gray-400">
-            {product.stock ?? 0} <span className="text-gray-600">PCS</span>
-          </p>
-        </div>
 
-        {/* ADD button */}
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={handleAdd}
-            disabled={!inStock}
-            className={`flex items-center gap-2 rounded-lg border px-5 py-2.5 font-mono text-sm uppercase tracking-[0.2em] transition-all duration-200 ${
-              !inStock
-                ? 'cursor-not-allowed border-white/5 text-gray-600'
-                : added
-                ? 'border-[#FF9900] bg-[#FF9900] text-black'
-                : 'border-white/15 text-gray-200 hover:border-[#FF9900] hover:text-[#FF9900]'
-            }`}
-          >
-            {added ? (
-              <>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Added</span>
-              </>
-            ) : (
-              <>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>Add</span>
-              </>
-            )}
-          </button>
+          {/* Title */}
+          <Link to={`${product.title}`} className="mt-2 block">
+            <h3 className="line-clamp-2 text-xl font-bold leading-snug text-white transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">
+              {product.title}
+            </h3>
+          </Link>
+
+          {/* Category */}
+          <p className="mt-1 text-xs capitalize text-gray-500">{product.category}</p>
+
+          <div className="flex-1" />
+
+          {/* Bottom Row */}
+          <div className="mt-6 flex items-end justify-between border-t border-white/5 pt-4 transition-colors duration-300 group-hover:border-white/10">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-0.5">
+                Price
+              </p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-white">₹{finalPrice.toFixed(2)}</span>
+                {hasDiscount && <span className="text-xs text-gray-600 line-through decoration-red-500/50 decoration-wavy">₹{price.toFixed(2)}</span>}
+              </div>
+            </div>
+
+            {/* ADD button */}
+            <button
+              onClick={handleAdd}
+              disabled={!inStock}
+              className={`group/btn relative flex h-10 items-center justify-center gap-2 overflow-hidden rounded-xl px-5 font-mono text-xs uppercase tracking-[0.15em] font-bold transition-all duration-300 ${
+                !inStock
+                  ? 'cursor-not-allowed bg-white/5 text-gray-600'
+                  : added
+                  ? 'bg-green-500 text-black shadow-[0_0_20px_rgba(34,197,94,0.4)]'
+                  : 'bg-[#FF9900] text-black hover:bg-white hover:text-black hover:shadow-[0_0_25px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95'
+              }`}
+            >
+              {added ? (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    <svg className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:rotate-180" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add
+                  </span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

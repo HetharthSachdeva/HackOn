@@ -13,43 +13,70 @@ const DealCard = ({ product, onAdd }) => {
   const sku = '#' + (product.brand || product.category || 'SKU').replace(/[^a-zA-Z0-9]/g, '').slice(0, 2).toUpperCase() + '-' + String(product.id ?? 0).padStart(2, '0');
 
   return (
-    <div className="flex flex-col rounded-lg border border-white/10 bg-[#0d0d0d] transition-colors hover:border-white/20">
-      {/* Image */}
-      <Link to={`/allProducts/${product.title}`} className="relative block">
-        <div className="relative flex h-44 items-center justify-center overflow-hidden rounded-t-lg bg-[#141414] p-4">
-          {hasDiscount && (
-            <span className="absolute right-3 top-3 rounded bg-[#FF9900] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-black">
-              {discountPercentage.toFixed(0)}% OFF
-            </span>
-          )}
-          <img src={product.thumbnail} alt={product.title} loading="lazy" className="max-h-full max-w-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]" />
-        </div>
-      </Link>
-
-      {/* Info */}
-      <div className="flex flex-1 flex-col p-4">
-        <div className="flex items-center justify-between">
-          <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.15em] text-gray-400">{product.category}</span>
-          <span className="font-mono text-[11px] tracking-wider text-gray-600">{sku}</span>
-        </div>
-
-        <Link to={`/allProducts/${product.title}`}>
-          <h3 className="mt-3 line-clamp-1 text-base font-bold text-white hover:text-gray-200">{product.title}</h3>
+    <div className="group relative flex flex-col rounded-3xl bg-gradient-to-b from-white/[0.05] to-transparent p-1 ring-1 ring-white/10 transition-all duration-500 hover:ring-white/30 hover:shadow-[0_0_40px_-10px_rgba(255,153,0,0.3)]">
+      {/* Background glow effect on hover */}
+      <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-[#FF9900]/0 via-[#FF9900]/0 to-[#FF9900]/0 opacity-0 transition-opacity duration-500 group-hover:from-[#FF9900]/15 group-hover:via-transparent group-hover:opacity-100 blur-xl" />
+      
+      {/* Inner card container */}
+      <div className="flex h-full flex-col rounded-[22px] bg-[#09090b]/90 p-4 backdrop-blur-xl relative overflow-hidden transition-colors duration-500 group-hover:bg-[#09090b]/80">
+        
+        {/* Subtle top reflection */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        
+        {/* Image panel with WHITE background to hide harsh image borders */}
+        <Link to={`/allProducts/${product.title}`} className="relative block">
+          <div className="relative flex h-48 items-center justify-center overflow-hidden rounded-2xl bg-[#0e0e11] ring-1 ring-white/5 p-4 transition-transform duration-500 group-hover:scale-[1.02]">
+            {hasDiscount && (
+              <span className="absolute right-3 top-3 z-10 rounded-full border border-[#FF9900] bg-[#FF9900] px-2.5 py-1 font-mono text-[10px] font-black uppercase tracking-wider text-black shadow-lg">
+                {discountPercentage.toFixed(0)}% OFF
+              </span>
+            )}
+            
+            <img
+              src={product.thumbnail}
+              alt={product.title}
+              loading="lazy"
+              className="relative z-10 max-h-[90%] max-w-[90%] object-contain drop-shadow-md transition-all duration-500 ease-out group-hover:scale-110 group-hover:-translate-y-1 group-hover:rotate-1"
+            />
+          </div>
         </Link>
-        <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{product.brand || product.category}</p>
 
-        <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-xl font-bold text-white">₹{finalPrice.toFixed(2)}</span>
-          {hasDiscount && <span className="text-sm text-gray-600 line-through">₹{price.toFixed(2)}</span>}
+        {/* Info */}
+        <div className="flex flex-1 flex-col pt-5">
+          <div className="flex items-center justify-between">
+            <span className="rounded bg-white/5 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[#FF9900] transition-colors duration-300 group-hover:bg-[#FF9900]/10">{product.category}</span>
+            <span className="font-mono text-[10px] tracking-wider text-gray-500">{sku}</span>
+          </div>
+
+          <Link to={`/allProducts/${product.title}`} className="mt-3 block">
+            <h3 className="line-clamp-2 text-lg font-bold leading-snug text-white transition-colors duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400">{product.title}</h3>
+          </Link>
+          <p className="mt-1 line-clamp-1 text-xs text-gray-500">{product.brand || 'Premium Quality'}</p>
+
+          <div className="flex-1" />
+
+          <div className="mt-5 flex items-end justify-between border-t border-white/5 pt-4 transition-colors duration-300 group-hover:border-white/10">
+            <div>
+               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-gray-500 mb-0.5">Price</p>
+               <div className="flex items-baseline gap-2">
+                 <span className="text-xl font-black text-white">₹{finalPrice.toFixed(2)}</span>
+                 {hasDiscount && <span className="text-xs text-gray-600 line-through decoration-red-500/50 decoration-wavy">₹{price.toFixed(2)}</span>}
+               </div>
+            </div>
+
+            <button
+              onClick={() => onAdd(product)}
+              className="group/btn relative flex h-10 items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#FF9900] px-4 font-mono text-[10px] font-black uppercase tracking-[0.15em] text-black transition-all duration-300 hover:scale-105 hover:bg-white hover:text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95"
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                <svg className="h-4 w-4 transition-transform duration-300 group-hover/btn:-rotate-12" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                ADD
+              </span>
+            </button>
+          </div>
         </div>
-
-        <button
-          onClick={() => onAdd(product)}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-white/15 py-2 font-mono text-xs uppercase tracking-[0.15em] text-gray-200 transition hover:border-[#FF9900] hover:text-[#FF9900]"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-          Add to Cart
-        </button>
       </div>
     </div>
   );
