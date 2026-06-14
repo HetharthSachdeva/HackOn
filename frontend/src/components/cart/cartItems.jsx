@@ -5,6 +5,7 @@ import { useNavigate, useRouteLoaderData, Link, ScrollRestoration, Await } from 
 import { useCart } from '../../context/userCartContext';
 import CartProduct from './cartProduct';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 import AIBundleCartGenerator from './AIBundleCartGenerator';
 
@@ -77,7 +78,40 @@ const CartItemsContent = ({ productsData }) => {
         await addToCartBackend(product.id || product.asin, 1);
     };
 
-    const suggestions = (productsData || []).slice(0, 4);
+    const [suggestions, setSuggestions] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        if (items.length > 0) {
+            // Get the last item in the cart as context
+            const contextItem = items[items.length - 1];
+            const asin = contextItem.asin || contextItem.id;
+            
+            axios.get(`http://localhost:8000/api/v1/ai/similar/${asin}?limit=6`)
+                .then(res => {
+                    if (isMounted) {
+                        const cartIds = items.map(i => i.id || i.asin);
+                        // Filter out items already in the cart and take top 4
+                        const filtered = res.data.filter(p => !cartIds.includes(p.asin)).slice(0, 4);
+                        
+                        setSuggestions(filtered.map(p => ({
+                            id: p.asin,
+                            title: p.title,
+                            price: p.price,
+                            thumbnail: p.img_url,
+                            category: p.category,
+                            brand: p.unit_size,
+                            rating: p.stars,
+                        })));
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to fetch similar items:", err);
+                    if (isMounted) setSuggestions((productsData || []).slice(0, 4));
+                });
+        }
+        return () => { isMounted = false; };
+    }, [items.length, productsData]);
 
     return (
         <div className="min-h-screen w-full bg-[#0a0a0a] relative overflow-hidden">

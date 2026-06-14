@@ -113,10 +113,10 @@ async def similar(
     session: AsyncSession, asin: str, *, limit: int = 10
 ) -> list[ProductSearchHit]:
     """Find catalog neighbors of one product via pgvector."""
-    anchor = await product_repo.get_product(session, asin)
-    if anchor is None or anchor.embedding is None:
+    anchor_embedding = await session.scalar(select(Product.embedding).where(Product.asin == asin))
+    if not _has_vector(anchor_embedding):
         return []
-    distance = Product.embedding.cosine_distance(anchor.embedding).label("distance")
+    distance = Product.embedding.cosine_distance(anchor_embedding).label("distance")
     stmt = (
         select(Product, distance)
         .where(Product.asin != asin, Product.embedding.is_not(None))
