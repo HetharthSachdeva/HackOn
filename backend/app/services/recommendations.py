@@ -60,14 +60,49 @@ async def your_usual(
 async def for_you(
     session: AsyncSession, user_id: uuid.UUID, *, limit: int = 12
 ) -> list[ProductRead]:
-    """Personalized feed: your-usual blended with trending fill."""
+    """Personalized feed: user vector blended with your-usual and trending fill."""
+    from app.models.user_preference import UserPreference
+    
+    # 1. Try Vector-based personalization
+    user_pref = (await session.execute(select(UserPreference).where(UserPreference.user_id == user_id))).scalar_one_or_none()
+    
+    vector_recs = []
+    if user_pref and user_pref.embedding is not None:
+        distance = Product.embedding.cosine_distance(user_pref.embedding).label("distance")
+        stmt = (
+            select(Product)
+            .where(Product.in_stock.is_(True))
+            .where(Product.embedding.is_not(None))
+            .order_by(distance.asc())
+            .limit(limit)
+        )
+        rows = (await session.execute(stmt)).scalars().all()
+        vector_recs = [ProductRead.model_validate(p) for p in rows]
+
+    # If we have enough vector recs, return them!
+    if len(vector_recs) >= limit:
+        return vector_recs
+
+    # 2. Fallback to your-usual + trending
     primary = await your_usual(session, user_id, limit=limit)
-    if len(primary) >= limit:
-        return primary
-    seen = {p.asin for p in primary}
-    fill = [
-        p
-        for p in await trending(session, limit=limit * 2)
-        if p.asin not in seen
-    ]
-    return (primary + fill)[:limit]
+    seen = {p.asin for p in vector_recs + primary}
+    
+    fill = []
+    if len(vector_recs) + len(primary) < limit:
+        fill = [
+            p
+            for p in await trending(session, limit=limit * 2)
+            if p.asin not in seen
+        ]
+        
+    final = vector_recs + primary + fill
+    
+    # Deduplicate while preserving order
+    deduped = []
+    final_seen = set()
+    for p in final:
+        if p.asin not in final_seen:
+            final_seen.add(p.asin)
+            deduped.append(p)
+            
+    return deduped[:limit]

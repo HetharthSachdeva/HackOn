@@ -35,10 +35,11 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 async def post_semantic_search(
     payload: SemanticSearchRequest,
     db: DBSession,
-    _user: OptionalUserDep,
+    user: OptionalUserDep,
 ) -> SemanticSearchResponse:
+    user_id = uuid.UUID(user.id) if user else None
     hits, used_semantic = await semantic_search.search(
-        db, payload.q, limit=payload.limit, in_stock_only=payload.in_stock_only
+        db, payload.q, limit=payload.limit, in_stock_only=payload.in_stock_only, user_id=user_id
     )
     return SemanticSearchResponse(
         query=payload.q, used_semantic=used_semantic, items=hits

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
 import structlog
 from sqlalchemy import select
@@ -11,6 +12,16 @@ from app.models.product import Product
 from app.models.user_preference import UserPreference
 
 log = structlog.get_logger(__name__)
+
+
+def _has_vector(vec: Any) -> bool:
+    """Return True when a pgvector value is present without bool-evaluating arrays."""
+    if vec is None:
+        return False
+    try:
+        return len(vec) > 0
+    except TypeError:
+        return True
 
 
 async def track_event(
@@ -30,7 +41,7 @@ async def track_event(
     if (event_type in ("view", "cart_add")) and asin:
         # Fetch the product embedding
         product = await session.get(Product, asin)
-        if product and product.embedding:
+        if product and _has_vector(product.embedding):
             vector_to_blend = product.embedding
 
     elif event_type == "search" and query:
@@ -40,7 +51,7 @@ async def track_event(
         except Exception as exc:
             log.warning("tracking.embed_search_failed", query=query, error=str(exc))
 
-    if not vector_to_blend:
+    if not _has_vector(vector_to_blend):
         return
 
     # Determine learning rate (alpha) based on signal strength
@@ -57,7 +68,7 @@ async def track_event(
         session.add(user_pref)
     else:
         # Blend the new vector into the existing one using exponential moving average
-        current_vec = user_pref.embedding or [0.0] * len(vector_to_blend)
+        current_vec = user_pref.embedding if user_pref.embedding is not None else [0.0] * len(vector_to_blend)
         new_vec = [
             (1.0 - alpha) * current_vec[i] + alpha * vector_to_blend[i]
             for i in range(len(current_vec))
@@ -65,4 +76,4 @@ async def track_event(
         user_pref.embedding = new_vec
 
     await session.commit()
-    log.info("tracking.vector_updated", user_id=str(user_id), event=event_type)
+    log.info("tracking.vector_updated", user_id=str(user_id), event_type=event_type)

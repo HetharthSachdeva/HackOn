@@ -13,12 +13,25 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import uuid
+
 from app.ai import embedding
 from app.models.product import Product
+from app.models.user_preference import UserPreference
 from app.repositories import product as product_repo
 from app.schemas.product import ProductSearchHit
 
 log = structlog.get_logger(__name__)
+
+
+def _has_vector(vec: Any) -> bool:
+    """Return True when a pgvector value is present without bool-evaluating arrays."""
+    if vec is None:
+        return False
+    try:
+        return len(vec) > 0
+    except TypeError:
+        return True
 
 
 async def search(
@@ -27,6 +40,7 @@ async def search(
     *,
     limit: int = 20,
     in_stock_only: bool = True,
+    user_id: uuid.UUID | None = None,
 ) -> tuple[list[ProductSearchHit], bool]:
     """Return ``(hits, used_semantic)``.
 
@@ -40,7 +54,13 @@ async def search(
         log.warning("semantic.unavailable_using_keyword", error=str(exc))
         return await _keyword(session, query, limit=limit, in_stock_only=in_stock_only), False
 
-    return await _semantic(session, vec, limit=limit, in_stock_only=in_stock_only), True
+    user_vec = None
+    if user_id:
+        user_pref = (await session.execute(select(UserPreference).where(UserPreference.user_id == user_id))).scalar_one_or_none()
+        if user_pref and _has_vector(user_pref.embedding):
+            user_vec = user_pref.embedding
+
+    return await _semantic(session, vec, limit=limit, in_stock_only=in_stock_only, user_vec=user_vec), True
 
 
 async def _semantic(
@@ -49,12 +69,19 @@ async def _semantic(
     *,
     limit: int,
     in_stock_only: bool,
+    user_vec: list[float] | None = None,
 ) -> list[ProductSearchHit]:
-    distance = Product.embedding.cosine_distance(vec).label("distance")
+    query_distance = Product.embedding.cosine_distance(vec)
+    if _has_vector(user_vec):
+        user_distance = Product.embedding.cosine_distance(user_vec)
+        distance = (query_distance * 0.85 + user_distance * 0.15).label("distance")
+    else:
+        distance = query_distance.label("distance")
+        
     stmt = (
         select(Product, distance)
         .where(Product.embedding.is_not(None))
-        .where(Product.embedding.cosine_distance(vec) < 0.65)
+        .where(query_distance < 0.65)
         .order_by(distance.asc())
         .limit(limit)
     )

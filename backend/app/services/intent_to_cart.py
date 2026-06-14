@@ -106,7 +106,7 @@ async def cart_from_intent(
 
     # 3. Perform hybrid search for each decomposed search term
     results_by_item = await hybrid_search.search_hybrid(
-        session, extracted, limit_per_item=10
+        session, extracted, limit_per_item=10, user_id=user_id
     )
 
     # 4. Group candidates horizontally into components

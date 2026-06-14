@@ -40,10 +40,12 @@ const ProductsContent = ({ productsData }) => {
       }
       setIsSearching(true);
       import('axios').then(axios => {
-        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 })
+        const headers = (isAuthenticated && userInfo?.token) ? { Authorization: `Bearer ${userInfo.token}` } : {};
+        axios.default.post('http://localhost:8000/api/v1/ai/semantic-search', { q: searchQuery, limit: 50 }, { headers })
           .then(response => {
-             const items = response.data.items || [];
-             const mapped = items.map(p => ({
+             const hits = response.data.items || [];
+             const isSemantic = response.data.used_semantic;
+             const mappedHits = hits.map(p => ({
                 id: p.asin,
                 title: p.title,
                 category: p.category,
@@ -68,7 +70,7 @@ const ProductsContent = ({ productsData }) => {
              });
 
              const exactAsins = new Set(tokenizedResults.map(i => i.id || i.asin));
-             const semanticOnlyItems = mapped.filter(i => !exactAsins.has(i.id));
+             const semanticOnlyItems = mappedHits.filter(i => !exactAsins.has(i.id));
 
              setSemanticResults([...tokenizedResults, ...semanticOnlyItems]);
           })
