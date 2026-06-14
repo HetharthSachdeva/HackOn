@@ -25,12 +25,16 @@ const ProductsContent = ({ productsData }) => {
   // ── Semantic Search State ──
   const [semanticResults, setSemanticResults] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // ── Personalized Feed State ──
+  const [personalizedResults, setPersonalizedResults] = useState(null);
 
   // Reset visible count whenever the filtered/sorted result changes
   useEffect(() => { setVisibleCount(12); }, [category, searchQuery, maxPrice, quickFilters, sortOrder]);
 
-  // Fetch semantic search from backend
   const { userInfo, isAuthenticated } = useSelector((state) => state.amazon);
+  
+  // Fetch semantic search from backend
   useEffect(() => {
     if (searchQuery) {
       if (isAuthenticated) {
@@ -80,9 +84,54 @@ const ProductsContent = ({ productsData }) => {
     } else {
       setSemanticResults(null);
     }
-  }, [searchQuery, productsData]);
+  }, [searchQuery, productsData, isAuthenticated, userInfo]);
 
-  // ── Search ──
+  // Fetch personalized feed
+  useEffect(() => {
+    if (!searchQuery && !category) {
+      import('axios').then(axios => {
+        const fetchUrl = (isAuthenticated && userInfo?.token) 
+          ? 'http://localhost:8000/api/v1/recommendations/for-you?limit=50'
+          : 'http://localhost:8000/api/v1/recommendations/trending?limit=50';
+          
+        const headers = (isAuthenticated && userInfo?.token) 
+          ? { Authorization: `Bearer ${userInfo.token}` } 
+          : {};
+
+        axios.default.get(fetchUrl, { headers })
+          .then(response => {
+             const hits = response.data || [];
+             const mappedHits = hits.map(p => ({
+                id: p.asin,
+                title: p.title,
+                category: p.category,
+                price: p.price,
+                thumbnail: p.img_url,
+                images: p.img_url ? [p.img_url] : [],
+                rating: p.stars || 0.0,
+                brand: p.unit_size || "Q-Commerce",
+                description: `Category: ${p.category}. Tags: ${p.tags}. Delivery in ${p.delivery_time_mins} mins.`,
+                stock: p.stock_qty || 0,
+                discountPercentage: 10,
+             }));
+             
+             // Pad with the rest of productsData so users can still scroll all items
+             const recommendedAsins = new Set(mappedHits.map(i => i.id));
+             const rest = productsData.filter(i => !recommendedAsins.has(i.id || i.asin));
+             
+             setPersonalizedResults([...mappedHits, ...rest]);
+          })
+          .catch(err => {
+             console.error("Personalized feed failed:", err);
+             setPersonalizedResults(null);
+          });
+      });
+    } else {
+      setPersonalizedResults(null);
+    }
+  }, [searchQuery, category, isAuthenticated, userInfo, productsData]);
+
+  // ── Search & Filter ──
   let filtered = productsData;
   if (searchQuery) {
     if (semanticResults) {
@@ -98,6 +147,9 @@ const ProductsContent = ({ productsData }) => {
         return tokens.every(t => title.includes(t) || cat.includes(t) || brand.includes(t) || desc.includes(t));
       });
     }
+  } else if (!category && personalizedResults) {
+    // Show personalized blended feed if no search and no category
+    filtered = personalizedResults;
   }
 
   const categoryProducts = category ? filtered.filter((p) => p.category === category) : filtered;
@@ -245,7 +297,7 @@ const ProductsContent = ({ productsData }) => {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h1 className="text-xl font-extrabold text-white">
-                {searchQuery ? `Results for "${searchQuery}"` : category ? <span className="capitalize">{category}</span> : 'All Products'}
+                {searchQuery ? `Results for "${searchQuery}"` : category ? <span className="capitalize">{category}</span> : personalizedResults ? (isAuthenticated ? 'Recommended for You' : 'Trending Products') : 'All Products'}
               </h1>
               <p className="text-sm text-gray-500">{sortedProducts.length} items · delivered in minutes</p>
             </div>
