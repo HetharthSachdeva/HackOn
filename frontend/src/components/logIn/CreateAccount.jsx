@@ -111,7 +111,7 @@ const CreateAccount = () => {
                 <Link to="/">
                     <div className="headerHover transition-transform hover:scale-105">
                         <h1 className="text-3xl font-black tracking-tight mt-2 mb-2">
-                            <span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span>
+                            <span className="text-[#FF9900]">Amazon</span><span className="text-white">Now</span>
                         </h1>
                     </div>
                 </Link>
@@ -243,7 +243,7 @@ const CreateAccount = () => {
                     <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Help</a>
                 </div>
                 <div className='text-xs text-gray-600 flex justify-center mt-3'>
-                    © 2026, ZipDash (HackOn), Inc.
+                    © 2026, Amazon Now, Inc.
                 </div>
             </div>
         </div>

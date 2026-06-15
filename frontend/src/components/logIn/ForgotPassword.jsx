@@ -29,7 +29,7 @@ const ForgotPassword = () => {
                 <Link to="/">
                     <div className="headerHover transition-transform hover:scale-105">
                         <h1 className="text-3xl font-black tracking-tight mt-2 mb-2">
-                            <span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span>
+                            <span className="text-[#FF9900]">Amazon</span><span className="text-white">Now</span>
                         </h1>
                     </div>
                 </Link>
@@ -39,7 +39,7 @@ const ForgotPassword = () => {
                         Password Assistance
                     </span>
                     <div className='text-[13px] font-medium tracking-wide mt-2 text-gray-400 mb-6'>
-                        Enter the email address or mobile phone number associated with your ZipDash account.
+                        Enter the email address or mobile phone number associated with your Amazon Now account.
                     </div>
                     
                     <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
@@ -69,7 +69,7 @@ const ForgotPassword = () => {
                         Has your email or mobile phone changed?
                     </div>
                     <div className='text-sm text-gray-400 leading-relaxed'>
-                        If you no longer use the e-mail address associated with your ZipDash account, you may contact Customer Service for help restoring access to your account.
+                        If you no longer use the e-mail address associated with your Amazon Now account, you may contact Customer Service for help restoring access to your account.
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@ const ForgotPassword = () => {
                     <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Help</a>
                 </div>
                 <div className='text-xs text-gray-600 flex justify-center mt-3'>
-                    © 2026, ZipDash (HackOn), Inc.
+                    © 2026, Amazon Now , Inc.
                 </div>
             </div>
         </div>

@@ -145,7 +145,7 @@ const SignIn = () => {
                 <Link to="/">
                     <div className="headerHover transition-transform hover:scale-105">
                         <h1 className="text-3xl font-black tracking-tight mt-6 mb-2">
-                            <span className="text-[#FF9900]">Zip</span><span className="text-white">Dash</span>
+                            <span className="text-[#FF9900]">Amazon</span><span className="text-white">Now</span>
                         </h1>
                     </div>
                 </Link>
@@ -232,19 +232,20 @@ const SignIn = () => {
                     }
                     
                     <div className='text-xs text-gray-500 mt-6 pt-6 border-t border-white/5 text-center leading-relaxed'>
-                        By continuing, you agree to ZipDash's <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Conditions of Use</a> and <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Privacy Notice</a>.
+                        By continuing, you agree to Amazon Now's <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Conditions of Use</a> and <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Privacy Notice</a>.
+                        By continuing, you agree to Amazon Now's <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Conditions of Use</a> and <a href='#' className='text-[#FF9900] hover:text-[#FFB145] transition-colors'>Privacy Notice</a>.
                     </div>
                 </div>
 
                 <div className='mt-8 flex items-center justify-center gap-4 w-full max-w-[400px]'>
                     <div className="flex-1 h-px bg-white/10"></div>
-                    <span className="text-xs text-gray-400 font-mono tracking-wider uppercase">New to ZipDash?</span>
+                    <span className="text-xs text-gray-400 font-mono tracking-wider uppercase">New to Amazon Now?</span>
                     <div className="flex-1 h-px bg-white/10"></div>
                 </div>
                 
                 <Link to="/createAccount" className="w-full max-w-[400px]">
                     <div className='mt-6 w-full text-center border border-white/10 bg-white/[0.02] hover:bg-white/5 text-white rounded-xl py-3.5 text-sm font-bold tracking-wide transition-all hover:border-[#FF9900]/50'>
-                        Create your ZipDash account
+                        Create your Amazon Now account
                     </div>
                 </Link>
             </div>
@@ -256,7 +257,7 @@ const SignIn = () => {
                     <a href="#" className='text-gray-500 hover:text-[#FFB145] transition-colors'>Help</a>
                 </div>
                 <div className='text-xs text-gray-600 flex justify-center mt-3'>
-                    © 2026, ZipDash (HackOn), Inc.
+                    © 2026,Amazon Now, Inc.
                 </div>
             </div>
         </div>
